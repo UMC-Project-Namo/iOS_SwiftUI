@@ -14,6 +14,7 @@ import Firebase
 
 @main
 struct RootApp: App {
+    @State var draw: Bool = false
     
     init() {
         FirebaseApp.configure()

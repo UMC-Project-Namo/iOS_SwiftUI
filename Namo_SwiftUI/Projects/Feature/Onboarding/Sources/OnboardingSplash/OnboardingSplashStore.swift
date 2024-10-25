@@ -40,7 +40,7 @@ public struct OnboardingSplashStore {
         
         Reduce { state, action in
             switch action {
-            case .binding:
+            case .binding(_):
                 return .none
                 
             case .goUpdateButtonTapped:

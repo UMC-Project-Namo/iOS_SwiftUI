@@ -8,6 +8,7 @@
 import Foundation
 import ComposableArchitecture
 import TCACoordinators
+import FeaturePlaceSearchInterface
 import FeatureMoimInterface
 
 @Reducer(state: .equatable)
@@ -27,7 +28,7 @@ public struct MoimCoordinator {
         public static let initialState = State(routes: [.root(.moimSchedule(.initialState), embedInNavigationView: true)],
                                                moimSchedule: .initialState,
                                                moimRequest: .init()
-                                            )
+        )
         
         var routes: [Route<MoimScreen.State>]
         var moimSchedule: MainViewStore.State
@@ -38,6 +39,7 @@ public struct MoimCoordinator {
         case router(IndexedRouterActionOf<MoimScreen>)
         case moimSchedule(MainViewStore.Action)
         case moimRequest(MoimRequestStore.Action)
+        case placeSearch(PlaceSearchStore.Action)
     }
     
     public var body: some ReducerOf<Self> {
@@ -46,10 +48,10 @@ public struct MoimCoordinator {
         }
         Scope(state: \.moimRequest, action: \.moimRequest) {
             MoimRequestStore()
-        }
+        }        
         
         Reduce<State, Action> { state, action in
-            switch action {                
+            switch action {
                 // 모임 요청
             case .router(.routeAction(_, action: .moimSchedule(.notificationButtonTap))):
                 state.routes.push(.moimRequest(.init()))
@@ -65,3 +67,6 @@ public struct MoimCoordinator {
         .forEachRoute(\.routes, action: \.router)
     }
 }
+
+
+
