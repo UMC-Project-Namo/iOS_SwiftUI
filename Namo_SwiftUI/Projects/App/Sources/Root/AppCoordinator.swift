@@ -24,7 +24,8 @@ struct AppCoordinator {
     
     @ObservableState
     struct State {
-        static let initialState = State(routes: [.root(.onboarding(.initialState), embedInNavigationView: true)])
+//        static let initialState = State(routes: [.root(.onboarding(.initialState), embedInNavigationView: true)])
+		static let initialState = State(routes: [.root(.mainTab(.init(home: .initialState, moim: .initialState)), embedInNavigationView: true)])
         var routes: [Route<AppScreen.State>]
     }
     

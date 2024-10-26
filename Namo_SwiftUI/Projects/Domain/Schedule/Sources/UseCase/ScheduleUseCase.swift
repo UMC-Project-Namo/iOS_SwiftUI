@@ -182,6 +182,49 @@ public struct ScheduleUseCase {
             )
         }
     }
+	
+	// 일정 생성 요청
+	public func createSchedule(_ schedule: ScheduleEdit) async throws {
+		var schedule = schedule
+		schedule.reminderTrigger = formatReminderTrigger(reminderTriggers: schedule.reminderTrigger ?? [])
+		
+		let _: BaseResponse<Int> = try await APIManager.shared.performRequest(endPoint: ScheduleEndPoint.createSchedule(schedule: schedule.toData()))
+	}
+	
+	// 일정 삭제 요청
+	public func deleteSchedule(_ scheduleId: Int) async throws {
+		let _: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: ScheduleEndPoint.deleteSchedule(scheduleId: scheduleId))
+	}
+	
+	// 일정 업데이트 요청
+	public func updateSchedule(scheduleId: Int, schedule: ScheduleEdit) async throws {
+		var schedule = schedule
+		schedule.reminderTrigger = formatReminderTrigger(reminderTriggers: schedule.reminderTrigger ?? [])
+		
+		let _: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: ScheduleEndPoint.updateSchedule(scheduleId: scheduleId, schedule: schedule.toData()))
+	}
+	
+	// 보여지는 알림(ex 정시, 5분 전 등)을 서버에서 요구하는 포맷으로 변경합니다.
+	func formatReminderTrigger(reminderTriggers: [String]) -> [String] {
+		return reminderTriggers.map { trigger in
+			if trigger.contains("정시") {
+				return "ST"
+			} else if trigger.contains("일 전") {
+				let number = Int(trigger.replacingOccurrences(of: "일 전", with: ""))!
+				return "D\(number)"
+			} else if trigger.contains("시간 전") {
+				let number = Int(trigger.replacingOccurrences(of: "시간 전", with: ""))!
+				return "H\(number)"
+			} else if trigger.contains("분 전") {
+				let number = Int(trigger.replacingOccurrences(of: "분 전", with: ""))!
+				return "M\(number)"
+			} else {
+				return ""
+			}
+			
+ 
+		}
+	}
     
     
     

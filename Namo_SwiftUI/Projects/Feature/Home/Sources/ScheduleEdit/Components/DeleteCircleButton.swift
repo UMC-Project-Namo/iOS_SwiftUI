@@ -25,7 +25,7 @@ struct DeleteCircleButton: View {
 				.frame(width: 24, height: 24)
 			
 		}
-		.offset(y: 50)
+		.offset(y: -20)
 		.onTapGesture(perform: {
 			action()
 		})

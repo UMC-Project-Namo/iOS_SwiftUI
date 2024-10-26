@@ -34,7 +34,7 @@ public struct CalendarDetailScheduleItem: View {
 		HStack(spacing: 14) {
 			Rectangle()
 				.fill(PalleteColor(rawValue: schedule.categoryInfo.colorId)?.color ?? .clear)
-				.frame(width: 30, height: schedule.isMeetingSchedule ? 74 : 56)
+				.frame(width: 30, height: schedule.scheduleType == 1 ? 74 : 56)
 				.clipShape(RoundedCorners(radius: 15, corners: [.topLeft, .bottomLeft]))
 			
 			VStack(alignment: .leading, spacing: 4) {
@@ -61,7 +61,7 @@ public struct CalendarDetailScheduleItem: View {
 					.font(.pretendard(.bold, size: 15))
 					.foregroundStyle(Color.colorBlack)
 				
-				if schedule.isMeetingSchedule,
+				if schedule.scheduleType == 1,
 				   let meetingInfo = schedule.meetingInfo
 				{
 					HStack {

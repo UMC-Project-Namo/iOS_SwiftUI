@@ -10,8 +10,8 @@ import Alamofire
 import SharedUtil
 
 public enum CategoryEndPoint {
-	case postCategory(data: postCategoryRequest)
-	case patchCategory(id: Int, data: postCategoryRequest)
+	case postCategory(data: CategoryEditRequestDTO)
+	case patchCategory(id: Int, data: CategoryEditRequestDTO)
 	case getAllCategory
 	case deleteCategory(id: Int)
 }

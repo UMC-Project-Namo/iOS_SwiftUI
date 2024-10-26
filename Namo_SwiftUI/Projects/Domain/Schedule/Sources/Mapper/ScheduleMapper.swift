@@ -16,14 +16,14 @@ extension ScheduleDTO {
 			scheduleId: scheduleId,
 			title: title,
 			categoryInfo: categoryInfo.toEntity(),
-			startDate: Date(timeIntervalSince1970: TimeInterval(startDate)),
-			endDate: Date(timeIntervalSince1970: TimeInterval(endDate)),
+			startDate: Date.ISO8601toDate(startDate),
+			endDate: Date.ISO8601toDate(endDate),
 			interval: interval,
-			locationInfo: locationInfo.toEntity(),
+			locationInfo: locationInfo?.toEntity(),
 			hasDiary: hasDiary,
-			isMeetingSchedule: isMeetingSchedule,
+			scheduleType: scheduleType,
 			meetingInfo: meetingInfo?.toEntity(),
-			notificationInfo: notificationInfo.map { $0.toEntity() }
+			notificationInfo: notificationInfo?.map { $0.toEntity() } ?? []
 		)
 	}
 }
@@ -70,20 +70,24 @@ extension ScheduleNotificationDTO {
 }
 
 // MARK: - toData()
-extension Schedule {
-	func toData() -> ScheduleDTO {
-		return ScheduleDTO(
-			scheduleId: scheduleId,
+
+extension ScheduleEdit {
+	func toData() -> ScheduleEditDTO {
+		return ScheduleEditDTO(
 			title: title,
-			categoryInfo: categoryInfo.toData(),
-			startDate: Int(startDate.timeIntervalSince1970),
-			endDate: Int(endDate.timeIntervalSince1970),
-			interval: interval,
-			locationInfo: locationInfo.toData(),
-			hasDiary: hasDiary,
-			isMeetingSchedule: isMeetingSchedule,
-			meetingInfo: meetingInfo?.toData(),
-			notificationInfo: notificationInfo.map { $0.toData() }
+			categoryId: category.categoryId,
+			period: period.toData(),
+			location: location?.toData(),
+			reminderTrigger: reminderTrigger
+		)
+	}
+}
+
+extension SchedulePeriod {
+	func toData() -> SchedulePeriodDTO {
+		return SchedulePeriodDTO(
+			startDate: startDate.dateToISO8601(),
+			endDate: endDate.dateToISO8601()
 		)
 	}
 }

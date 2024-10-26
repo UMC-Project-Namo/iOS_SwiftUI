@@ -7,6 +7,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+import FeaturePlaceSearch
 import TCACoordinators
 
 public struct MoimCoordinatorView: View {
@@ -22,7 +23,10 @@ public struct MoimCoordinatorView: View {
             case let .moimSchedule(store):
                 MainView(store: store)
             case let .moimRequest(store):
-                MoimRequestView(store: store)             
+                MoimRequestView(store: store)
+            case let  .kakaoMap(store):
+                PlaceSearchView(store: store)
+                    .toolbar(.hidden, for: .navigationBar)
             }
         }
     }

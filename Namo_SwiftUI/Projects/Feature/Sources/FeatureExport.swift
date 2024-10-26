@@ -11,5 +11,5 @@
 @_exported import FeatureMoim
 @_exported import FeatureOnboarding
 @_exported import FeatureCalendar
-
+@_exported import FeaturePlaceSearch
 

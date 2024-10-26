@@ -40,6 +40,9 @@ public struct HomeMainView: View {
 					},
 					scheduleAddTapAction: { date in
 						store.send(.editSchedule(isNewSchedule: true, selectDate: date))
+					},
+					scheduleEditTapAction: { schedule in
+						store.send(.editSchedule(isNewSchedule: false, schedule: schedule, selectDate: YearMonthDay.current))
 					}
 				)
 				
@@ -60,6 +63,9 @@ public struct HomeMainView: View {
 				// 이전달로
 				store.send(.scrollBackwardTo(ym: newYM))
 			}
+		}
+		.onReceive(NotificationCenter.default.publisher(for: .reloadCalendarViaNetwork)) { _ in
+			store.send(.getSchedule(ym: calendarController.yearMonth))
 		}
 		.namoUnderButtonPopupView(
 			isPresented: $store.showDatePicker,

@@ -23,7 +23,8 @@ let targets: [Target] = [
         factory: .init(
             dependencies: [
                 .feature(interface: .Moim),
-                .feature(implements: .Friend)
+                .feature(implements: .Friend),
+                .feature(implements: .PlaceSearch)
             ]
         )
     ),

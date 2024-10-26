@@ -33,6 +33,7 @@ public extension ModulePath {
         case Moim
         case Onboarding
 		case Calendar
+        case PlaceSearch
 		
 		public static let name: String = "Feature"
 	}
@@ -47,6 +48,7 @@ public extension ModulePath {
 		case Schedule
         case Moim
         case Auth
+        case PlaceSearch
 		
 		public static let name: String = "Domain"
 	}

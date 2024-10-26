@@ -24,6 +24,8 @@ public struct ScheduleEditStore {
 		var isNewSchedule: Bool = false
 		// 현재 생성/수정 중인 스케쥴
 		@Shared var schedule: ScheduleEdit
+		// 편집의 경우 스케쥴 id
+		var scheduleId: Int
 		// 카테고리 리스트
 		@Shared(.inMemory(SharedKeys.categories.rawValue)) var categories: [NamoCategory] = []
 		// 시작일 캘린더
@@ -34,10 +36,12 @@ public struct ScheduleEditStore {
 		
 		public init(
 			isNewSchedule: Bool,
-			schedule: Shared<ScheduleEdit>
+			schedule: Shared<ScheduleEdit>,
+			scheduleId: Int
 		) {
 			self.isNewSchedule = isNewSchedule
 			self._schedule = schedule
+			self.scheduleId = scheduleId
 			
 			// 신규 일정인 경우 base category 설정
 			if isNewSchedule,
@@ -59,6 +63,8 @@ public struct ScheduleEditStore {
 		case closeBtnTapped
 		// 저장 버튼
 		case saveBtnTapped
+		// 저장 완료
+		case saveCompleted
 		// 카테고리 선택
 		case selectCategoryTapped
 		// 시작 캘린더 토글
@@ -73,6 +79,7 @@ public struct ScheduleEditStore {
 	}
 	
 	@Dependency(\.categoryUseCase) var categoryUseCase
+	@Dependency(\.scheduleUseCase) var scheduleUseCase
 	
 	public var body: some ReducerOf<Self> {
 		BindingReducer()
@@ -86,6 +93,26 @@ public struct ScheduleEditStore {
 				return .none
 				
 			case .saveBtnTapped:
+				
+				return .run {[
+					isNewSchedule = state.isNewSchedule,
+					scheduleId = state.scheduleId,
+					schedule = state.schedule
+				] send in
+					do {
+						if isNewSchedule {
+							try await scheduleUseCase.createSchedule(schedule)
+						} else {
+							try await scheduleUseCase.updateSchedule(scheduleId: scheduleId, schedule: schedule)
+						}
+						await send(.saveCompleted)
+					} catch(let error) {
+						// TODO: 에러처리
+						print(error.localizedDescription)
+					}
+				}
+				
+			case .saveCompleted:
 				return .none
 				
 			case .selectCategoryTapped:

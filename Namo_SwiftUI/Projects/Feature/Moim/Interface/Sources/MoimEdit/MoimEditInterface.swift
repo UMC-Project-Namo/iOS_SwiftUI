@@ -106,7 +106,9 @@ public struct MoimEditStore {
         case deleteButtonTapped
         
         /// 삭제확인
-        case deleteButtonConfirm        
+        case deleteButtonConfirm     
+        
+        case goToKakaoMapView
     }
     
     public var body: some ReducerOf<Self> {
