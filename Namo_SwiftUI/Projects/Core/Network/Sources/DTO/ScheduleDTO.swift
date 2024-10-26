@@ -15,27 +15,27 @@ public struct ScheduleDTO: Decodable {
 	public let scheduleId: Int
 	public let title: String
 	public let categoryInfo: ScheduleCategoryDTO
-	public let startDate: Int
-	public let endDate: Int
+	public let startDate: String
+	public let endDate: String
 	public let interval: Int
-	public let locationInfo: ScheduleLocationDTO
+	public let locationInfo: ScheduleLocationDTO?
 	public let hasDiary: Bool
-	public let isMeetingSchedule: Bool
+	public let scheduleType: Int
 	public let meetingInfo: ScheduleMeetingDTO?
-	public let notificationInfo: [ScheduleNotificationDTO]
+	public let notificationInfo: [ScheduleNotificationDTO]?
 	
 	public init(
 		scheduleId: Int,
 		title: String,
 		categoryInfo: ScheduleCategoryDTO,
-		startDate: Int,
-		endDate: Int,
+		startDate: String,
+		endDate: String,
 		interval: Int,
 		locationInfo: ScheduleLocationDTO,
 		hasDiary: Bool,
-		isMeetingSchedule: Bool,
+		scheduleType: Int,
 		meetingInfo: ScheduleMeetingDTO?,
-		notificationInfo: [ScheduleNotificationDTO]
+		notificationInfo: [ScheduleNotificationDTO]?
 	) {
 		self.scheduleId = scheduleId
 		self.title = title
@@ -45,13 +45,13 @@ public struct ScheduleDTO: Decodable {
 		self.interval = interval
 		self.locationInfo = locationInfo
 		self.hasDiary = hasDiary
-		self.isMeetingSchedule = isMeetingSchedule
+		self.scheduleType = scheduleType
 		self.meetingInfo = meetingInfo
 		self.notificationInfo = notificationInfo
 	}
 }
 
-public struct ScheduleCategoryDTO: Decodable {
+public struct ScheduleCategoryDTO: Codable {
 	public let categoryId: Int
 	public let colorId: Int
 	public let name: String
@@ -70,7 +70,7 @@ public struct ScheduleCategoryDTO: Decodable {
 	}
 }
 
-public struct ScheduleLocationDTO: Decodable {
+public struct ScheduleLocationDTO: Codable {
 	public let longitude: Double
 	public let latitude: Double
 	public let locationName: String

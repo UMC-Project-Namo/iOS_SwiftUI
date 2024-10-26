@@ -5,6 +5,7 @@
 //  Created by 정현우 on 9/27/24.
 //
 
+import Foundation
 import ComposableArchitecture
 import TCACoordinators
 
@@ -60,7 +61,8 @@ public struct HomeCoordinator {
 				state.routes.presentCover(
 					.scheduleEditCoordinator(.init(
 						isNewSchedule: isNewSchedule,
-						schedule: scheduleEdit
+						schedule: scheduleEdit,
+						scheduleId: schedule?.scheduleId ?? -1
 					))
 				)
 
@@ -68,6 +70,18 @@ public struct HomeCoordinator {
 				
 			case .router(.routeAction(_, action: .scheduleEditCoordinator(.router(.routeAction(_, action: .scheduleEdit(.closeBtnTapped)))))):
 				// 스케쥴 생성/편집 닫기
+				
+				return .send(.dismiss)
+				
+			case .router(.routeAction(_, action: .scheduleEditCoordinator(.router(.routeAction(_, action: .scheduleEdit(.saveCompleted)))))):
+				// 스케쥴 저장 완료 후
+				NotificationCenter.default.post(name: .reloadCalendarViaNetwork, object: nil)
+				
+				return .send(.dismiss)
+				
+			case .router(.routeAction(_, action: .scheduleEditCoordinator(.scheduleDeleleteCompleted))):
+				// 스케쥴 삭제 완료 후
+				NotificationCenter.default.post(name: .reloadCalendarViaNetwork, object: nil)
 				
 				return .send(.dismiss)
 				

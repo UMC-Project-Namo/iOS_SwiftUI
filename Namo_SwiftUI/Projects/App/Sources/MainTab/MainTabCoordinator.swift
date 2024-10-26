@@ -53,8 +53,14 @@ struct MainTabCoordinator {
 			case .viewOnAppear:
 				
 				return .run { send in
-					let response = await categoryUseCase.getAllCategory()
-					await send(.getAllCategoryResponse(categories: response))
+					do {
+						let response = try await categoryUseCase.getAllCategory()
+						await send(.getAllCategoryResponse(categories: response))
+					} catch(let error) {
+						// TODO: 에러 핸들링
+						print(error.localizedDescription)
+					}
+					
 				}
 				
 			case .getAllCategoryResponse(let categories):

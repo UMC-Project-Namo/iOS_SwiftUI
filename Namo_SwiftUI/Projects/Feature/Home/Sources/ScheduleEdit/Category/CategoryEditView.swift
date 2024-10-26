@@ -16,32 +16,25 @@ struct CategoryEditView: View {
 	
 	var body: some View {
 		WithPerceptionTracking {
-			ZStack(alignment: .top) {
-				if !store.isNewCategory {
-					DeleteCircleButton(action: {
-						
-					})
-				}
+			
+			VStack(spacing: 0) {
+				navigationBar
+					.padding(.horizontal, 19)
 				
-				VStack(spacing: 0) {
-					navigationBar
-						.padding(.horizontal, 19)
+				VStack(spacing: 32) {
+					title
 					
-					VStack(spacing: 32) {
-						title
-						
-						colorPallete
-						
-						shareToggle
-						
-						Spacer()
-					}
-					.padding(.top, 12)
-					.padding(.horizontal, 30)
+					colorPallete
+					
+					shareToggle
+					
+					Spacer()
 				}
+				.padding(.top, 12)
+				.padding(.horizontal, 30)
 			}
-			.toolbar(.hidden, for: .navigationBar)
 		}
+		.toolbar(.hidden, for: .navigationBar)
 	}
 	
 	private var navigationBar: some View {
@@ -66,7 +59,7 @@ struct CategoryEditView: View {
 			rightButton: {
 				Button(
 					action: {
-						
+						store.send(.saveBtnTapped)
 					},
 					label: {
 						Text("저장")
@@ -90,7 +83,7 @@ struct CategoryEditView: View {
 	}
 	
 	private var shareToggle: some View {
-		Toggle(isOn: $store.isShared) {
+		Toggle(isOn: $store.category.shared) {
 			Text("공개 설정")
 				.font(.pretendard(.bold, size: 15))
 				.foregroundColor(.mainText)

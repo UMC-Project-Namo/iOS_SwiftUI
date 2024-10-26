@@ -27,7 +27,7 @@ public struct CategoryDTO: Decodable {
 	public let shared: Bool
 }
 
-public struct postCategoryRequest: Encodable {
+public struct CategoryEditRequestDTO: Encodable {
 	public init(categoryName: String, colorId: Int, isShared: Bool) {
 		self.categoryName = categoryName
 		self.colorId = colorId

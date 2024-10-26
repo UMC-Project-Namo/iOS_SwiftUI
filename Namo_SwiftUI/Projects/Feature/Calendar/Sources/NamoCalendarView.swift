@@ -27,6 +27,8 @@ public struct NamoCalendarView: View {
 	let dateTapAction: (YearMonthDay) -> Void
 	// 일정 추가 버튼 탭
 	let scheduleAddTapAction: (YearMonthDay) -> Void
+	// 일정 편집으로
+	let scheduleEditTapAction: (Schedule) -> Void
 	
 	private let weekdays: [String] = ["일", "월", "화", "수", "목", "금", "토"]
 	
@@ -37,7 +39,8 @@ public struct NamoCalendarView: View {
 		showWeekDay: Bool = true,
 		showDetailView: Bool = true,
 		dateTapAction: @escaping (YearMonthDay) -> Void = { _ in },
-		scheduleAddTapAction: @escaping (YearMonthDay) -> Void = { _ in }
+		scheduleAddTapAction: @escaping (YearMonthDay) -> Void = { _ in },
+		scheduleEditTapAction: @escaping (Schedule) -> Void = { _ in }
 	) {
 		self.calendarController = calendarController
 		self._focusDate = focusDate
@@ -46,6 +49,7 @@ public struct NamoCalendarView: View {
 		self.showDetailView = showDetailView
 		self.dateTapAction = dateTapAction
 		self.scheduleAddTapAction = scheduleAddTapAction
+		self.scheduleEditTapAction = scheduleEditTapAction
 	}
 	
 	public var body: some View {
@@ -175,7 +179,7 @@ public struct NamoCalendarView: View {
 			}
 			
 			// 개인 일정
-			if let schedules = schedules[focusDate!]?.compactMap({$0.schedule}).filter({!$0.isMeetingSchedule}),
+			if let schedules = schedules[focusDate!]?.compactMap({$0.schedule}).filter({$0.scheduleType == 0}),
 			   !schedules.isEmpty
 			{
 				ForEach(schedules, id: \.self) { schedule in
@@ -183,7 +187,7 @@ public struct NamoCalendarView: View {
 						ymd: focusDate!,
 						schedule: schedule,
 						diaryEditAction: {
-							
+							scheduleEditTapAction(schedule)
 						}
 					)
 				}
@@ -216,7 +220,7 @@ public struct NamoCalendarView: View {
 			}
 			
 			// 개인 일정
-			if let schedules = schedules[focusDate!]?.compactMap({$0.schedule}).filter({$0.isMeetingSchedule}),
+			if let schedules = schedules[focusDate!]?.compactMap({$0.schedule}).filter({$0.scheduleType == 1}),
 			   !schedules.isEmpty
 			{
 				ForEach(schedules, id: \.self) { schedule in

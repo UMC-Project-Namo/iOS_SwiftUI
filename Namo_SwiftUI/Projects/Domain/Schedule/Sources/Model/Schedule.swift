@@ -14,9 +14,9 @@ public struct Schedule: Decodable, Hashable {
 	public let startDate: Date
 	public let endDate: Date
 	public let interval: Int
-	public let locationInfo: ScheduleLocation
+	public let locationInfo: ScheduleLocation?
 	public let hasDiary: Bool
-	public let isMeetingSchedule: Bool
+	public let scheduleType: Int
 	public let meetingInfo: ScheduleMeeting?
 	public let notificationInfo: [ScheduleNotification]
 	
@@ -27,9 +27,9 @@ public struct Schedule: Decodable, Hashable {
 		startDate: Date,
 		endDate: Date,
 		interval: Int,
-		locationInfo: ScheduleLocation,
+		locationInfo: ScheduleLocation?,
 		hasDiary: Bool,
-		isMeetingSchedule: Bool,
+		scheduleType: Int,
 		meetingInfo: ScheduleMeeting?,
 		notificationInfo: [ScheduleNotification]
 	) {
@@ -41,7 +41,7 @@ public struct Schedule: Decodable, Hashable {
 		self.interval = interval
 		self.locationInfo = locationInfo
 		self.hasDiary = hasDiary
-		self.isMeetingSchedule = isMeetingSchedule
+		self.scheduleType = scheduleType
 		self.meetingInfo = meetingInfo
 		self.notificationInfo = notificationInfo
 	}
@@ -135,7 +135,7 @@ public extension Schedule {
 				kakaoLocationId: ""
 			),
 			hasDiary: false,
-			isMeetingSchedule: false,
+			scheduleType: 0,
 			meetingInfo: nil,
 			notificationInfo: []
 		),
@@ -158,7 +158,7 @@ public extension Schedule {
 				kakaoLocationId: ""
 			),
 			hasDiary: false,
-			isMeetingSchedule: false,
+			scheduleType: 0,
 			meetingInfo: nil,
 			notificationInfo: []
 		),
@@ -181,7 +181,7 @@ public extension Schedule {
 				kakaoLocationId: ""
 			),
 			hasDiary: false,
-			isMeetingSchedule: true,
+			scheduleType: 0,
 			meetingInfo: ScheduleMeeting(
 				participantCount: 3,
 				participantNicknames: "연현,램프,반디",

@@ -37,6 +37,14 @@ public struct ScheduleEditCoordinatorView: View {
 			topLeading: 15,
 			topTrailing: 15)))
 		.shadow(radius: 10)
+		.overlay(alignment: .top) {
+			if store.showDeleteButton {
+				DeleteCircleButton(action: {
+					store.send(.deleteButtonTapped)
+				})
+				.offset(y: -50)
+			}
+		}
 		.offset(y: 100)
 	}
 }

@@ -22,6 +22,16 @@ extension CategoryDTO {
 	}
 }
 
+extension CategoryEditRequestDTO {
+	func toEntity() -> CategoryEdit {
+		return CategoryEdit(
+			categoryName: categoryName,
+			colorId: colorId,
+			isShared: isShared
+		)
+	}
+}
+
 // MARK: - toData()
 extension NamoCategory {
 	func toData() -> CategoryDTO {
@@ -31,6 +41,16 @@ extension NamoCategory {
 			colorId: colorId,
 			baseCategory: baseCategory,
 			shared: shared
+		)
+	}
+}
+
+extension CategoryEdit {
+	func toData() -> CategoryEditRequestDTO {
+		return CategoryEditRequestDTO(
+			categoryName: categoryName,
+			colorId: colorId,
+			isShared: isShared
 		)
 	}
 }

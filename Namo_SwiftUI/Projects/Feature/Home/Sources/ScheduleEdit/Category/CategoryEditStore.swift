@@ -21,16 +21,12 @@ public struct CategoryEditStore {
 		var isNewCategory: Bool
 		// 생성/편집 하는 카테고리
 		var category: NamoCategory
-		// 카테고리 리스트
-		@Shared(.inMemory(SharedKeys.categories.rawValue)) var categories: [NamoCategory] = []
 		// 선택한 색상
 		var selectedColor: PalleteColor?
-		// 공개 여부
-		var isShared: Bool
 		
 		public init(
 			isNewCategory: Bool,
-			category: NamoCategory
+			category: NamoCategory = NamoCategory(categoryId: -1, categoryName: "", colorId: -1, baseCategory: false, shared: false)
 		) {
 			self.isNewCategory = isNewCategory
 			self.category = category
@@ -38,10 +34,8 @@ public struct CategoryEditStore {
 			// 편집인 경우 기존 색상 적용
 			if isNewCategory {
 				self.selectedColor = nil
-				self.isShared = false
 			} else {
 				self.selectedColor = PalleteColor(rawValue: category.colorId)
-				self.isShared = category.shared
 			}
 			
 		}
@@ -54,7 +48,11 @@ public struct CategoryEditStore {
 		case backBtnTapped
 		// 저장하기
 		case saveBtnTapped
+		// 저장 완료
+		case saveCompleted
 	}
+	
+	@Dependency(\.categoryUseCase) var categoryUseCase
 	
 	public var body: some ReducerOf<Self> {
 		BindingReducer()
@@ -68,11 +66,37 @@ public struct CategoryEditStore {
 				return .none
 				
 			case .saveBtnTapped:
-				
-				return .run { send in
-					// 생성 수정 api 성공 시 shared를 api 통해서 업데이트 후 뒤로 가기
-					// api 사용하는 이유는 categoryId를 몰라서
+				let categoryEdit = CategoryEdit(
+					categoryName: state.category.categoryName,
+					colorId: state.selectedColor?.rawValue ?? 0,
+					isShared: state.category.shared
+				)
+				return .run {[
+					isNewCategory = state.isNewCategory,
+					categoryId = state.category.categoryId
+				] send in
+					if isNewCategory {
+						do {
+							try await categoryUseCase.postCategory(data: categoryEdit)
+							await send(.saveCompleted)
+						} catch (let error) {
+							// TODO: 에러처리
+							print(error.localizedDescription)
+						}
+					} else {
+						do {
+							try await categoryUseCase.patchCategory(categoryId: categoryId, data: categoryEdit)
+							await send(.saveCompleted)
+						} catch (let error) {
+							// TODO: 에러처리
+							print(error.localizedDescription)
+						}
+					}
 				}
+				
+			case .saveCompleted:
+				
+				return .none
 			}
 		}
 	}
