@@ -8,8 +8,10 @@
 import SwiftUI
 
 import ComposableArchitecture
+import Kingfisher
 
 import SharedDesignSystem
+import DomainFriend
 
 public struct FriendInfoPopupView: View {
 	let store: StoreOf<FriendInfoPopupStore>
@@ -39,7 +41,7 @@ public struct FriendInfoPopupView: View {
 	
 	private var imageAndNickname: some View {
 		HStack(spacing: 0) {
-			store.friend.image
+			KFImage(URL(string: store.friend.profileImage ?? ""))
 				.frame(width: 72, height: 72)
 				.clipShape(RoundedRectangle(cornerRadius: 15))
 				.padding(.trailing, 20)
@@ -62,9 +64,9 @@ public struct FriendInfoPopupView: View {
 			if !store.isRequestPopup {
 				Button(
 					action: {
-						//					store.send(.favoriteBtnTappedInInfo)
+						store.send(.favoriteBtnTappedInInfo)
 					}, label: {
-						Image(asset: store.friend.isFavorite ? SharedDesignSystemAsset.Assets.icFavoriteFill : SharedDesignSystemAsset.Assets.icFavorite)
+						Image(asset: store.friend.favoriteFriend ? SharedDesignSystemAsset.Assets.icFavoriteFill : SharedDesignSystemAsset.Assets.icFavorite)
 							.resizable()
 							.frame(width: 28, height: 28)
 					}
@@ -75,7 +77,7 @@ public struct FriendInfoPopupView: View {
 	
 	private var descriptionAndBirth: some View {
 		VStack(alignment: .leading, spacing: 0) {
-			Text(store.friend.description)
+			Text(store.friend.bio)
 				.font(.pretendard(.regular, size: 15))
 				.foregroundStyle(Color.mainText)
 				.padding(.bottom, 16)
@@ -113,10 +115,10 @@ public struct FriendInfoPopupView: View {
 			
 			Button(
 				action: {
-				
+					store.send(.gotoFriendCalendar)
 				}, label: {
 					HStack(spacing: 12) {
-						Image(asset: SharedDesignSystemAsset.Assets.icTrashcan)
+						Image(asset: SharedDesignSystemAsset.Assets.icCalendar)
 							.resizable()
 							.frame(width: 20, height: 20)
 						
@@ -135,10 +137,10 @@ public struct FriendInfoPopupView: View {
 			
 			Button(
 				action: {
-					
+					store.send(.friendDelete)
 				}, label: {
 					HStack(spacing: 12) {
-						Image(asset: SharedDesignSystemAsset.Assets.icCalendar)
+						Image(asset: SharedDesignSystemAsset.Assets.icTrashcan)
 							.resizable()
 							.frame(width: 20, height: 20)
 						

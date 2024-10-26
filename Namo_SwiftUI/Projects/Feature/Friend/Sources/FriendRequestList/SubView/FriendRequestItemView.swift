@@ -7,15 +7,18 @@
 
 import SwiftUI
 
+import Kingfisher
+
 import SharedDesignSystem
+import DomainFriend
 
 struct FriendRequestItemView: View {
-	let friend: DummyFriend
+	let friend: Friend
 	
     var body: some View {
 		VStack(spacing: 0) {
 			HStack(spacing: 16) {
-				friend.image
+				KFImage(URL(string: friend.profileImage ?? ""))
 					.frame(width: 48, height: 48)
 					.clipShape(RoundedRectangle(cornerRadius: 15))
 				
@@ -25,7 +28,7 @@ struct FriendRequestItemView: View {
 						.foregroundStyle(Color.mainText)
 						.lineLimit(1)
 					
-					Text(friend.description)
+					Text(friend.bio)
 						.font(.pretendard(.regular, size: 12))
 						.foregroundStyle(Color.mainText)
 						.lineLimit(1)
