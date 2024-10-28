@@ -24,14 +24,20 @@ struct AppCoordinator {
     
     @ObservableState
     struct State {
-//        static let initialState = State(routes: [.root(.onboarding(.initialState), embedInNavigationView: true)])
-		static let initialState = State(routes: [.root(.mainTab(.init(home: .initialState, moim: .initialState)), embedInNavigationView: true)])
+        static let initialState = State(routes: [.root(.onboarding(.initialState), embedInNavigationView: true)])
         var routes: [Route<AppScreen.State>]
+        var showAlert: Bool = false
+        var alertTitle: String = ""
+        var alertContent: String = ""
+        var alertConfirmAction: AppCoordinator.Action = .goToInitialScreen
     }
     
     enum Action {
         case router(IndexedRouterActionOf<AppScreen>)
+        case changeShowAlert(show: Bool)
+        indirect case setAlert(title: String, content: String, action: AppCoordinator.Action)
         case refreshTokenExpired
+        case doAlertConfirmAction
         case goToInitialScreen
     }
     
@@ -49,8 +55,24 @@ struct AppCoordinator {
             // 리프레쉬 토큰 만료 - 정보 삭제
             case .refreshTokenExpired:
                 authClient.deleteUserInfo()
-                return .send(.goToInitialScreen)
+                return .send(.setAlert(title: "토큰 만료", content: "토큰이 만료되었습니다. 다시 로그인해주세요.", action: .goToInitialScreen))
             
+            // alert 내용 설정
+            case let .setAlert(title, content, action):
+                state.alertTitle = title
+                state.alertContent = content
+                state.alertConfirmAction = action
+                return .send(.changeShowAlert(show: true))
+            
+            // alert 표시 변경
+            case .changeShowAlert(let show):
+                state.showAlert = show
+                return .none
+            
+            // alertConfirmAction 실행
+            case .doAlertConfirmAction:
+                return .send(state.alertConfirmAction)
+                
             // 초기 화면으로 이동
             case .goToInitialScreen:
                 state = State.initialState

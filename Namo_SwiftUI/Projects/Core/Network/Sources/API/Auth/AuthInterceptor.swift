@@ -65,7 +65,7 @@ public class AuthInterceptor: RequestInterceptor {
         
         if request.retryCount < self.retryLimit {
             
-            print("기존 요청 재시도")
+            print("기존 요청 재시도 : \(request.request?.url?.absoluteString ?? "url_nil")")
             
             completion(.retry)
         } else {
