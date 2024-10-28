@@ -40,14 +40,8 @@ public class AuthInterceptor: RequestInterceptor {
             // URLRequest 반환
             completion(.success(urlRequest))
         } catch {
-//            // 토큰 조회 실패 시 처리 로직
-//            DispatchQueue.main.async {
-//                // TODO: 어떤 이유 때문에 작성되었는지 확인 필요
-//                UserDefaults.standard.set(false, forKey: "isLogin")
-//                NaverThirdPartyLoginConnection.getSharedInstance().requestDeleteToken()
-//            }
-            
-            // 실패 결과 반환
+            // 조회 실패 결과 반환
+            // TODO: POST 재로그인이 필요합니다
             completion(.failure(APIError.customError("[AuthManager] 키체인 토큰 조회 실패. 로그인이 필요합니다. (adapt)")))
         }
     }
@@ -62,17 +56,18 @@ public class AuthInterceptor: RequestInterceptor {
     public func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
         
         print("=======retry 호출됨========")
+        // HTTP 상태 코드가 401 (Unauthorized)일 경우
+        if let response = request.response, response.statusCode == 401 {
+            NotificationCenter.default.post(name: .refreshTokenExpired, object: nil)
+            completion(.doNotRetry)
+            return
+        }
         
         if request.retryCount < self.retryLimit {
-            
             print("기존 요청 재시도 : \(request.request?.url?.absoluteString ?? "url_nil")")
-            
             completion(.retry)
         } else {
-            
-            // 네트워크 오류. 잠시 후 다시 시도해달라는 Alert 창을 띄움
-//            ErrorHandler.shared.handleAPIError(.networkError)
-            
+            // TODO: POST 조금 있다가 다시 시도해주세요 필요
             completion(.doNotRetry)
         }
         
