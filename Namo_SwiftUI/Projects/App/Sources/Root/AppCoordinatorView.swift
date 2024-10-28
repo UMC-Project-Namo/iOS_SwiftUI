@@ -10,6 +10,7 @@ import ComposableArchitecture
 import TCACoordinators
 import Combine
 import SharedDesignSystem
+import SharedUtil
 
 struct AppCoordinatorView: View {
     let store: StoreOf<AppCoordinator>
@@ -32,10 +33,10 @@ struct AppCoordinatorView: View {
                 store.send(.doAlertConfirmAction)
             }
         )
-        .onAppear {
-            NotificationCenter.default.publisher(for: .refreshTokenExpired)
-                .sink { _ in store.send(.refreshTokenExpired) }
-                .store(in: &cancellables)
+        .onReceive(NotificationCenter.default.publisher(for: .networkError)) { notification in
+            if let error = notification.userInfo?["error"] as? NetworkErrorNotification {
+                store.send(.handleNotiError(error: error))
+            }
         }
     }
 }

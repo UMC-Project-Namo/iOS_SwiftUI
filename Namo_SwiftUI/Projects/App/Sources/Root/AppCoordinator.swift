@@ -8,6 +8,7 @@
 import Foundation
 import ComposableArchitecture
 import TCACoordinators
+import SharedUtil
 
 @Reducer(state: .equatable)
 enum AppScreen {
@@ -36,9 +37,10 @@ struct AppCoordinator {
         case router(IndexedRouterActionOf<AppScreen>)
         case changeShowAlert(show: Bool)
         indirect case setAlert(title: String, content: String, action: AppCoordinator.Action)
-        case refreshTokenExpired
+        case handleNotiError(error: NetworkErrorNotification)
         case doAlertConfirmAction
         case goToInitialScreen
+        case doNothing
     }
     
     var body: some ReducerOf<Self> {
@@ -52,10 +54,18 @@ struct AppCoordinator {
                 state.routes = [.root(.mainTab(.init(home: .initialState, moim: .initialState)), embedInNavigationView: true)]
                 return .none
                 
-            // 리프레쉬 토큰 만료 - 정보 삭제
-            case .refreshTokenExpired:
-                authClient.deleteUserInfo()
-                return .send(.setAlert(title: "토큰 만료", content: "토큰이 만료되었습니다. 다시 로그인해주세요.", action: .goToInitialScreen))
+            // Notification 에러 핸들링
+            case .handleNotiError(let error):
+                switch error {
+                    
+                    // 리프레쉬 토큰 만료 - 정보 삭제
+                case .refreshTokenExpired, .unauthorized:
+                    authClient.deleteUserInfo()
+                    return .send(.setAlert(title: error.title, content: error.content, action: .goToInitialScreen))
+                    // 네트워크 에러 - 라우팅 x
+                case .tryLater:
+                    return .send(.setAlert(title: error.title, content: error.content, action: .doNothing))
+                }
             
             // alert 내용 설정
             case let .setAlert(title, content, action):

@@ -40,8 +40,9 @@ public class AuthInterceptor: RequestInterceptor {
             // URLRequest 반환
             completion(.success(urlRequest))
         } catch {
+            // unauthorized noti post -> AppCoordi
+            NotificationCenter.default.post(name: .networkError, object: nil, userInfo: ["error": NetworkErrorNotification.unauthorized])
             // 조회 실패 결과 반환
-            // TODO: POST 재로그인이 필요합니다
             completion(.failure(APIError.customError("[AuthManager] 키체인 토큰 조회 실패. 로그인이 필요합니다. (adapt)")))
         }
     }
@@ -58,7 +59,8 @@ public class AuthInterceptor: RequestInterceptor {
         print("=======retry 호출됨========")
         // HTTP 상태 코드가 401 (Unauthorized)일 경우
         if let response = request.response, response.statusCode == 401 {
-            NotificationCenter.default.post(name: .refreshTokenExpired, object: nil)
+            // unauthorized noti post -> AppCoordi
+            NotificationCenter.default.post(name: .networkError, object: nil, userInfo: ["error": NetworkErrorNotification.unauthorized])
             completion(.doNotRetry)
             return
         }
@@ -67,7 +69,8 @@ public class AuthInterceptor: RequestInterceptor {
             print("기존 요청 재시도 : \(request.request?.url?.absoluteString ?? "url_nil")")
             completion(.retry)
         } else {
-            // TODO: POST 조금 있다가 다시 시도해주세요 필요
+            // tryLater noti post -> AppCoordi
+            NotificationCenter.default.post(name: .networkError, object: nil, userInfo: ["error": NetworkErrorNotification.tryLater])
             completion(.doNotRetry)
         }
         
