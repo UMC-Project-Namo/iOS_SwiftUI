@@ -28,7 +28,7 @@ extension ScheduleDTO {
 	}
 }
 
-extension ScheduleCategoryDTO {
+public extension ScheduleCategoryDTO {
 	func toEntity() -> ScheduleCategory {
 		return ScheduleCategory(
 			categoryId: categoryId,

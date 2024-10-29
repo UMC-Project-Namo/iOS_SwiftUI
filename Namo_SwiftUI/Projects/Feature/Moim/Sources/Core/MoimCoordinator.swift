@@ -10,6 +10,7 @@ import ComposableArchitecture
 import TCACoordinators
 import FeaturePlaceSearchInterface
 import FeatureMoimInterface
+import FeatureFriend
 
 @Reducer(state: .equatable)
 public enum MoimScreen {
@@ -17,6 +18,8 @@ public enum MoimScreen {
     case moimSchedule(MainViewStore)
     // 모임/친구 요청
     case moimRequest(MoimRequestStore)
+	// 친구 캘린더 화면
+	case friendCalendar(FriendCalendarStore)
 }
 
 @Reducer
@@ -60,6 +63,16 @@ public struct MoimCoordinator {
             case .router(.routeAction(_, action: .moimRequest(.backButtonTap))):
                 state.routes.goBack()
                 return .none
+				
+			case .router(.routeAction(_, action: .moimSchedule(.navigateToFriendCalendar(let friend)))):
+				// 친구 캘린더 push
+				state.routes.push(.friendCalendar(.init(friend: friend)))
+				return .none
+				
+			case .router(.routeAction(_, action: .friendCalendar(.backBtnTapped))):
+				// 친구 캘린더에서 뒤로가기
+				state.routes.pop()
+				return .none
             default:
                 return .none
             }

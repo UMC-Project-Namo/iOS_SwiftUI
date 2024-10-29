@@ -10,6 +10,7 @@ import ComposableArchitecture
 import FeatureMoimInterface
 import DomainMoimInterface
 import FeatureFriend
+import DomainFriend
 
 @Reducer
 public struct MainViewStore {
@@ -47,6 +48,7 @@ public struct MainViewStore {
         case presentDetailSheet(MoimSchedule)
         case notificationButtonTap
         case presentComposeSheet
+		case navigateToFriendCalendar(friend: Friend)
     }
     
     public var body: some Reducer<State, Action> {
@@ -86,6 +88,9 @@ public struct MainViewStore {
                 } catch: { error, send in
                     // 에러 처리
                 }
+				
+			case .friendList(.gotoFriendCalendar(let friend)):
+				return .send(.navigateToFriendCalendar(friend: friend))
                 // 모임일정 선택후 상태
             case let .presentDetailSheet(moimSchedule):
                 state.isSheetPresented = true

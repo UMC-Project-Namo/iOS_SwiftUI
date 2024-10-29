@@ -22,6 +22,8 @@ public struct FriendRequestListStore {
 		// 친구 정보 popup
 		var showFriendInfoPopup: Bool = false
 		
+		// 
+		
 		public init(
 			friends: [Friend]
 		) {

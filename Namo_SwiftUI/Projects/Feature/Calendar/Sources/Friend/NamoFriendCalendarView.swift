@@ -1,8 +1,8 @@
 //
-//  NamoCalendarView.swift
+//  NamoFriendCalendarView.swift
 //  FeatureCalendar
 //
-//  Created by 정현우 on 10/2/24.
+//  Created by 정현우 on 10/26/24.
 //
 
 import SwiftUI
@@ -12,35 +12,30 @@ import SwiftUICalendar
 import SharedUtil
 import SharedDesignSystem
 import DomainSchedule
+import DomainFriend
 
-public struct NamoCalendarView: View {
+public struct NamoFriendCalendarView: View {
 	@ObservedObject var calendarController: CalendarController
 	// 현재 포커싱된(detailView) 날짜
 	@Binding var focusDate: YearMonthDay?
 	// 캘린더에 표시할 스케쥴
-	@Binding var schedules: [YearMonthDay: [CalendarSchedule]]
+	@Binding var schedules: [YearMonthDay: [CalendarFriendSchedule]]
 	// 상단에 요일을 보이게 할지
 	let showWeekDay: Bool
 	// 하단 detail view를 보이게 할지
 	let showDetailView: Bool
 	// 특정 달을 선택했을때
 	let dateTapAction: (YearMonthDay) -> Void
-	// 일정 추가 버튼 탭
-	let scheduleAddTapAction: (YearMonthDay) -> Void
-	// 일정 편집으로
-	let scheduleEditTapAction: (Schedule) -> Void
 	
 	private let weekdays: [String] = ["일", "월", "화", "수", "목", "금", "토"]
 	
 	public init(
 		calendarController: CalendarController,
 		focusDate: Binding<YearMonthDay?> = .constant(nil),
-		schedules: Binding<[YearMonthDay: [CalendarSchedule]]> = .constant([:]),
+		schedules: Binding<[YearMonthDay: [CalendarFriendSchedule]]> = .constant([:]),
 		showWeekDay: Bool = true,
 		showDetailView: Bool = true,
-		dateTapAction: @escaping (YearMonthDay) -> Void = { _ in },
-		scheduleAddTapAction: @escaping (YearMonthDay) -> Void = { _ in },
-		scheduleEditTapAction: @escaping (Schedule) -> Void = { _ in }
+		dateTapAction: @escaping (YearMonthDay) -> Void = { _ in }
 	) {
 		self.calendarController = calendarController
 		self._focusDate = focusDate
@@ -48,8 +43,6 @@ public struct NamoCalendarView: View {
 		self.showWeekDay = showWeekDay
 		self.showDetailView = showDetailView
 		self.dateTapAction = dateTapAction
-		self.scheduleAddTapAction = scheduleAddTapAction
-		self.scheduleEditTapAction = scheduleEditTapAction
 	}
 	
 	public var body: some View {
@@ -64,7 +57,7 @@ public struct NamoCalendarView: View {
 					CalendarView(calendarController) { date in
 						GeometryReader { geometry in
 							VStack(alignment: .leading) {
-								CalendarItem(
+								FriendCalendarItem(
 									focusDate: $focusDate,
 									date: date,
 									schedules: schedules[date] ?? []
@@ -137,10 +130,7 @@ public struct NamoCalendarView: View {
 			)
 			
 			ScrollView(.vertical, showsIndicators: false) {
-				detailViewPersonalSchedule
-					.padding(.bottom, 32)
-				
-				detailViewMeetingSchedule
+				detailViewSchedule
 				
 				Spacer()
 					.frame(height: 50)
@@ -155,21 +145,12 @@ public struct NamoCalendarView: View {
 			// 상단에만 shadow를 주기 위함
 			Rectangle().padding(.top, -20)
 		}
-		.overlay(alignment: .bottomTrailing) {
-			Button(action: {
-				scheduleAddTapAction(focusDate)
-			}, label: {
-				Image(asset: SharedDesignSystemAsset.Assets.floatingAdd)
-					.padding(.bottom, 28)
-					.padding(.trailing, 24)
-			})
-		}
 	}
 	
-	private var detailViewPersonalSchedule: some View {
+	private var detailViewSchedule: some View {
 		VStack {
 			HStack {
-				Text("개인 일정")
+				Text("친구 일정")
 					.font(.pretendard(.bold, size: 15))
 					.foregroundStyle(Color(asset: SharedDesignSystemAsset.Assets.mainText))
 					.padding(.bottom, 11)
@@ -179,16 +160,13 @@ public struct NamoCalendarView: View {
 			}
 			
 			// 개인 일정
-			if let schedules = schedules[focusDate!]?.compactMap({$0.schedule}).filter({$0.scheduleType == 0}),
+			if let schedules = schedules[focusDate!]?.compactMap({$0.schedule}),
 			   !schedules.isEmpty
 			{
 				ForEach(schedules, id: \.self) { schedule in
-					CalendarDetailScheduleItem(
+					FriendCalendarDetailScheduleItem(
 						ymd: focusDate!,
-						schedule: schedule,
-						diaryEditAction: {
-							scheduleEditTapAction(schedule)
-						}
+						schedule: schedule
 					)
 				}
 			} else {
@@ -197,48 +175,7 @@ public struct NamoCalendarView: View {
 						.fill(Color(asset: SharedDesignSystemAsset.Assets.textPlaceholder))
 						.frame(width: 3, height: 21)
 					
-					Text("등록된 개인 일정이 없습니다.")
-						.font(.pretendard(.medium, size: 14))
-						.foregroundStyle(Color(asset: SharedDesignSystemAsset.Assets.textDisabled))
-					
-					Spacer()
-				}
-			}
-		}
-	}
-	
-	private var detailViewMeetingSchedule: some View {
-		VStack {
-			HStack {
-				Text("모임 일정")
-					.font(.pretendard(.bold, size: 15))
-					.foregroundStyle(Color(asset: SharedDesignSystemAsset.Assets.mainText))
-					.padding(.bottom, 11)
-					.padding(.leading, 3)
-				
-				Spacer()
-			}
-			
-			// 개인 일정
-			if let schedules = schedules[focusDate!]?.compactMap({$0.schedule}).filter({$0.scheduleType == 1}),
-			   !schedules.isEmpty
-			{
-				ForEach(schedules, id: \.self) { schedule in
-					CalendarDetailScheduleItem(
-						ymd: focusDate!,
-						schedule: schedule,
-						diaryEditAction: {
-							
-						}
-					)
-				}
-			} else {
-				HStack(spacing: 12) {
-					Rectangle()
-						.fill(Color(asset: SharedDesignSystemAsset.Assets.textPlaceholder))
-						.frame(width: 3, height: 21)
-					
-					Text("등록된 모임 일정이 없습니다.")
+					Text("등록된 일정이 없습니다.")
 						.font(.pretendard(.medium, size: 14))
 						.foregroundStyle(Color(asset: SharedDesignSystemAsset.Assets.textDisabled))
 					

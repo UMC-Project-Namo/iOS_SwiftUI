@@ -80,10 +80,6 @@ public struct HomeMainView: View {
 						isAnimate: true
 					)
 				}
-				
-				
-				// TODO: 해당 월 일정 불러오기
-				
 			}
 		)
 	}

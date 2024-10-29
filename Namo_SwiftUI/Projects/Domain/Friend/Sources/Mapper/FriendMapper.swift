@@ -5,7 +5,10 @@
 //  Created by 정현우 on 10/24/24.
 //
 
+import Foundation
+
 import CoreNetwork
+import DomainSchedule
 
 // MARK: - toEntity()
 extension FriendDTO {
@@ -59,6 +62,20 @@ extension FriendRequestResponseDTO {
 			currentPage: currentPage,
 			pageSize: pageSize,
 			totalItems:totalItems
+		)
+	}
+}
+
+extension FriendScheduleDTO {
+	func toEntity() -> FriendSchedule {
+		return FriendSchedule(
+			scheduleId: scheduleId,
+			title: title,
+			categoryInfo: categoryInfo.toEntity(),
+			startDate: Date.ISO8601toDate(startDate),
+			endDate: Date.ISO8601toDate(endDate),
+			interval: interval,
+			scheduleType: scheduleType
 		)
 	}
 }

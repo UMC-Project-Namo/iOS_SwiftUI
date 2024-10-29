@@ -93,7 +93,8 @@ public struct FriendListStore {
 		case showAddFriendRequestToast
 		// 친구 정보 popup 띄우기
 		case showFriendInfoPopup(Friend)
-		
+		// 친구 일정 띄우기
+		case gotoFriendCalendar(friend: Friend)
 		// Friend Info popup의 action
 		case friendInfoPopup(FriendInfoPopupStore.Action)
 	}
@@ -117,7 +118,8 @@ public struct FriendListStore {
 					return .none
 					
 				case .gotoFriendCalendar:
-					return .none
+					state.showFriendInfoPopup = false
+					return .send(.gotoFriendCalendar(friend: state.friendInfoPopupState!.friend))
 				}
 				
 			case .loadFriends:
@@ -227,6 +229,9 @@ public struct FriendListStore {
 				state.friendInfoPopupState = FriendInfoPopupStore.State(friend: friend)
 				state.showFriendInfoPopup = true
 				
+				return .none
+				
+			case .gotoFriendCalendar:
 				return .none
 			}
 		}
