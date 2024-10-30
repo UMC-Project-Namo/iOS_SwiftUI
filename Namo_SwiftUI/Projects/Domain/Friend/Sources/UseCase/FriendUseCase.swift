@@ -196,6 +196,13 @@ public struct FriendUseCase {
 			return "00:00 - 23:59"
 		}
 	}
+	
+	
+	public func getFriendCategories(friendId: Int) async throws -> [FriendCategory] {
+		let response: BaseResponse<[FriendCategoryDTO]> = try await APIManager.shared.performRequest(endPoint: FriendEndPoint.getFriendCategory(friendId: friendId))
+		
+		return response.result?.map {$0.toEntity()} ?? []
+	}
 }
 
 extension FriendUseCase: DependencyKey {

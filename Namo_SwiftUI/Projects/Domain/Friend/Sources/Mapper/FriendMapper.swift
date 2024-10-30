@@ -8,7 +8,6 @@
 import Foundation
 
 import CoreNetwork
-import DomainSchedule
 
 // MARK: - toEntity()
 extension FriendDTO {
@@ -77,5 +76,11 @@ extension FriendScheduleDTO {
 			interval: interval,
 			scheduleType: scheduleType
 		)
+	}
+}
+
+extension FriendCategoryDTO {
+	func toEntity() -> FriendCategory {
+		return FriendCategory(categoryName: categoryName, colorId: colorId)
 	}
 }

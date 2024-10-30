@@ -38,6 +38,8 @@ public struct FriendCalendarStore {
 		
 		// 친구 카테고리 보기 팝업
 		var showCategoryPopup: Bool = false
+		// 친구 카테고리
+		var friendCategory: [FriendCategory] = []
 		
 		public init(friend: Friend) {
 			self.friend = friend
@@ -60,6 +62,8 @@ public struct FriendCalendarStore {
 		case datePickerTapped
 		// calendarInfo popup
 		case calendarInfoTapped
+		// 카테고리 가져온 응답
+		case getFriendCategoryComplete(friendCategories: [FriendCategory])
 		// 특정 날짜 선택
 		case selectDate(YearMonthDay)
 	}
@@ -104,6 +108,17 @@ public struct FriendCalendarStore {
 				
 			case .calendarInfoTapped:
 				state.showCategoryPopup = true
+				return .run {[friendId = state.friend.memberId] send in
+					do {
+						let response = try await friendUseCase.getFriendCategories(friendId: friendId)
+						await send(.getFriendCategoryComplete(friendCategories: response))
+					} catch(let error) {
+						print(error.localizedDescription)
+					}
+				}
+				
+			case .getFriendCategoryComplete(let categories):
+				state.friendCategory = categories
 				return .none
 				
 			case .selectDate(let date):

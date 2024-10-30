@@ -16,6 +16,7 @@ public enum FriendEndPoint {
 	case acceptFriendRequest(friendshipId: Int)
 	case rejectFriendRequest(friendshipId: Int)
 	case requestFriend(nicknameTag: String)
+	case getFriendCategory(friendId: Int)
 }
 
 extension FriendEndPoint: EndPoint {
@@ -38,6 +39,8 @@ extension FriendEndPoint: EndPoint {
 		case .requestFriend(let nicknameTag):
 			let encodedNicknameTag = nicknameTag.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? nicknameTag
 			return "/\(encodedNicknameTag)"
+		case .getFriendCategory(let friendId):
+			return "/\(friendId)/categories"
 		}
 	}
 	
@@ -55,12 +58,14 @@ extension FriendEndPoint: EndPoint {
 			return .patch
 		case .requestFriend:
 			return .post
+		case .getFriendCategory:
+			return .get
 		}
 	}
 	
 	public var task: APITask {
 		return switch self {
-		case .getFriends, .getFriendRequests, .toggleFriendFavorite, .acceptFriendRequest, .rejectFriendRequest, .requestFriend:
+		case .getFriends, .getFriendRequests, .toggleFriendFavorite, .acceptFriendRequest, .rejectFriendRequest, .requestFriend, .getFriendCategory:
 				.requestPlain
 		}
 	}

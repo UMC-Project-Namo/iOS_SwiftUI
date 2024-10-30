@@ -153,9 +153,21 @@ public struct FriendCalendarView: View {
 	private var calendarInfo: some View {
 		VStack(alignment: .center, spacing: 0) {
 			LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 20) {
+				ForEach(store.friendCategory, id: \.self) { category in
+					HStack(spacing: 16) {
+						ColorCircleView(color: PalleteColor(rawValue: category.colorId)!.color)
+							.frame(width: 20, height: 20)
+						
+						Text(category.categoryName)
+							.font(.pretendard(.regular, size: 15))
+							.foregroundStyle(Color.mainText)
+							.lineLimit(1)
+					}
+				}
 				
 			}
 			.padding(.vertical, 28)
+			.padding(.horizontal, 35)
 			
 			Text("친구가 공개 설정을 해둔 카테고리만 볼 수 있습니다.")
 				.font(.pretendard(.regular, size: 12))
