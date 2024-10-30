@@ -9,6 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
 import Combine
+import SharedDesignSystem
+import SharedUtil
 
 struct AppCoordinatorView: View {
     let store: StoreOf<AppCoordinator>
@@ -23,10 +25,18 @@ struct AppCoordinatorView: View {
                 OnboardingCoordinatorView(store: store)
             }
         }
-        .onAppear {
-            NotificationCenter.default.publisher(for: .refreshTokenExpired)
-                .sink { _ in store.send(.refreshTokenExpired) }
-                .store(in: &cancellables)
+        .namoAlertView(
+            isPresented: Binding(get: { store.showAlert }, set: { store.send(.changeShowAlert(show: $0)) }),
+            title: store.alertTitle,
+            content: store.alertContent,
+            confirmAction: {
+                store.send(.doAlertConfirmAction)
+            }
+        )
+        .onReceive(NotificationCenter.default.publisher(for: .networkError)) { notification in
+            if let error = notification.userInfo?["error"] as? NetworkErrorNotification {
+                store.send(.handleNotiError(error: error))
+            }
         }
     }
 }
