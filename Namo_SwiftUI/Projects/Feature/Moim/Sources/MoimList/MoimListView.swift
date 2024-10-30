@@ -42,5 +42,9 @@ struct MoimListView: View {
                 store.send(.viewOnAppear)
             }
         }
+//        .namoAlertView(isPresented: .constant(true), title: "테스트", content: "테스트 입니다.")
+//        .namoPopupView(isPresented: .constant(true), title: "테스트", content: {
+//            Text("테스트뷰")
+//        })
     }
 }
