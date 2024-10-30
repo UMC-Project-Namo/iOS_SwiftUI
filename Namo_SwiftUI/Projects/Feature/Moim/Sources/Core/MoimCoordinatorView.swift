@@ -27,6 +27,9 @@ public struct MoimCoordinatorView: View {
                 MoimRequestView(store: store)
 			case let .friendCalendar(store):
 				FriendCalendarView(store: store)
+//            case let  .kakaoMap(store):
+//                PlaceSearchView(store: store)
+//                    .toolbar(.hidden, for: .navigationBar)
             }
         }
     }
