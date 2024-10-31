@@ -11,10 +11,13 @@ import TCACoordinators
 
 import SwiftUICalendar
 
+import FeatureArchive
+
 @Reducer(state: .equatable)
 public enum HomeScreen {
 	case homeMain(HomeMainStore)
 	case scheduleEditCoordinator(ScheduleEditCoordinator)
+	case archiveCoordinator(ArchiveCoordinator)
 }
 
 @Reducer
@@ -51,8 +54,6 @@ public struct HomeCoordinator {
 				
 				return .none
 				
-			case .router(.routeAction(_, action: .homeMain(.archiveTapped))):
-				return .none
 			case let .router(.routeAction(_, action: .homeMain(.editSchedule(isNewSchedule, schedule, selectDate)))):
 				// 홈에서 스케쥴 생성/편집 띄우기
 				
@@ -84,6 +85,16 @@ public struct HomeCoordinator {
 				NotificationCenter.default.post(name: .reloadCalendarViaNetwork, object: nil)
 				
 				return .send(.dismiss)
+				
+			case .router(.routeAction(_, action: .homeMain(.archiveTapped))):
+				// 홈화면에서 보관함으로
+				state.routes.push(.archiveCoordinator(.initialState))
+				return .none
+				
+			case .router(.routeAction(_, action: .archiveCoordinator(.router(.routeAction(_, action: .archiveMain(.backBtnTapped)))))):
+				// 보관함 뒤로가기
+				state.routes.pop()
+				return .none
 				
 			case .dismiss:
 				state.showBackgroundOpacity = false

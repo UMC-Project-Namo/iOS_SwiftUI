@@ -11,6 +11,7 @@ import ComposableArchitecture
 import TCACoordinators
 
 import SharedDesignSystem
+import FeatureArchive
 
 public struct HomeCoordinatorView: View {
 	let store: StoreOf<HomeCoordinator>
@@ -41,6 +42,8 @@ public struct HomeCoordinatorView: View {
 					.onAppear {
 						self.store.send(.toggleBackgroundOpacity)
 					}
+			case let .archiveCoordinator(store):
+				ArchiveCoordinatorView(store: store)
 			}
 		}
 	}

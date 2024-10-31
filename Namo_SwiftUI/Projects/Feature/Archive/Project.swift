@@ -1,17 +1,10 @@
-//
-//  Project.swift
-//  Manifests
-//
-//  Created by 정현우 on 9/18/24.
-//
-
 import ProjectDescription
 import ProjectDescriptionHelpers
 import DependencyPlugin
 
 let targets: [Target] = [
 	.feature(
-		interface: .Home,
+		interface: .Archive,
 		factory: .init(
 			dependencies: [
 				.domain
@@ -19,45 +12,45 @@ let targets: [Target] = [
 		)
 	),
 	.feature(
-		implements: .Home,
+		implements: .Archive,
 		factory: .init(
 			dependencies: [
-				.feature(interface: .Home),
-				.feature(implements: .Calendar),
-				.feature(implements: .Archive)
+				.feature(interface: .Archive),
+				.feature(interface: .Calendar)
 			]
 		)
 	),
 	.feature(
-		testing: .Home,
+		testing: .Archive,
 		factory: .init(
 			dependencies: [
-				.feature(interface: .Home)
+				.feature(interface: .Archive)
 			]
 		)
 	),
 	.feature(
-		tests: .Home,
+		tests: .Archive,
 		factory: .init(
 			dependencies: [
-				.feature(testing: .Home)
+				.feature(testing: .Archive)
 			]
 		)
 	),
 	.feature(
-		example: .Home,
+		example: .Archive,
 		factory: .init(
 			infoPlist: .exampleAppDefault,
 			dependencies: [
-				.feature(implements: .Home)
+				.feature(implements: .Archive)
 			]
 		)
 	)
 ]
 
 let project: Project = .makeModule(
-	name: ModulePath.Feature.name+ModulePath.Feature.Home.rawValue,
+	name: ModulePath.Feature.name+ModulePath.Feature.Archive.rawValue,
 	targets: targets
 )
+
 
 
