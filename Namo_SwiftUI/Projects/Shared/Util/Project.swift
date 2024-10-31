@@ -14,8 +14,7 @@ let targets: [Target] = [
 		implements: .Util,
 		factory: .init(
 			dependencies: [
-				.SPM.FirebaseRemoteConfig,
-				.shared(implements: .ThirdPartyLib),
+                .shared(implements: .ThirdPartyLib)
 			]
 		)
 	)

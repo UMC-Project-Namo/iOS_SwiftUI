@@ -26,67 +26,66 @@ public struct NamoPopupModifier<CotentView: View>: ViewModifier {
     
     public func body(content: Content) -> some View {
         content
-            .overlay {
-                if isPresented {
-                    ZStack {
-                        Color.black.opacity(0.5)
-                            .ignoresSafeArea(.all)
-							.onTapGesture {
-								isPresented = false
-							}
-                        
-                        
+            .fullScreenCover(isPresented: $isPresented, content: {
+                ZStack {
+                    Color.black.opacity(0.2)
+                    
+                        .ignoresSafeArea(.all)
+                        .onTapGesture {
+                            isPresented = false
+                        }
+                    
+                    
+                    VStack(spacing: 0) {
                         VStack(spacing: 0) {
-                            VStack(spacing: 0) {
-                                HStack {
+                            HStack {
+                                Button(action: {
+                                    isPresented = false
+                                }, label: {
+                                    Text("닫기")
+                                        .font(.pretendard(.regular, size: 15))
+                                        .foregroundStyle(Color.mainText)
+                                })
+                                
+                                Spacer()
+                                
+                                Text(title)
+                                    .font(.pretendard(.bold, size: 15))
+                                    .foregroundStyle(Color.black)
+                                
+                                Spacer()
+                                
+                                if let confirmAction = confirmAction {
                                     Button(action: {
-                                        isPresented = false
+                                        confirmAction()
                                     }, label: {
-                                        Text("닫기")
+                                        Text("완료")
                                             .font(.pretendard(.regular, size: 15))
                                             .foregroundStyle(Color.mainText)
                                     })
-                                    
-                                    Spacer()
-                                    
-                                    Text(title)
-                                        .font(.pretendard(.bold, size: 15))
-                                        .foregroundStyle(Color.black)
-                                    
-                                    Spacer()
-                                    
-                                    if let confirmAction = confirmAction {
-                                        Button(action: {
-                                            confirmAction()
-                                        }, label: {
-                                            Text("완료")
-                                                .font(.pretendard(.regular, size: 15))
-                                                .foregroundStyle(Color.mainText)
-                                        })
-                                    } else {
-                                        Text("닫기")
-                                            .font(.pretendard(.regular, size: 15))
-                                            .foregroundStyle(Color.mainText)
-                                            .opacity(0)
-                                    }
+                                } else {
+                                    Text("닫기")
+                                        .font(.pretendard(.regular, size: 15))
+                                        .foregroundStyle(Color.mainText)
+                                        .opacity(0)
                                 }
-								.padding(.horizontal, 20)
-                                
-                                contentView()
                             }
-                            .padding(.top, 16)
+                            .padding(.horizontal, 20)
+                            
+                            contentView()
                         }
-                        .frame(maxWidth: .infinity)
-                        .background(.white)
-                        .cornerRadius(10)
-                        .shadow(color: .black.opacity(0.25), radius: 5, x: 0, y: 0)
-                        .padding(.horizontal, 30)
+                        .padding(.top, 16)
                     }
-                    .frame(
-                        width: UIScreen.main.bounds.width,
-                        height: UIScreen.main.bounds.height
-                    )
-                }                    
+                    .frame(maxWidth: .infinity)
+                    .background(.white)
+                    .cornerRadius(10)
+                    .shadow(color: .black.opacity(0.25), radius: 5, x: 0, y: 0)
+                    .padding(.horizontal, 30)
+                }
+                .background(ClearBackground())
+            })
+            .transaction { transaction in
+                transaction.disablesAnimations = true
             }
     }
 }
