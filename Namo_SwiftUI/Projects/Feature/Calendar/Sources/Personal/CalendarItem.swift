@@ -33,7 +33,7 @@ struct CalendarItem: View {
 	}
 	
 	private var dayView: some View {
-		VStack(spacing: 0) {
+		HStack(spacing: 0) {
 			if date.isToday {
 				Text("\(date.day)")
 					.font(.pretendard(.bold, size: 12))
@@ -55,6 +55,14 @@ struct CalendarItem: View {
 						(date.isFocusYearMonth ?? true) ? Color.black : Color(asset: SharedDesignSystemAsset.Assets.textUnselected)
 					)
 			}
+			
+			Spacer()
+			
+			
+			if schedules.contains(where: {$0.schedule?.scheduleType == 2}) {
+				Image(asset: SharedDesignSystemAsset.Assets.icBirthday)
+			}
+			
 		}
 	}
 	

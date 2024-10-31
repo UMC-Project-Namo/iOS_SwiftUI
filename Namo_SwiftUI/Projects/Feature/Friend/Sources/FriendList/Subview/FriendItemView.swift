@@ -7,15 +7,18 @@
 
 import SwiftUI
 
+import Kingfisher
+
 import SharedDesignSystem
+import DomainFriend
 
 struct FriendItemView: View {
-	let friend: DummyFriend
+	let friend: Friend
 	let favoriteToggleAction: () -> Void
 	
 	var body: some View {
 		HStack(spacing: 0) {
-			friend.image
+			KFImage(URL(string: friend.profileImage ?? ""))
 				.frame(width: 48, height: 48)
 				.clipShape(RoundedRectangle(cornerRadius: 15))
 				.padding(.trailing, 16)
@@ -26,7 +29,7 @@ struct FriendItemView: View {
 					.foregroundStyle(Color.mainText)
 					.lineLimit(1)
 				
-				Text(friend.description)
+				Text(friend.bio)
 					.font(.pretendard(.regular, size: 12))
 					.foregroundStyle(Color.mainText)
 					.lineLimit(1)
@@ -39,7 +42,7 @@ struct FriendItemView: View {
 					favoriteToggleAction()
 				},
 				label: {
-					Image(asset: friend.isFavorite ? SharedDesignSystemAsset.Assets.icFavoriteFill : SharedDesignSystemAsset.Assets.icFavorite)
+					Image(asset: friend.favoriteFriend ? SharedDesignSystemAsset.Assets.icFavoriteFill : SharedDesignSystemAsset.Assets.icFavorite)
 						.resizable()
 						.frame(width: 28, height: 28)
 				}

@@ -7,18 +7,20 @@
 
 import ComposableArchitecture
 
+import DomainFriend
+
 @Reducer
 public struct FriendInfoPopupStore {
 	public init() {}
 	
 	@ObservableState
 	public struct State: Equatable {
-		public var friend: DummyFriend
+		public var friend: Friend
 		// 친구 요청에서 온 팝업인지 아닌지
 		public var isRequestPopup: Bool
 		
 		public init(
-			friend: DummyFriend,
+			friend: Friend,
 			isRequestPopup: Bool = false
 		) {
 			self.friend = friend
@@ -27,7 +29,9 @@ public struct FriendInfoPopupStore {
 	}
 	
 	public enum Action {
-		
+		case favoriteBtnTappedInInfo
+		case friendDelete
+		case gotoFriendCalendar
 	}
 	
 	public var body: some ReducerOf<Self> {

@@ -8,8 +8,8 @@
 import CoreLocation
 import Combine
 import UIKit
-//import Dependencies
-import ComposableArchitecture
+import Dependencies
+
 
 public protocol LocationManagerProtocol {
     /// 위치 권한 요청
