@@ -7,6 +7,8 @@
 
 import ComposableArchitecture
 
+import DomainFriend
+
 @Reducer
 public struct FriendRequestListStore {
 	public init() {}
@@ -14,14 +16,16 @@ public struct FriendRequestListStore {
 	@ObservableState
 	public struct State: Equatable {
 		// 친구 요청 리스트
-		var friends: [DummyFriend]
-		var selectedFriend: DummyFriend? = nil
+		var friends: [Friend]
+		var selectedFriend: Friend? = nil
 		
 		// 친구 정보 popup
 		var showFriendInfoPopup: Bool = false
 		
+		// 
+		
 		public init(
-			friends: [DummyFriend]
+			friends: [Friend]
 		) {
 			self.friends = friends
 		}
@@ -30,7 +34,7 @@ public struct FriendRequestListStore {
 	public enum Action: BindableAction {
 		case binding(BindingAction<State>)
 		// 친구 상세 보기
-		case friendDetailTapped(DummyFriend)
+		case friendDetailTapped(Friend)
 		// 수락하기
 		case acceptTapped
 		// 거절하기

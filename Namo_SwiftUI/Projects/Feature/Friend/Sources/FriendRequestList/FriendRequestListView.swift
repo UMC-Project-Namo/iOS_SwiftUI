@@ -9,6 +9,9 @@ import SwiftUI
 
 import ComposableArchitecture
 
+import SharedDesignSystem
+import DomainFriend
+
 public struct FriendRequestListView: View {
 	@Perception.Bindable var store: StoreOf<FriendRequestListStore>
 	
@@ -20,7 +23,7 @@ public struct FriendRequestListView: View {
 		WithPerceptionTracking {
 			ScrollView(.vertical, showsIndicators: false) {
 				LazyVStack(spacing: 20) {
-					ForEach(store.friends, id: \.id) { friend in
+					ForEach(store.friends, id: \.memberId) { friend in
 						FriendRequestItemView(friend: friend)
 							.onTapGesture {
 								store.send(.friendDetailTapped(friend))
@@ -40,7 +43,7 @@ public struct FriendRequestListView: View {
 					FriendInfoPopupView(
 						store: Store(
 							initialState: FriendInfoPopupStore.State(
-								friend: store.selectedFriend ?? DummyFriend(id: 0),
+								friend: store.selectedFriend!,
 								isRequestPopup: true
 							),
 							reducer: {

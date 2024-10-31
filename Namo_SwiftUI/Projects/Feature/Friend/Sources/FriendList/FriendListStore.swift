@@ -9,6 +9,8 @@ import SwiftUI
 
 import ComposableArchitecture
 
+import DomainFriend
+
 @Reducer
 public struct FriendListStore {
 	public init() {}
@@ -18,7 +20,7 @@ public struct FriendListStore {
 		// 친구 검색 textfield 검색어
 		public var friendSearchTerm: String
 		// 친구 리스트
-		public var friends: [DummyFriend]
+		public var friends: [Friend]
 		
 		// 새 친구 popup
 		public var showAddFriendPopup: Bool
@@ -33,20 +35,26 @@ public struct FriendListStore {
 		
 		// 친구 정보 popup
 		public var showFriendInfoPopup: Bool
-		// 현재 선택한 친구
-		public var selectedFriend: DummyFriend?
+		
+		// 친구 목록 페이지
+		var currentPage: Int = 1
+		// 친구 목록 페이지 인디케이터 보여질지
+		var showPageIndicator: Bool = false
+		
+		// 친구 정보 팝업 state
+		var friendInfoPopupState: FriendInfoPopupStore.State? = nil
+		
 		
 		
 		public init(
 			friendSearchTerm: String = "",
-			friends: [DummyFriend] = [],
+			friends: [Friend] = [],
 			showAddFriendPopup: Bool = false,
 			addFriendNickname: String = "",
 			addFriendTag: String = "",
 			showAddFriendRequestToast: Bool = false,
 			addFriendRequestToastMessage: String = "",
-			showFriendInfoPopup: Bool = false,
-			selectedFriend: DummyFriend? = nil
+			showFriendInfoPopup: Bool = false
 		) {
 			self.friendSearchTerm = friendSearchTerm
 			self.friends = friends
@@ -56,39 +64,122 @@ public struct FriendListStore {
 			self.showAddFriendRequestToast = showAddFriendRequestToast
 			self.addFriendRequestToastMessage = addFriendRequestToastMessage
 			self.showFriendInfoPopup = showFriendInfoPopup
-			self.selectedFriend = selectedFriend
 		}
 	}
 	
 	public enum Action: BindableAction {
 		case binding(BindingAction<State>)
+		// 친구 목록 페이징
+		case loadFriends
+		// 친구 검색
+		case searchFriends
+		// 친구 로드 완료
+		case loadFriendsCompleted(response: FriendResponse)
+		
 		// 친구 즐겨찾기 버튼 탭
-		case favoriteBtnTapped(Int)
+		case favoriteBtnTapped(friendId: Int)
+		// 친구 즐겨찾기 토글 완료
+		case favoriteToggleCompleted(friendId: Int)
+		
 		// 새 친구 popup 띄우기
 		case showAddFriendPopup
 		// 새 친구 popup 데이터 초기화
 		case resetAddFriendState
 		// 친구 신청 버튼 탭
 		case addFriendRequestTapped
+		// 친구 신청 실패
+		case addFriendRequestFailed(error: Error)
 		// 친구 신청 완료 toast 띄우기
 		case showAddFriendRequestToast
 		// 친구 정보 popup 띄우기
-		case showFriendInfoPopup(DummyFriend)
-		// 친구 정보에서 즐겨찾기 버튼 탭
-		case favoriteBtnTappedInInfo
+		case showFriendInfoPopup(Friend)
+		// 친구 일정 띄우기
+		case gotoFriendCalendar(friend: Friend)
+		// Friend Info popup의 action
+		case friendInfoPopup(FriendInfoPopupStore.Action)
 	}
+	
+	@Dependency(\.friendUseCase) var friendUseCase
 	
 	public var body: some ReducerOf<Self> {
 		BindingReducer()
-		
+
 		Reduce { state, action in
 			switch action {
 			case .binding:
 				return .none
 				
+			case .friendInfoPopup(let action):
+				switch action {
+				case .favoriteBtnTappedInInfo:
+					return .send(.favoriteBtnTapped(friendId: state.friendInfoPopupState?.friend.memberId ?? 0))
+					
+				case .friendDelete:
+					return .none
+					
+				case .gotoFriendCalendar:
+					state.showFriendInfoPopup = false
+					return .send(.gotoFriendCalendar(friend: state.friendInfoPopupState!.friend))
+				}
+				
+			case .loadFriends:
+				
+				return .run {[
+					page = state.currentPage,
+					searchTerm = state.friendSearchTerm
+				] send in
+					do {
+						let response = try await friendUseCase.getFriends(page: page, searchTerm: searchTerm)
+						await send(.loadFriendsCompleted(response: response))
+					} catch(let error) {
+						print(error.localizedDescription)
+					}
+				}
+				
+			case .searchFriends:
+				// 페이지 초기화
+				state.currentPage = 1
+				state.friends.removeAll()
+				
+				return .run {[
+					page = state.currentPage,
+					searchTerm = state.friendSearchTerm
+				] send in
+					do {
+						let response = try await friendUseCase.getFriends(page: page, searchTerm: searchTerm)
+						await send(.loadFriendsCompleted(response: response))
+					} catch(let error) {
+						print(error.localizedDescription)
+					}
+				}
+				
+			case .loadFriendsCompleted(let response):
+				state.currentPage += 1
+				state.showPageIndicator = response.currentPage < response.totalPages
+				state.friends.append(contentsOf: response.friendList)
+				
+				return .none
+				
+				
 			case let .favoriteBtnTapped(friendId):
-				if let index = state.friends.firstIndex(where: { $0.id == friendId }) {
-					state.friends[index].isFavorite.toggle()
+				
+				return .run { send in
+					do {
+						try await friendUseCase.toggleFriendFavorite(friendId: friendId)
+						await send(.favoriteToggleCompleted(friendId: friendId))
+					} catch(let error) {
+						print(error.localizedDescription)
+					}
+					
+				}
+				
+			case .favoriteToggleCompleted(let friendId):
+				if let index = state.friends.firstIndex(where: { $0.memberId == friendId }) {
+					state.friends[index].favoriteFriend.toggle()
+				}
+				
+				if state.friendInfoPopupState != nil {
+					state.friendInfoPopupState?.friend.favoriteFriend.toggle()
 				}
 				
 				return .none
@@ -108,10 +199,24 @@ public struct FriendListStore {
 				return .none
 				
 			case .addFriendRequestTapped:
-				
+				let nicknameTag = "\(state.addFriendNickname)#\(state.addFriendTag)"
 				return .run { send in
-					await send(.showAddFriendRequestToast)
+					do {
+						try await friendUseCase.requestFriend(nicknameTag: nicknameTag)
+						await send(.showAddFriendRequestToast)
+					} catch(let error) {
+						await send(.addFriendRequestFailed(error: error))
+					}
+					
 				}
+				
+			case .addFriendRequestFailed(let error):
+				if let error = error as? FriendError {
+					state.addFriendRequestToastMessage = error.message
+				}
+
+				state.showAddFriendRequestToast = true
+				return .none
 				
 			case .showAddFriendRequestToast:
 				state.addFriendRequestToastMessage = "\(state.addFriendNickname)#\(state.addFriendTag) 님에게 친구 신청을 보냈습니다."
@@ -121,52 +226,17 @@ public struct FriendListStore {
 				return .none
 				
 			case let .showFriendInfoPopup(friend):
-				state.selectedFriend = friend
+				state.friendInfoPopupState = FriendInfoPopupStore.State(friend: friend)
 				state.showFriendInfoPopup = true
 				
 				return .none
 				
-			case .favoriteBtnTappedInInfo:
-				if let friend = state.selectedFriend,
-				   let index = state.friends.firstIndex(where: {$0 == friend}) {
-					state.selectedFriend?.isFavorite.toggle()
-					state.friends[index].isFavorite.toggle()
-				}
-				
+			case .gotoFriendCalendar:
 				return .none
 			}
 		}
-	}
-}
-
-public struct DummyFriend: Equatable {
-	public let id: Int
-	public let image: Color
-	public let nickname: String
-	public let description: String
-	public var isFavorite: Bool
-	public let tag: String
-	public let name: String
-	public let birthday: String
-	
-	
-	public init(
-		id: Int,
-		image: Color = .blue,
-		nickname: String = "",
-		description: String = "",
-		isFavorite: Bool = false,
-		tag: String = "",
-		name: String = "가나다",
-		birthday: String = "10월 14일"
-	) {
-		self.id = id
-		self.image = image
-		self.nickname = nickname
-		self.description = description
-		self.isFavorite = isFavorite
-		self.tag = tag
-		self.name = name
-		self.birthday = birthday
+		.ifLet(\.friendInfoPopupState, action: \.friendInfoPopup) {
+			FriendInfoPopupStore()
+		}
 	}
 }
