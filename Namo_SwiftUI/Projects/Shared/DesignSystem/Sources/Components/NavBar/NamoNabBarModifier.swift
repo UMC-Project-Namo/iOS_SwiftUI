@@ -39,11 +39,11 @@ public struct NamoNavBarModifier<C, L, R>: ViewModifier where C: View, L: View, 
             }
             .frame(height: 52)
             
-            Spacer()
+            Spacer(minLength: 0)
             
             content
             
-            Spacer()
+            Spacer(minLength: 0)
         }
         .background(.white)        
         .navigationBarHidden(true)        
