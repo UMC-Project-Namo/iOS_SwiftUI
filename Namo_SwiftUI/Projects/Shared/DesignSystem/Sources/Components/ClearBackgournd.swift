@@ -30,5 +30,6 @@ class ClearBackgroundView: UIView {
             return
         }
         parentView.backgroundColor = .clear
+        
     }
 }

@@ -26,20 +26,11 @@ public struct MainView: View {
                 TabBarView(currentTab: $store.currentTab, tabBarOptions: ["모임 일정", "친구리스트"])
                 
                 TabView(selection: $store.currentTab) {
-                                        
-                    MoimListView(store: store.scope(state: \.moimList, action: \.moimList))
-                        .overlay(alignment: .bottomTrailing) {
-                            FloatingButton {
-                                store.send(.presentComposeSheet)
-                            }
-                        }
-                        .fullScreenCover(isPresented: $store.isSheetPresented, content: {
-                            MoimScheduleEditView(store: store.scope(state: \.moimEdit, action: \.moimEdit))
-                                .background(ClearBackground())
-                        })
+                    
+                    MoimListView(store: store.scope(state: \.moimListStore, action: \.moimListAction))
                         .tag(0)
-                                        
-                    FriendListView(store: store.scope(state: \.friendList, action: \.friendList))
+                    
+                    FriendListView(store: store.scope(state: \.friendListStore, action: \.friendListAction))
                         .tag(1)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
@@ -55,11 +46,6 @@ public struct MainView: View {
                     Image(asset: SharedDesignSystemAsset.Assets.icNotification)
                 }
             })
-            .overlay(
-                Color.black.opacity(0.5)
-                    .ignoresSafeArea(.all)
-                    .opacity(store.isSheetPresented == true ? 1 : 0)
-            )
         }
     }
 }

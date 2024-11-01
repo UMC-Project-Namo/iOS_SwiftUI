@@ -51,52 +51,50 @@ public struct MoimScheduleEditView: View {
     }
     
     public  var body: some View {
-        // deleteButton
-        deleteScheduleButton
-            .padding(.bottom, 6)
-            .padding(.top, 10)
-            .opacity(isVisible ? 0 : 1)
-        
-        WithPerceptionTracking {
-        VStack(spacing: 0) {
-                // title
-                headerView
-                    .padding(.horizontal, 20)
-                
-                // content
-                ScrollView {
-                    VStack(spacing: 30) {
-                        // textField
-                        TextField("내 모임", text: $store.title)
-                            .font(.pretendard(.bold, size: 22))
-                            .foregroundStyle(Color.mainText)
-                            .padding(.top, 20)
-                        
-                        // imagePicker
-                        imagePickerView
-                        
-                        // 장소, 시간
-                        settingView
-                        
-                        // 친구 초대
-                        participantListView
-                                                
-                        // 일정보기 버튼
-                        showScheduleButton
+        VStack {
+            // deleteButton
+            deleteScheduleButton
+                .padding(.bottom, 6)
+                .padding(.top, 10)
+                .opacity(isVisible ? 0 : 1)
+            
+            WithPerceptionTracking {
+                VStack(spacing: 0) {
+                    // title
+                    headerView
+                        .padding(.horizontal, 20)
+                    
+                    // content
+                    ScrollView {
+                        VStack(spacing: 30) {
+                            // textField
+                            TextField("내 모임", text: $store.title)
+                                .font(.pretendard(.bold, size: 22))
+                                .foregroundStyle(Color.mainText)
+                                .padding(.top, 20)
+                            
+                            // imagePicker
+                            imagePickerView
+                            
+                            // 장소, 시간
+                            settingView
+                            
+                            // 친구 초대
+                            participantListView
+                            
+                            // 일정보기 버튼
+                            showScheduleButton
+                        }
+                        .padding(.horizontal, 30)
                     }
-                    .padding(.horizontal, 30)
                 }
             }
-        }
-        .background(.white)
-        .clipShape(RoundedCorners(radius: 15, corners: [.topLeft, .topRight]))
-        .shadow(
-            color: Color.black.opacity(0.15),
-            radius: 12,
-            x: 0,
-            y: 0
-        )
-        .mask(Rectangle().padding(.top, -20))
+            .background(.white)
+            .clipShape(UnevenRoundedRectangle(cornerRadii: .init(
+                topLeading: 15,
+                topTrailing: 15)))
+            .shadow(radius: 10)
+        }        
         .edgesIgnoringSafeArea(.bottom)
         .namoAlertView(isPresented: $store.isAlertPresented,
                        title: "모임 일정에서 정말 나가시겠어요?",
@@ -104,6 +102,7 @@ public struct MoimScheduleEditView: View {
                        confirmAction: {
             store.send(.deleteButtonConfirm)
         })
+        .background(ClearBackground())
     }
 }
 

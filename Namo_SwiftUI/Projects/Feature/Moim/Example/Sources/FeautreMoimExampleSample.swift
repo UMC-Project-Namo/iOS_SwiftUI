@@ -7,7 +7,7 @@ import ComposableArchitecture
 @main
 struct FeautureMoimExampleApp: App {
     var body: some Scene {
-        WindowGroup {
+        WindowGroup {            
             MoimCoordinatorView(store: .init(initialState: .initialState, reducer: {
                 MoimCoordinator()
             }))            

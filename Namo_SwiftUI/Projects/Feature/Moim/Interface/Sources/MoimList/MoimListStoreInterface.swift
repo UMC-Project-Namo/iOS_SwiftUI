@@ -28,6 +28,7 @@ public struct MoimListStore {
         case viewOnAppear
         case moimListResponse([MoimScheduleItem])
         case moimCellSelected(meetingScheduleId: Int)
+        case presentComposeSheet
     }
     
     public var body: some ReducerOf<Self> {

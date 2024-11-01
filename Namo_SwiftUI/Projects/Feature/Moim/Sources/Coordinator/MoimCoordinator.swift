@@ -8,20 +8,17 @@
 import Foundation
 import ComposableArchitecture
 import TCACoordinators
+
 import FeaturePlaceSearchInterface
 import FeatureMoimInterface
 import FeatureFriend
 
 @Reducer(state: .equatable)
 public enum MoimScreen {
-    // 모임 일정
-    case moimSchedule(MainViewStore)
-    
-    // 친구 캘린더 화면
-    case friendCalendar(FriendCalendarStore)
-    
-    // 친구 요청
-    case friendRequest(FriendRequestListStore)
+    case main(MainViewStore)
+    case moimEdit(MoimEditStore)
+    case kakaoMap
+    case notification
 }
 
 @Reducer
@@ -30,43 +27,34 @@ public struct MoimCoordinator {
     
     @ObservableState
     public struct State: Equatable {
-        public static let initialState = State(routes: [.root(.moimSchedule(.initialState), embedInNavigationView: true)],
-                                               moimSchedule: .initialState,
-                                               friendRequest: .init(friends: [])
-        )
+        public static let initialState = State(routes: [.root(.main(.initialState), embedInNavigationView: true)], mainStore: .initialState)
+        
         
         var routes: [Route<MoimScreen.State>]
-        var moimSchedule: MainViewStore.State
-        var friendRequest: FriendRequestListStore.State
+        
+        var mainStore: MainViewStore.State
     }
     
     public enum Action {
         case router(IndexedRouterActionOf<MoimScreen>)
-        case moimSchedule(MainViewStore.Action)
-        case friendRequest(FriendRequestListStore.Action)
+        case mainAction(MoimEditStore.Action)
     }
     
     public var body: some ReducerOf<Self> {
-        Scope(state: \.moimSchedule, action: \.moimSchedule) {
-            MainViewStore()
-        }
-        Scope(state: \.friendRequest, action: \.friendRequest) {
-            FriendRequestListStore()
+        Scope(state: \.mainStore.moimEditStore, action: \.mainAction) {
+            MoimEditStore()
         }
         
         Reduce<State, Action> { state, action in
             switch action {
-                // 모임일정 -> 친구요청
-            case .router(.routeAction(_, action: .moimSchedule(.notificationButtonTap))):
-                state.routes.push(.friendRequest(state.friendRequest))
+            case .router(.routeAction(_, action: .main(.moimListAction(.presentComposeSheet)))):                
+                state.routes.presentCover(.moimEdit(.init()), embedInNavigationView: false)
                 return .none
-                // 모임일정 -> 친구캘린더
-            case .router(.routeAction(_, action: .moimSchedule(.navigateToFriendCalendar(let friend)))):
-                state.routes.push(.friendCalendar(.init(friend: friend)))
-                return .none        
-                // 친구캘린더에서 뒤로가기
-            case .router(.routeAction(_, action: .friendCalendar(.backBtnTapped))):
-                state.routes.pop()
+            case .router(.routeAction(_, action: .moimEdit(.goToKakaoMapView))):
+                state.routes.push(.kakaoMap)
+                return .none
+            case .router(.routeAction(_, action: .main(.notificationButtonTap))):
+                state.routes.push(.notification)
                 return .none
             default:
                 return .none

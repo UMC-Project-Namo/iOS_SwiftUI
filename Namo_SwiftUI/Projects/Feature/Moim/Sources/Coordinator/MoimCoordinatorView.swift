@@ -11,6 +11,7 @@ import TCACoordinators
 
 import FeaturePlaceSearch
 import FeatureFriend
+import SharedDesignSystem
 
 public struct MoimCoordinatorView: View {
     let store: StoreOf<MoimCoordinator>
@@ -22,12 +23,14 @@ public struct MoimCoordinatorView: View {
     public var body: some View {
         TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
             switch screen.case {
-            case let .moimSchedule(store):
+            case let .main(store):
                 MainView(store: store)
-            case let .friendRequest(store):
-                FriendRequestView(store: store)
-			case let .friendCalendar(store):
-				FriendCalendarView(store: store)
+            case let .moimEdit(store):
+                MoimScheduleEditView(store: store)                    
+            case .kakaoMap:
+                Text("카카오맵뷰!!")
+            case .notification:
+                Text("친구요청")
             }
         }
     }
