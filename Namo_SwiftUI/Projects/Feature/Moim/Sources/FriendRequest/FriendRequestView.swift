@@ -6,22 +6,21 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 import SharedDesignSystem
+import FeatureFriend
 
 struct FriendRequestView: View {
+    let store: StoreOf<FriendRequestListStore>
+    
     var body: some View {
-        Text("친구 요청")
+        FriendRequestListView(store: store)
             .namoNabBar(center: {
                 Text("새로운 요청")
                     .font(.pretendard(.bold, size: 16))
             }, left: {
-                NamoBackButton {
-                    
+                NamoBackButton {                    
                 }
             })
     }
-}
-
-#Preview {
-    FriendRequestView()
 }

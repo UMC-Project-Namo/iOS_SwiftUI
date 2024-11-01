@@ -5,6 +5,13 @@
 //  Created by 권석기 on 9/11/24.
 //
 
+//
+//  MoimCreateView.swift
+//  FeatureMoim
+//
+//  Created by 권석기 on 9/11/24.
+//
+
 import SwiftUI
 import SharedDesignSystem
 import PhotosUI
@@ -15,40 +22,32 @@ import Kingfisher
 
 public struct MoimScheduleEditView: View {
     @Perception.Bindable private var store: StoreOf<MoimEditStore>
-    @ObservedObject private var viewStore: ViewStoreOf<MoimEditStore>
     
     public init(store: StoreOf<MoimEditStore>) {
         self.store = store
-        self.viewStore = ViewStore(store, observe: { $0 })
     }
     
     
     /// 편집여부에 따라 보여지는 텍스트 설정
     private var title: String {
-        switch viewStore.mode {
-        case .compose:
-            "새 모임 일정"
-        case .edit:
-            "모임 일정 편집"
-        case .view:
-            "모임 일정"
+        switch store.mode {
+        case .compose:  "새 모임 일정"
+        case .edit: "모임 일정 편집"
+        case .view: "모임 일정"
         }
     }
     
     /// 편집여부에 따라서 보여지는 버튼 텍스트 설정
     private var buttonTitle: String {
-        switch viewStore.mode {
-        case .compose:
-            "생성"
-        case .edit:
-            "저장"
-        case .view:
-            ""
+        switch store.mode {
+        case .compose: "생성"
+        case .edit: "저장"
+        case .view: ""
         }
     }
     
     private var isVisible: Bool {
-        return !viewStore.isOwner
+        return !store.isOwner
     }
     
     public  var body: some View {
@@ -58,8 +57,8 @@ public struct MoimScheduleEditView: View {
             .padding(.top, 10)
             .opacity(isVisible ? 0 : 1)
         
+        WithPerceptionTracking {
         VStack(spacing: 0) {
-            WithPerceptionTracking {
                 // title
                 headerView
                     .padding(.horizontal, 20)
@@ -68,7 +67,7 @@ public struct MoimScheduleEditView: View {
                 ScrollView {
                     VStack(spacing: 30) {
                         // textField
-                        TextField("내 모임", text: viewStore.$title)
+                        TextField("내 모임", text: $store.title)
                             .font(.pretendard(.bold, size: 22))
                             .foregroundStyle(Color.mainText)
                             .padding(.top, 20)
@@ -81,11 +80,9 @@ public struct MoimScheduleEditView: View {
                         
                         // 친구 초대
                         participantListView
-                        
-                        
+                                                
                         // 일정보기 버튼
                         showScheduleButton
-                        
                     }
                     .padding(.horizontal, 30)
                 }
@@ -101,11 +98,11 @@ public struct MoimScheduleEditView: View {
         )
         .mask(Rectangle().padding(.top, -20))
         .edgesIgnoringSafeArea(.bottom)
-        .namoAlertView(isPresented: viewStore.$isAlertPresented,
+        .namoAlertView(isPresented: $store.isAlertPresented,
                        title: "모임 일정에서 정말 나가시겠어요?",
                        content: "모임 일정과 해당 일정의 기록을 \n 더 이상 보실 수 없습니다.",
                        confirmAction: {
-            viewStore.send(.deleteButtonConfirm)
+            store.send(.deleteButtonConfirm)
         })
     }
 }
@@ -114,7 +111,7 @@ extension MoimScheduleEditView {
     
     private var deleteScheduleButton: some View {
         Button(action: {
-            viewStore.send(.deleteButtonTapped)
+            store.send(.deleteButtonTapped)
         }, label: {
             Circle()
                 .frame(width: 40, height: 40)
@@ -168,7 +165,7 @@ extension MoimScheduleEditView {
             
             Spacer()
             
-            if viewStore.mode == .view {
+            if store.mode == .view {
                 Text("취소")
                     .font(.pretendard(.regular, size: 15))
                     .foregroundStyle(Color.white)
@@ -201,14 +198,14 @@ extension MoimScheduleEditView {
             
             Spacer()
             
-            PhotosPicker(selection: viewStore.$coverImageItem, matching: .images) {
-                if let coverImage = viewStore.coverImage {
+            PhotosPicker(selection: $store.coverImageItem, matching: .images) {
+                if let coverImage = store.coverImage {
                     Image(uiImage: coverImage)
                         .resizable()
                         .frame(width: 55, height: 55)
                         .cornerRadius(5)
-                } else if !viewStore.imageUrl.isEmpty {
-                    KFImage(URL(string: viewStore.imageUrl))
+                } else if !store.imageUrl.isEmpty {
+                    KFImage(URL(string: store.imageUrl))
                         .placeholder({
                             Image(asset: SharedDesignSystemAsset.Assets.appLogo)
                         })
@@ -236,16 +233,16 @@ extension MoimScheduleEditView {
                     
                     Spacer()
                     
-                    Text(viewStore.startDate.toYMDEHM())
+                    Text(store.startDate.toYMDEHM())
                         .font(.pretendard(.regular, size: 15))
                         .foregroundStyle(Color.mainText)
                         .onTapGesture {
-                            viewStore.send(.startPickerTapped)
+                            store.send(.startPickerTapped)
                         }
                 }
                 
-                if viewStore.isStartPickerPresented {
-                    DatePicker("startTimeDatePicker", selection: viewStore.$startDate)
+                if store.isStartPickerPresented {
+                    DatePicker("startTimeDatePicker", selection: $store.startDate)
                         .datePickerStyle(.graphical)
                         .labelsHidden()
                         .tint(Color.mainOrange)
@@ -259,16 +256,16 @@ extension MoimScheduleEditView {
                         .foregroundStyle(Color.mainText)
                     
                     Spacer()
-                    Text(viewStore.endDate.toYMDEHM())
+                    Text(store.endDate.toYMDEHM())
                         .font(.pretendard(.regular, size: 15))
                         .foregroundStyle(Color.mainText)
                         .onTapGesture {
-                            viewStore.send(.endPickerTapped)
+                            store.send(.endPickerTapped)
                         }
                 }
                 
-                if viewStore.isEndPickerPresented {
-                    DatePicker("endTimeDatePicker", selection: viewStore.$endDate)
+                if store.isEndPickerPresented {
+                    DatePicker("endTimeDatePicker", selection: $store.endDate)
                         .datePickerStyle(.graphical)
                         .labelsHidden()
                         .tint(Color.mainOrange)
@@ -285,7 +282,7 @@ extension MoimScheduleEditView {
                     store.send(.goToKakaoMapView)
                 }) {
                     HStack(spacing: 8) {
-                        Text(viewStore.locationName)
+                        Text(store.locationName)
                             .font(.pretendard(.regular, size: 15))
                             .foregroundStyle(Color.mainText)
                         
@@ -310,7 +307,7 @@ extension MoimScheduleEditView {
                 }
             }
             
-            FlexibleGridView(data: viewStore.participants) { participant in
+            FlexibleGridView(data: store.participants) { participant in
                 Participant(name: participant.nickname,
                             color: PalleteColor(rawValue: participant.colorId ?? 1)?.color ?? .clear,
                             isOwner: participant.isOwner)

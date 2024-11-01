@@ -18,7 +18,7 @@ extension MoimEditStore {
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
             switch action {
-            case .binding(\.$coverImageItem):
+            case .binding(\.coverImageItem):
                 return .run { [imageItem = state.coverImageItem] send in
                     if let loaded = try? await imageItem?.loadTransferable(type: Data.self) {
                         guard let uiImage = UIImage(data: loaded) else {

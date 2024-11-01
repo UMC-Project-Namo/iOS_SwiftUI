@@ -8,6 +8,7 @@
 import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
+
 import FeaturePlaceSearch
 import FeatureFriend
 
@@ -23,8 +24,8 @@ public struct MoimCoordinatorView: View {
             switch screen.case {
             case let .moimSchedule(store):
                 MainView(store: store)
-            case .friendRequest:
-                FriendRequestView()
+            case let .friendRequest(store):
+                FriendRequestView(store: store)
 			case let .friendCalendar(store):
 				FriendCalendarView(store: store)
             }

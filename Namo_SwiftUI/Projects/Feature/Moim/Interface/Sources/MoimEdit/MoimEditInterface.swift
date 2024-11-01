@@ -28,27 +28,28 @@ public struct MoimEditStore {
         self.reducer = reducer
     }
     
+    @ObservableState
     public struct State: Equatable {
         /// 타이틀
-        @BindingState public var title: String = ""
+        public var title: String = ""
         
         /// 커버이미지
-        @BindingState public var coverImageItem: PhotosPickerItem?
+        public var coverImageItem: PhotosPickerItem?
         
         /// 시작 날짜
-        @BindingState public var startDate: Date = .now
+        public var startDate: Date = .now
         
         /// 종료 날짜
-        @BindingState public var endDate: Date = .now
+        public var endDate: Date = .now
         
         /// 시작 날짜 선택 캘린더 보임여부
-        @BindingState public var isStartPickerPresented: Bool = false
+        public var isStartPickerPresented: Bool = false
         
         /// 종료 날짜 선택 캘린더 보임여부
-        @BindingState public var isEndPickerPresented: Bool = false
+        public var isEndPickerPresented: Bool = false
         
         /// 삭제 알림 보임여부
-        @BindingState public var isAlertPresented: Bool = false
+        public var isAlertPresented: Bool = false
         
         /// 모임일정 id
         public var moimScheduleId: Int = 0
