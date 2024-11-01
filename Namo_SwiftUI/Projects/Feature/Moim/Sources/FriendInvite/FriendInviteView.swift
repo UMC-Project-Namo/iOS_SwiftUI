@@ -100,7 +100,3 @@ extension FriendInviteView {
         }
     }
 }
-
-#Preview {
-    FriendInviteView()
-}

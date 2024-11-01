@@ -16,10 +16,12 @@ import FeatureFriend
 public enum MoimScreen {
     // 모임 일정
     case moimSchedule(MainViewStore)
-    // 모임/친구 요청
-    case moimRequest(MoimRequestStore)
-	// 친구 캘린더 화면
-	case friendCalendar(FriendCalendarStore)
+    
+    // 친구 캘린더 화면
+    case friendCalendar(FriendCalendarStore)
+    
+    // 친구 요청
+    case friendRequest
 }
 
 @Reducer
@@ -29,50 +31,37 @@ public struct MoimCoordinator {
     @ObservableState
     public struct State: Equatable {
         public static let initialState = State(routes: [.root(.moimSchedule(.initialState), embedInNavigationView: true)],
-                                               moimSchedule: .initialState,
-                                               moimRequest: .init()
+                                               moimSchedule: .initialState
         )
         
         var routes: [Route<MoimScreen.State>]
         var moimSchedule: MainViewStore.State
-        var moimRequest: MoimRequestStore.State
     }
     
     public enum Action {
         case router(IndexedRouterActionOf<MoimScreen>)
         case moimSchedule(MainViewStore.Action)
-        case moimRequest(MoimRequestStore.Action)
-        case placeSearch(PlaceSearchStore.Action)
     }
     
     public var body: some ReducerOf<Self> {
         Scope(state: \.moimSchedule, action: \.moimSchedule) {
             MainViewStore()
         }
-        Scope(state: \.moimRequest, action: \.moimRequest) {
-            MoimRequestStore()
-        }        
         
         Reduce<State, Action> { state, action in
             switch action {
-                // 모임 요청
+                // 모임일정 -> 친구요청
             case .router(.routeAction(_, action: .moimSchedule(.notificationButtonTap))):
-                state.routes.push(.moimRequest(.init()))
+                state.routes.push(.friendRequest)
+                return .none                                        
+            case .router(.routeAction(_, action: .moimSchedule(.navigateToFriendCalendar(let friend)))):
+                // 친구 캘린더 push
+                state.routes.push(.friendCalendar(.init(friend: friend)))
+                return .none                
+            case .router(.routeAction(_, action: .friendCalendar(.backBtnTapped))):
+                // 친구 캘린더에서 뒤로가기
+                state.routes.pop()
                 return .none
-                // 화면 제거
-            case .router(.routeAction(_, action: .moimRequest(.backButtonTap))):
-                state.routes.goBack()
-                return .none
-				
-			case .router(.routeAction(_, action: .moimSchedule(.navigateToFriendCalendar(let friend)))):
-				// 친구 캘린더 push
-				state.routes.push(.friendCalendar(.init(friend: friend)))
-				return .none
-				
-			case .router(.routeAction(_, action: .friendCalendar(.backBtnTapped))):
-				// 친구 캘린더에서 뒤로가기
-				state.routes.pop()
-				return .none
             default:
                 return .none
             }
