@@ -54,7 +54,7 @@ public struct MoimCoordinator {
         
         Reduce<State, Action> { state, action in
             switch action {
-            case .router(.routeAction(_, action: .mainTab(.moimListAction(.presentComposeSheet)))):
+            case .router(.routeAction(_, action: .mainTab(.moimListAction(.presentComposeSheet)))):                
                 state.isPresentedSheet = true
                 state.routes.presentCover(.moimEdit(.initialState))
                 return .none

@@ -13,7 +13,7 @@ import SharedDesignSystem
 import SharedUtil
 
 struct AppCoordinatorView: View {
-    let store: StoreOf<AppCoordinator>
+    @Perception.Bindable var store: StoreOf<AppCoordinator>
     @State private var cancellables = Set<AnyCancellable>()
     
     var body: some View {
@@ -26,14 +26,14 @@ struct AppCoordinatorView: View {
                     OnboardingCoordinatorView(store: store)
                 }
             }
-            .namoAlertView(
-                isPresented: Binding(get: { store.showAlert }, set: { store.send(.changeShowAlert(show: $0)) }),
-                title: store.alertTitle,
-                content: store.alertContent,
-                confirmAction: {
-                    store.send(.doAlertConfirmAction)
-                }
-            )
+//            .namoAlertView(
+//                isPresented: Binding(get: { store.showAlert }, set: { store.send(.changeShowAlert(show: $0)) }),
+//                title: store.alertTitle,
+//                content: store.alertContent,
+//                confirmAction: {
+//                    store.send(.doAlertConfirmAction)
+//                }
+//            )
             .onReceive(NotificationCenter.default.publisher(for: .networkError)) { notification in
                 if let error = notification.userInfo?["error"] as? NetworkErrorNotification {
                     store.send(.handleNotiError(error: error))
