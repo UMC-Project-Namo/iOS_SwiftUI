@@ -29,9 +29,9 @@ public struct MainView: View {
                     
                     MoimListView(store: store.scope(state: \.moimListStore, action: \.moimListAction))
                         .tag(0)
-                    
-                    FriendListView(store: store.scope(state: \.friendListStore, action: \.friendListAction))
-                        .tag(1)
+                 
+//                    FriendListView(store: store.scope(state: \.friendListStore, action: \.friendListAction))
+//                        .tag(1)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
             }            

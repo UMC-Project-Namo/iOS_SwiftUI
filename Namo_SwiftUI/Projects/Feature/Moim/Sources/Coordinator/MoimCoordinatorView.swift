@@ -21,17 +21,19 @@ public struct MoimCoordinatorView: View {
     }
     
     public var body: some View {
-        TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
-            switch screen.case {
-            case let .mainTab(store):
-                MainView(store: store)                    
-            case let .moimEdit(store):
-                MoimEditCoordinatorView(store: store)
-            case .notification:
-                Text("친구요청")
+        WithPerceptionTracking {
+            TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
+                switch screen.case {
+                case let .mainTab(store):
+                    MainView(store: store)
+                case let .moimEdit(store):
+                    MoimEditCoordinatorView(store: store)
+                case .notification:
+                    Text("친구요청")
+                }
             }
+            .overlay(store.isPresentedSheet ? Color.black.opacity(0.3).ignoresSafeArea(.all) : nil)
         }
-        .overlay(store.isPresentedSheet ? Color.black.opacity(0.3).ignoresSafeArea(.all) : nil)
     }
 }
 

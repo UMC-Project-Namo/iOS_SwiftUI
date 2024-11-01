@@ -40,7 +40,7 @@ struct MoimListView: View {
             .frame(maxWidth: .infinity)
             .overlay(alignment: .bottomTrailing) {
                 FloatingButton {
-                    store.send(.presentComposeSheet)                    
+                    store.send(.presentComposeSheet)
                 }
             }
             .onAppear {

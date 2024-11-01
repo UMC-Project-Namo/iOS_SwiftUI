@@ -13,12 +13,15 @@
 //
 
 import SwiftUI
-import SharedDesignSystem
 import PhotosUI
+
 import ComposableArchitecture
+import Kingfisher
+
 import FeatureMoimInterface
 import SharedUtil
-import Kingfisher
+import SharedDesignSystem
+
 
 public struct MoimScheduleEditView: View {
     @Perception.Bindable private var store: StoreOf<MoimEditStore>
@@ -46,84 +49,65 @@ public struct MoimScheduleEditView: View {
         }
     }
     
-    private var isVisible: Bool {
-        return !store.isOwner
-    }
-    
     public  var body: some View {
-        VStack {
-            // deleteButton
-            deleteScheduleButton
-                .padding(.bottom, 6)
-                .padding(.top, 10)
-                .opacity(isVisible ? 0 : 1)
-            
-            WithPerceptionTracking {
-                VStack(spacing: 0) {
-                    // title
-                    headerView
-                        .padding(.horizontal, 20)
-                    
-                    // content
-                    ScrollView {
-                        VStack(spacing: 30) {
-                            // textField
-                            TextField("내 모임", text: $store.title)
-                                .font(.pretendard(.bold, size: 22))
-                                .foregroundStyle(Color.mainText)
-                                .padding(.top, 20)
-                            
-                            // imagePicker
-                            imagePickerView
-                            
-                            // 장소, 시간
-                            settingView
-                            
-                            // 친구 초대
-                            participantListView
-                            
-                            // 일정보기 버튼
-                            showScheduleButton
+        WithPerceptionTracking {
+            VStack {
+                // deleteButton
+                DeleteCircleButton {
+                    store.send(.deleteButtonTapped)
+                }
+                .opacity(!store.isOwner ? 0 : 1)
+                
+                WithPerceptionTracking {
+                    VStack(spacing: 0) {
+                        // title
+                        headerView
+                            .padding(.horizontal, 20)
+                        
+                        // content
+                        ScrollView {
+                            VStack(spacing: 30) {
+                                // textField
+                                TextField("내 모임", text: $store.title)
+                                    .font(.pretendard(.bold, size: 22))
+                                    .foregroundStyle(Color.mainText)
+                                    .padding(.top, 20)
+                                
+                                // imagePicker
+                                imagePickerView
+                                
+                                // 장소, 시간
+                                settingView
+                                
+                                // 친구 초대
+                                participantListView
+                                
+                                // 일정보기 버튼
+                                showScheduleButton
+                            }
+                            .padding(.horizontal, 30)
                         }
-                        .padding(.horizontal, 30)
                     }
                 }
+                .background(.white)
+                .clipShape(UnevenRoundedRectangle(cornerRadii: .init(
+                    topLeading: 15,
+                    topTrailing: 15)))
+                .shadow(radius: 10)
             }
-            .background(.white)
-            .clipShape(UnevenRoundedRectangle(cornerRadii: .init(
-                topLeading: 15,
-                topTrailing: 15)))
-            .shadow(radius: 10)
-        }        
-        .edgesIgnoringSafeArea(.bottom)
-        .namoAlertView(isPresented: $store.isAlertPresented,
-                       title: "모임 일정에서 정말 나가시겠어요?",
-                       content: "모임 일정과 해당 일정의 기록을 \n 더 이상 보실 수 없습니다.",
-                       confirmAction: {
-            store.send(.deleteButtonConfirm)
-        })
-        .background(ClearBackground())
+            .edgesIgnoringSafeArea(.bottom)
+            .namoAlertView(isPresented: $store.isAlertPresented,
+                           title: "모임 일정에서 정말 나가시겠어요?",
+                           content: "모임 일정과 해당 일정의 기록을 \n 더 이상 보실 수 없습니다.",
+                           confirmAction: {
+                store.send(.deleteButtonConfirm)
+            })
+            .background(ClearBackground())
+        }
     }
 }
 
 extension MoimScheduleEditView {
-    
-    private var deleteScheduleButton: some View {
-        Button(action: {
-            store.send(.deleteButtonTapped)
-        }, label: {
-            Circle()
-                .frame(width: 40, height: 40)
-                .foregroundStyle(.white)
-                .overlay {
-                    Image(asset: SharedDesignSystemAsset.Assets.icTrash)
-                }
-                .shadow(
-                    color: Color.black.opacity(0.25),
-                    radius: 6
-                )
-        })
-    }
     
     /// 일정 보기
     private var showScheduleButton: some View {

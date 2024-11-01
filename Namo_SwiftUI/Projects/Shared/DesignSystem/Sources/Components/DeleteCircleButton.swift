@@ -7,20 +7,22 @@
 
 import SwiftUI
 
-import SharedDesignSystem
-
-struct DeleteCircleButton: View {
+public struct DeleteCircleButton: View {
+    
+    private let action: () -> Void
+    
+    public init(action: @escaping () -> Void) {
+        self.action = action
+    }
 	
-	let action: () -> Void
-	
-	var body: some View {
+    public var body: some View {
 		ZStack {
 			Circle()
 				.fill(.white)
 				.frame(width: 40, height: 40)
 				.shadow(radius: 2)
 			
-			Image(asset: SharedDesignSystemAsset.Assets.icDeleteSchedule)
+            Image(asset: SharedDesignSystemAsset.Assets.icDeleteSchedule)
 				.resizable()
 				.frame(width: 24, height: 24)
 			

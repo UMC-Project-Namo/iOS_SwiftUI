@@ -16,8 +16,8 @@ struct MainTabCoordinatorView: View {
     var body: some View {
         WithPerceptionTracking {
             TabView {
-				HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
-					.tabItem { Text("홈") }
+//				HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
+//					.tabItem { Text("홈") }
 				
                 MoimCoordinatorView(store: store.scope(state: \.moim, action: \.moim))
                     .tabItem { Text("모임") }
