@@ -38,7 +38,7 @@ struct TabBarView: View {
                                 Color.clear
                                     .frame(height: 1)
                             }
-                        }                      
+                        }
                         .fixedSize()
                         .animation(.spring, value: currentTab)
                     })

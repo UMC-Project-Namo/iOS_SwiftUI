@@ -26,28 +26,41 @@ public struct MoimCoordinator {
     
     @ObservableState
     public struct State: Equatable {
-        public static let initialState = State(routes: [.root(.mainTab(.initialState), embedInNavigationView: true)], mainStore: .initialState)
+        public static let initialState = State(routes: [.root(.mainTab(.initialState), embedInNavigationView: true)], mainStore: .initialState, moimEditStore: .initialState)
         
         
         var routes: [Route<MoimScreen.State>]
         
+        var isPresentedSheet: Bool = false
+                
         var mainStore: MainViewStore.State
+        
+        var moimEditStore: MoimEditCoordinator.State
     }
     
     public enum Action {
         case router(IndexedRouterActionOf<MoimScreen>)
         case mainAction(MainViewStore.Action)
+        case moimEditAction(MoimEditCoordinator.Action)
     }
     
     public var body: some ReducerOf<Self> {
         Scope(state: \.mainStore, action: \.mainAction) {
             MainViewStore()
-        }     
+        }
+        Scope(state: \.moimEditStore, action: \.moimEditAction) {
+            MoimEditCoordinator()
+        }
         
         Reduce<State, Action> { state, action in
             switch action {
             case .router(.routeAction(_, action: .mainTab(.moimListAction(.presentComposeSheet)))):
+                state.isPresentedSheet = true
                 state.routes.presentCover(.moimEdit(.initialState))
+                return .none
+            case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
+                state.isPresentedSheet = false
+                state.routes.dismiss()
                 return .none
             case .router(.routeAction(_, action: .mainTab(.notificationButtonTap))):
                 state.routes.push(.notification)

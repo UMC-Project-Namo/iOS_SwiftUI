@@ -34,7 +34,7 @@ public struct MainView: View {
                         .tag(1)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-            }
+            }            
             .namoNabBar(left: {
                 Text("Group Calendar")
                     .font(.pretendard(.bold, size: 22))
@@ -46,6 +46,6 @@ public struct MainView: View {
                     Image(asset: SharedDesignSystemAsset.Assets.icNotification)
                 }
             })
-        }
+        }        
     }
 }

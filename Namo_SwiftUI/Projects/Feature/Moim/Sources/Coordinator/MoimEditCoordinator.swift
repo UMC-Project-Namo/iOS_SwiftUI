@@ -43,9 +43,11 @@ public struct MoimEditCoordinator {
         
         Reduce<State, Action> { state, action in
             switch action {
-            case .router(.routeAction(_, action: .createMoim(.goToKakaoMapView))):                
+            case .router(.routeAction(_, action: .createMoim(.goToKakaoMapView))):
                 state.routes.push(.kakaoMap)
                 return .none
+            case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))):
+                return .send(.moimEditAction(.cancleButtonTapped))
             default:
                 return .none
             }
