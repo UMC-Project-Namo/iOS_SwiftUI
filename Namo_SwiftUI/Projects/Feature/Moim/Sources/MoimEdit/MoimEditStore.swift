@@ -54,7 +54,9 @@ extension MoimEditStore {
                 return .run { [state = state] send in
                     try await moimUseCase.withdrawMoim(state.moimScheduleId)
                 }         
-            default:                
+            case .goToKakaoMapView:                
+                return .none
+            default:
                 return .none
             }
         }

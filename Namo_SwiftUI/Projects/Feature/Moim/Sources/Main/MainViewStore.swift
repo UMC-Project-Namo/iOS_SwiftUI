@@ -21,14 +21,10 @@ public struct MainViewStore {
     @ObservableState
     public struct State: Equatable {
         public static let initialState = State(moimListStore: .init(),
-                                               friendListStore: .init(),
-                                               moimEditStore: .init())
+                                               friendListStore: .init(), moimEditStore: .init())
         
         // 현재 선택한탭
         public var currentTab = 0
-        
-        // 일정생성뷰
-        public var isSheetPresented = false
         
         // 모임리스트
         var moimListStore: MoimListStore.State
@@ -36,15 +32,15 @@ public struct MainViewStore {
         // 친구리스트
         var friendListStore: FriendListStore.State
         
-        // 모임생성
         var moimEditStore: MoimEditStore.State
+        
     }
     
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case moimListAction(MoimListStore.Action)
+        case friendListAction(FriendListStore.Action)       
         case moimEditAction(MoimEditStore.Action)
-        case friendListAction(FriendListStore.Action)        
         case notificationButtonTap
     }
     
@@ -56,7 +52,7 @@ public struct MainViewStore {
         }
         Scope(state: \.friendListStore, action: \.friendListAction) {
             FriendListStore()
-        }
+        }        
         Scope(state: \.moimEditStore, action: \.moimEditAction) {
             MoimEditStore()
         }

@@ -277,7 +277,7 @@ extension MoimScheduleEditView {
                     .foregroundStyle(Color.mainText)
                 Spacer()
                 
-                Button(action: {
+                Button(action: {                    
                     store.send(.goToKakaoMapView)
                 }) {
                     HStack(spacing: 8) {

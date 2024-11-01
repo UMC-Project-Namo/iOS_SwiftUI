@@ -23,12 +23,10 @@ public struct MoimCoordinatorView: View {
     public var body: some View {
         TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
             switch screen.case {
-            case let .main(store):
-                MainView(store: store)
+            case let .mainTab(store):
+                MainView(store: store)            
             case let .moimEdit(store):
-                MoimScheduleEditView(store: store)                    
-            case .kakaoMap:
-                Text("카카오맵뷰!!")
+                MoimEditCoordinatorView(store: store)
             case .notification:
                 Text("친구요청")
             }
