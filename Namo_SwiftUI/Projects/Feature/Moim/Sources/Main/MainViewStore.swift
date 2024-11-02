@@ -14,7 +14,6 @@ import DomainFriend
 
 @Reducer
 public struct MainViewStore {
-    @Dependency(\.moimUseCase) var moimUseCase
     
     public init() {}
     

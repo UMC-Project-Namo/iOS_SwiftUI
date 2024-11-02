@@ -86,6 +86,7 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         // 검색리스트 구독
         store.publisher
             .placeList
+            .dropFirst()
             .sink { [weak self] placeList in
                 guard let firstLocation = placeList.first,
                       let longitude = Double(firstLocation.x),
@@ -101,11 +102,12 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         // 검색ID 구독
         store.publisher
             .id
+            .dropFirst()
             .sink(receiveValue: { [weak self] poiID in
                 self?.changePoiStyle(poiID: poiID)
                 self?.showInfoWindow(poiID: poiID)
             })
-            .store(in: &cancellables)
+            .store(in: &cancellables)        
     }
     
     /// Poi 상단에 나타나는 infoWindow를 보여줍니다.
@@ -178,6 +180,10 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         curPoi.changeStyle(styleID: "selectedStyle")
         
         moveCamera(longitude: longitude, latitude: latitude, durationInMillis: 800)
+    }
+    
+    private func showPoiOnlyOne() {
+        
     }
     
     /// 카메라 이동

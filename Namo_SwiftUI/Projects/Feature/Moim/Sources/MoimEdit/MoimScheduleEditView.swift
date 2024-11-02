@@ -26,9 +26,13 @@ import SharedDesignSystem
 
 public struct MoimScheduleEditView: View {
     @Perception.Bindable private var store: StoreOf<MoimEditStore>
+    private let placeStore: StoreOf<PlaceSearchStore>
     
     public init(store: StoreOf<MoimEditStore>) {
         self.store = store
+        self.placeStore = .init(initialState: PlaceSearchStore.State(), reducer: {
+            PlaceSearchStore()
+        })
     }
     
     
@@ -278,10 +282,14 @@ extension MoimScheduleEditView {
                 }
                 
                 if !store.moimSchedule.kakaoLocationId.isEmpty {
-                    KakaoMapView(store: .init(initialState: PlaceSearchStore.State(), reducer: {
-                        PlaceSearchStore()
-                    }))
-                    .frame(height: 190)
+                   KakaoMapView(store: placeStore)
+                        .onAppear {
+                            placeStore.send(.viewOnAppear)                                                        
+                        }
+                        .onDisappear {
+                            placeStore.send(.viewOnDisappear)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 190)
                 }
             }
         }

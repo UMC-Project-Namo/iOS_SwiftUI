@@ -78,6 +78,9 @@ public struct MoimEditStore {
         /// 모임생성 버튼탭
         case createButtonTapped
         
+        /// 생성확인
+        case createButtonConfirm
+        
         /// 취소버튼 탭
         case cancleButtonTapped
         

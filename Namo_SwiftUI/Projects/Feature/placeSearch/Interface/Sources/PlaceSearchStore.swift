@@ -32,6 +32,9 @@ public extension PlaceSearchStore {
                 return .none
             case .viewOnDisappear:
                 state.draw = false
+                return .none         
+            case let .locationUpdated(locationInfo):
+                state.locationName = locationInfo.placeName
                 return .none
             default:
                 return .none

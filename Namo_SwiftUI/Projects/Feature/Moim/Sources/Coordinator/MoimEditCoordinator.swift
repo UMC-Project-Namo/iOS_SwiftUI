@@ -6,13 +6,15 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
 import TCACoordinators
 
-import SharedDesignSystem
+import DomainMoimInterface
 import FeatureMoimInterface
 import FeaturePlaceSearchInterface
-import DomainMoimInterface
+import SharedDesignSystem
+
 
 @Reducer(state: .equatable)
 public enum MoimEditScreen {
@@ -24,6 +26,7 @@ public enum MoimEditScreen {
 public struct MoimEditCoordinator {
     public init() {}
     
+    @ObservableState
     public struct State: Equatable {
         
         public init(moimEditStore: MoimEditStore.State) {
@@ -33,11 +36,11 @@ public struct MoimEditCoordinator {
         }
         
         public init() {
-            self.routes = [.root(.createMoim(.init()), embedInNavigationView: true)]
             self.moimEditStore = .init()
             self.placeSearchStore = .init()
+            self.routes = [.root(.createMoim(.init()), embedInNavigationView: true)]
         }
-                
+        
         var routes: [Route<MoimEditScreen.State>]
         
         var moimEditStore: MoimEditStore.State
@@ -54,32 +57,40 @@ public struct MoimEditCoordinator {
         Scope(state: \.moimEditStore, action: \.moimEditAction) {
             MoimEditStore()
         }
+        Scope(state: \.placeSearchStore, action: \.placeSearchAction) {
+            PlaceSearchStore()
+        }
         
         Reduce<State, Action> { state, action in
             switch action {
+                /// 지도검색 이동
             case .router(.routeAction(_, action: .createMoim(.goToKakaoMapView))):
-                state.routes.push(.kakaoMap(.init()))
+                state.routes.push(.kakaoMap(state.placeSearchStore))
                 return .none
-            case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))):
+                /// 작업 취소 또는 완료시
+            case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))),
+                    .router(.routeAction(_, action: .createMoim(.createButtonConfirm))):
                 return .send(.moimEditAction(.cancleButtonTapped))
-            case let .router(.routeAction(_, action: .kakaoMap(actions))):
-                switch actions {
-                case let .responsePlaceList(placeList):
-                    state.placeSearchStore.placeList = placeList
-                    return .none
-                case .backButtonTapped:
-                    state.routes = [.root(.createMoim(state.moimEditStore))]
-                    return .none
-                case let .poiTapped(poiID):
-                    guard let place = state.placeSearchStore.placeList.filter({ $0.id == poiID }).first else { return .none }
-                    return .send(.moimEditAction(.locationUpdated(place)))
-                default:
-                    return .none
+                /// 지도검색 뒤로가기
+            case .router(.routeAction(_, action: .kakaoMap(.backButtonTapped))):
+                if case var .createMoim(editStore) = state.routes[0].screen {
+                    editStore.moimSchedule.locationName = state.placeSearchStore.locationName
+                    state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
                 }
+                return .none
+                /// 검색결과
+            case let .router(.routeAction(_, action: .kakaoMap(.responsePlaceList(placeList)))):
+                state.placeSearchStore.placeList = placeList
+                return .none
+                /// 지도핀 선택
+            case let .router(.routeAction(_, action: .kakaoMap(.poiTapped(poiID)))):
+                guard let place = state.placeSearchStore.placeList.filter({ $0.id == poiID }).first else { return .none }
+                return .send(.placeSearchAction(.locationUpdated(place)))
             default:
                 return .none
             }
         }
         .forEachRoute(\.routes, action: \.router)
+        
     }
 }

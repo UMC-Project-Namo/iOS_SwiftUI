@@ -7,9 +7,11 @@
 
 import SwiftUI
 import UIKit
+
 import ComposableArchitecture
-import FeatureMoimInterface
+
 import DomainMoimInterface
+import FeatureMoimInterface
 import SharedUtil
 
 extension MoimEditStore {
@@ -46,6 +48,7 @@ extension MoimEditStore {
                     } else {
                         try await moimUseCase.editMoim(state.moimSchedule, state.coverImage)
                     }
+                    await send(.createButtonConfirm)
                 }
             case .deleteButtonTapped:
                 state.isAlertPresented = true

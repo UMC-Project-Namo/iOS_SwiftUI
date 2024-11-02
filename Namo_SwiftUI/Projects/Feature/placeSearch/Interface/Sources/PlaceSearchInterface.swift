@@ -22,7 +22,7 @@ public struct PlaceSearchStore {
         public init() {}    
                 
         /// 맵뷰 렌더링 여부
-        public var draw: Bool = false
+        public var draw: Bool = false                        
                 
         /// 고유 id(poiID로 사용)
         public var id: String = ""
@@ -62,6 +62,8 @@ public struct PlaceSearchStore {
         case viewOnDisappear
         
         case backButtonTapped
+        
+        case locationUpdated(LocationInfo)
     }
     
     public var body: some ReducerOf<Self> {

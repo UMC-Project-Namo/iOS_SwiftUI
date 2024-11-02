@@ -25,7 +25,7 @@ extension MoimListStore {
                 }
                 // 모임리스트 요청 결과 스토어 업데이트
             case let  .moimListResponse(moimList):
-                state.moimList = moimList
+                state.moimList = moimList                
                 return .none
                 // 모임셀 선택
             case let .moimCellSelected(meetingScheduleId):
