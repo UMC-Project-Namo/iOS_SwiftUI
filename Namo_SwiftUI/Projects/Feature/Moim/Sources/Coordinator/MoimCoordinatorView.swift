@@ -9,7 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 import TCACoordinators
 
-import FeaturePlaceSearch
 import FeatureFriend
 import SharedDesignSystem
 

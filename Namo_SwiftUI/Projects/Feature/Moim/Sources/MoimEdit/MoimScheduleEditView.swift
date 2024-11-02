@@ -56,7 +56,8 @@ public struct MoimScheduleEditView: View {
                 DeleteCircleButton {
                     store.send(.deleteButtonTapped)
                 }
-                //                .opacity(!store.isOwner ? 0 : 1)
+                .offset(y: 20)
+//                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
                 
                 WithPerceptionTracking {
                     VStack(spacing: 0) {

@@ -18,9 +18,7 @@ public struct MoimEditStore {
     
     /// 편집 여부
     public enum Mode: Equatable {
-        case view
-        case edit
-        case compose
+        case view, edit, compose
     }
     private let reducer: Reduce<State, Action>
     
@@ -49,14 +47,12 @@ public struct MoimEditStore {
         /// 커버이미지
         public var coverImage: UIImage?
         
-        /// 방장 여부
-        public var isOwner: Bool = false
-        
         /// 편집 여부
         public var mode: Mode = .compose
         
         public init(moimSchedule: MoimSchedule) {
             self.moimSchedule = moimSchedule
+//            mode = self.moimSchedule.isOwner ? .edit : .view
         }
         
         public init() {

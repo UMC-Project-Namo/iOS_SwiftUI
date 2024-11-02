@@ -11,6 +11,7 @@ import TCACoordinators
 
 import SharedDesignSystem
 import FeatureMoimInterface
+import FeaturePlaceSearchInterface
 import DomainMoimInterface
 
 @Reducer(state: .equatable)
@@ -56,7 +57,7 @@ public struct MoimEditCoordinator {
                 state.routes.push(.kakaoMap)
                 return .none
             case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))):
-                return .send(.moimEditAction(.cancleButtonTapped))            
+                return .send(.moimEditAction(.cancleButtonTapped))
             default:
                 return .none
             }

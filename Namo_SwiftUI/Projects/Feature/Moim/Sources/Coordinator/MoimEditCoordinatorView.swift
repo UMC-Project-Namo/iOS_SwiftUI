@@ -10,6 +10,7 @@ import ComposableArchitecture
 import TCACoordinators
 
 import SharedDesignSystem
+import FeaturePlaceSearchInterface
 
 public struct MoimEditCoordinatorView: View {
     let store: StoreOf<MoimEditCoordinator>
@@ -24,7 +25,10 @@ public struct MoimEditCoordinatorView: View {
             case let .createMoim(store):
                 MoimScheduleEditView(store: store)
             case .kakaoMap:
-                Text("Test!!")
+                PlaceSearchView(store: .init(initialState: PlaceSearchStore.State(), reducer: {
+                    PlaceSearchStore()                
+                }))
+                .toolbar(.hidden, for: .navigationBar)
             }
         }
         .background(ClearBackground())
