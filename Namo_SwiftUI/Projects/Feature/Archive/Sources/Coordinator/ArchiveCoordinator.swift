@@ -64,6 +64,7 @@ public struct ArchiveCoordinator {
 				return .none
 			}
 		}
+		.forEachRoute(\.routes, action: \.router)
 	}
 	
 	

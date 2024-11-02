@@ -9,11 +9,15 @@ import Foundation
 import SwiftUI
 
 import ComposableArchitecture
+import SwiftUICalendar
 
+import SharedUtil
 import SharedDesignSystem
+import FeatureCalendar
 
 public struct ArchiveCalendarView: View {
-	let store: StoreOf<ArchiveCalendarStore>
+	@Perception.Bindable public var store: StoreOf<ArchiveCalendarStore>
+	@StateObject var calendarController = CalendarController(orientation: .vertical)
 	
 	public init(store: StoreOf<ArchiveCalendarStore>) {
 		self.store = store
@@ -22,8 +26,19 @@ public struct ArchiveCalendarView: View {
 	public var body: some View {
 		WithPerceptionTracking {
 			VStack(spacing: 0) {
+				NamoArchiveCalendarView(
+					calendarController: calendarController,
+					focusDate: $store.focusDate,
+					schedules: $store.schedules,
+					dateTapAction: { date in
+						store.send(.selectDate(date), animation: .default)
+					}
+				)
 				
+				Spacer()
+					.frame(height: tabBarHeight)
 			}
+			.ignoresSafeArea(edges: .bottom)
 			.namoNabBar(
 				center: {
 					Text("보관함")
