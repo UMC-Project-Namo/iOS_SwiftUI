@@ -24,10 +24,8 @@ public struct MoimEditCoordinatorView: View {
             switch screen.case {
             case let .createMoim(store):
                 MoimScheduleEditView(store: store)
-            case .kakaoMap:
-                PlaceSearchView(store: .init(initialState: PlaceSearchStore.State(), reducer: {
-                    PlaceSearchStore()                
-                }))
+            case let .kakaoMap(store):
+                PlaceSearchView(store: store)
                 .toolbar(.hidden, for: .navigationBar)
             }
         }

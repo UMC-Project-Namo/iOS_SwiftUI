@@ -9,7 +9,9 @@ import SwiftUI
 import UIKit
 import PhotosUI
 import ComposableArchitecture
+
 import DomainMoimInterface
+import DomainPlaceSearchInterface
 
 
 @Reducer
@@ -85,7 +87,10 @@ public struct MoimEditStore {
         /// 삭제확인
         case deleteButtonConfirm     
         
+        /// 지도검색 이동
         case goToKakaoMapView
+                
+        case locationUpdated(LocationInfo)
     }
     
     public var body: some ReducerOf<Self> {

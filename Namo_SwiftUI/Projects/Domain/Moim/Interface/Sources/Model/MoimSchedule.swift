@@ -8,7 +8,7 @@
 import Foundation
 import CoreNetwork
 
-public struct MoimSchedule: Decodable, Hashable {
+public struct MoimSchedule: Decodable, Hashable, Equatable {
     public init(scheduleId: Int,
                 title: String,
                 imageUrl: String,

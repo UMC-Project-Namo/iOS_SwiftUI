@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
 import TCACoordinators
 
@@ -26,31 +27,20 @@ public struct MoimCoordinator {
     
     @ObservableState
     public struct State: Equatable {
-        public static let initialState = State(routes: [.root(.mainTab(.initialState), embedInNavigationView: true)], mainStore: .initialState, moimEditStore: .init())
+        public static let initialState = State(routes: [.root(.mainTab(.initialState), embedInNavigationView: true)])
         
         
         var routes: [Route<MoimScreen.State>]
         
         var isPresentedSheet: Bool = false
-        
-        var mainStore: MainViewStore.State
-        
-        var moimEditStore: MoimEditCoordinator.State
+                
     }
     
     public enum Action {
         case router(IndexedRouterActionOf<MoimScreen>)
-        case mainAction(MainViewStore.Action)
-        case moimEditAction(MoimEditCoordinator.Action)
     }
     
     public var body: some ReducerOf<Self> {
-        Scope(state: \.mainStore, action: \.mainAction) {
-            MainViewStore()
-        }
-        Scope(state: \.moimEditStore, action: \.moimEditAction) {
-            MoimEditCoordinator()
-        }
         
         Reduce<State, Action> { state, action in
             switch action {
@@ -58,17 +48,17 @@ public struct MoimCoordinator {
                 state.isPresentedSheet = true
                 state.routes.presentCover(.moimEdit(.init()))
                 return .none
-            case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
-                state.isPresentedSheet = false
-                state.routes.dismiss()
-                return .none
             case let .router(.routeAction(_, action: .mainTab(.moimListAction(.presentDetailSheet(moimSchedule))))):
                 state.routes.presentCover(.moimEdit(.init(moimEditStore: .init(moimSchedule: moimSchedule))))
                 state.isPresentedSheet = true
                 return .none
+            case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
+                state.isPresentedSheet = false
+                state.routes.dismiss()
+                return .none
             case .router(.routeAction(_, action: .mainTab(.notificationButtonTap))):
                 state.routes.push(.notification)
-                return .none
+                return .none            
             default:
                 return .none
             }

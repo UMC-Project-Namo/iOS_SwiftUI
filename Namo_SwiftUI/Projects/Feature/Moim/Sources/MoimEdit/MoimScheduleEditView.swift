@@ -19,6 +19,7 @@ import ComposableArchitecture
 import Kingfisher
 
 import FeatureMoimInterface
+import FeaturePlaceSearchInterface
 import SharedUtil
 import SharedDesignSystem
 
@@ -56,7 +57,7 @@ public struct MoimScheduleEditView: View {
                 DeleteCircleButton {
                     store.send(.deleteButtonTapped)
                 }
-                .offset(y: 20)
+                .offset(y: 20)            
 //                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
                 
                 WithPerceptionTracking {
@@ -256,22 +257,31 @@ extension MoimScheduleEditView {
                 }
             }
             
-            HStack {
-                Text("장소")
-                    .font(.pretendard(.bold, size: 15))
-                    .foregroundStyle(Color.mainText)
-                Spacer()
-                
-                Button(action: {
-                    store.send(.goToKakaoMapView)
-                }) {
-                    HStack(spacing: 8) {
-                        Text(store.moimSchedule.locationName)
-                            .font(.pretendard(.regular, size: 15))
-                            .foregroundStyle(Color.mainText)
-                        
-                        Image(asset: SharedDesignSystemAsset.Assets.icRight)
+            VStack(spacing: 20) {
+                HStack {
+                    Text("장소")
+                        .font(.pretendard(.bold, size: 15))
+                        .foregroundStyle(Color.mainText)
+                    Spacer()
+                    
+                    Button(action: {
+                        store.send(.goToKakaoMapView)
+                    }) {
+                        HStack(spacing: 8) {
+                            Text(store.moimSchedule.locationName)
+                                .font(.pretendard(.regular, size: 15))
+                                .foregroundStyle(Color.mainText)
+                            
+                            Image(asset: SharedDesignSystemAsset.Assets.icRight)
+                        }
                     }
+                }
+                
+                if !store.moimSchedule.kakaoLocationId.isEmpty {
+                    KakaoMapView(store: .init(initialState: PlaceSearchStore.State(), reducer: {
+                        PlaceSearchStore()
+                    }))
+                    .frame(height: 190)
                 }
             }
         }

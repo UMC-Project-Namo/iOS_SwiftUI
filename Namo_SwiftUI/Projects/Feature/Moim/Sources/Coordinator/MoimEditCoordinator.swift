@@ -16,8 +16,8 @@ import DomainMoimInterface
 
 @Reducer(state: .equatable)
 public enum MoimEditScreen {
-    case createMoim(MoimEditStore)    
-    case kakaoMap
+    case createMoim(MoimEditStore)
+    case kakaoMap(PlaceSearchStore)
 }
 
 @Reducer
@@ -27,23 +27,27 @@ public struct MoimEditCoordinator {
     public struct State: Equatable {
         
         public init(moimEditStore: MoimEditStore.State) {
-            self.routes = [.root(.createMoim(.init(moimSchedule: moimEditStore.moimSchedule)), embedInNavigationView: true)]
             self.moimEditStore = moimEditStore
+            self.placeSearchStore = .init()
+            self.routes = [.root(.createMoim(moimEditStore), embedInNavigationView: true)]
         }
         
         public init() {
             self.routes = [.root(.createMoim(.init()), embedInNavigationView: true)]
             self.moimEditStore = .init()
+            self.placeSearchStore = .init()
         }
                 
         var routes: [Route<MoimEditScreen.State>]
         
         var moimEditStore: MoimEditStore.State
+        var placeSearchStore: PlaceSearchStore.State
     }
     
     public enum Action {
         case router(IndexedRouterActionOf<MoimEditScreen>)
         case moimEditAction(MoimEditStore.Action)
+        case placeSearchAction(PlaceSearchStore.Action)
     }
     
     public var body: some ReducerOf<Self> {
@@ -54,10 +58,24 @@ public struct MoimEditCoordinator {
         Reduce<State, Action> { state, action in
             switch action {
             case .router(.routeAction(_, action: .createMoim(.goToKakaoMapView))):
-                state.routes.push(.kakaoMap)
+                state.routes.push(.kakaoMap(.init()))
                 return .none
             case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))):
                 return .send(.moimEditAction(.cancleButtonTapped))
+            case let .router(.routeAction(_, action: .kakaoMap(actions))):
+                switch actions {
+                case let .responsePlaceList(placeList):
+                    state.placeSearchStore.placeList = placeList
+                    return .none
+                case .backButtonTapped:
+                    state.routes = [.root(.createMoim(state.moimEditStore))]
+                    return .none
+                case let .poiTapped(poiID):
+                    guard let place = state.placeSearchStore.placeList.filter({ $0.id == poiID }).first else { return .none }
+                    return .send(.moimEditAction(.locationUpdated(place)))
+                default:
+                    return .none
+                }
             default:
                 return .none
             }

@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import Combine
+
 import KakaoMapsSDK
+import ComposableArchitecture
+
+import DomainPlaceSearchInterface
 import SharedUtil
 import SharedDesignSystem
-import ComposableArchitecture
-import FeaturePlaceSearchInterface
-import DomainPlaceSearchInterface
-import Combine
 
 public struct KakaoMapView: UIViewRepresentable {
     let store: StoreOf<PlaceSearchStore>
@@ -39,6 +40,7 @@ public struct KakaoMapView: UIViewRepresentable {
             }
         }
         else {
+            context.coordinator.controller?.pauseEngine()
             context.coordinator.controller?.resetEngine()
         }
     }

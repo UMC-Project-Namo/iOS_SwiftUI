@@ -19,7 +19,7 @@ public struct PlaceSearchStore {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        public init() {}    
                 
         /// 맵뷰 렌더링 여부
         public var draw: Bool = false
@@ -60,6 +60,8 @@ public struct PlaceSearchStore {
         
         /// 뷰사라짐
         case viewOnDisappear
+        
+        case backButtonTapped
     }
     
     public var body: some ReducerOf<Self> {

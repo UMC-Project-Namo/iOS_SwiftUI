@@ -8,7 +8,6 @@
 import SwiftUI
 import SharedDesignSystem
 import ComposableArchitecture
-import FeaturePlaceSearchInterface
 
 public struct PlaceSearchView: View {
     @Perception.Bindable private var store: StoreOf<PlaceSearchStore>
@@ -37,7 +36,6 @@ public struct PlaceSearchView: View {
     private var mapView: some View {
         KakaoMapView(store: store)
             .onAppear { store.send(.viewOnAppear) }
-            .onDisappear { store.send(.viewOnDisappear) }
             .frame(maxWidth: .infinity, maxHeight: 380)
     }
     
@@ -104,7 +102,10 @@ public struct PlaceSearchView: View {
     }
     
     private var backButton: some View {
-        Button(action: {}, label: {
+        Button(action: {
+            store.send(.viewOnDisappear)
+            store.send(.backButtonTapped)            
+        }, label: {
             Circle()
                 .overlay (
                     Image(asset: SharedDesignSystemAsset.Assets.icArrowLeftThick)
