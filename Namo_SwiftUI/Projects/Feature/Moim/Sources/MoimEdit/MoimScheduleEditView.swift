@@ -56,7 +56,7 @@ public struct MoimScheduleEditView: View {
                 DeleteCircleButton {
                     store.send(.deleteButtonTapped)
                 }
-                .opacity(!store.isOwner ? 0 : 1)
+                //                .opacity(!store.isOwner ? 0 : 1)
                 
                 WithPerceptionTracking {
                     VStack(spacing: 0) {
@@ -68,7 +68,7 @@ public struct MoimScheduleEditView: View {
                         ScrollView {
                             VStack(spacing: 30) {
                                 // textField
-                                TextField("내 모임", text: $store.title)
+                                TextField("내 모임", text: $store.moimSchedule.title)
                                     .font(.pretendard(.bold, size: 22))
                                     .foregroundStyle(Color.mainText)
                                     .padding(.top, 20)
@@ -187,8 +187,8 @@ extension MoimScheduleEditView {
                         .resizable()
                         .frame(width: 55, height: 55)
                         .cornerRadius(5)
-                } else if !store.imageUrl.isEmpty {
-                    KFImage(URL(string: store.imageUrl))
+                } else if !store.moimSchedule.imageUrl.isEmpty {
+                    KFImage(URL(string: store.moimSchedule.imageUrl))
                         .placeholder({
                             Image(asset: SharedDesignSystemAsset.Assets.appLogo)
                         })
@@ -216,7 +216,7 @@ extension MoimScheduleEditView {
                     
                     Spacer()
                     
-                    Text(store.startDate.toYMDEHM())
+                    Text(store.moimSchedule.startDate.toYMDEHM())
                         .font(.pretendard(.regular, size: 15))
                         .foregroundStyle(Color.mainText)
                         .onTapGesture {
@@ -225,7 +225,7 @@ extension MoimScheduleEditView {
                 }
                 
                 if store.isStartPickerPresented {
-                    DatePicker("startTimeDatePicker", selection: $store.startDate)
+                    DatePicker("startTimeDatePicker", selection: $store.moimSchedule.startDate)
                         .datePickerStyle(.graphical)
                         .labelsHidden()
                         .tint(Color.mainOrange)
@@ -239,7 +239,7 @@ extension MoimScheduleEditView {
                         .foregroundStyle(Color.mainText)
                     
                     Spacer()
-                    Text(store.endDate.toYMDEHM())
+                    Text(store.moimSchedule.endDate.toYMDEHM())
                         .font(.pretendard(.regular, size: 15))
                         .foregroundStyle(Color.mainText)
                         .onTapGesture {
@@ -248,7 +248,7 @@ extension MoimScheduleEditView {
                 }
                 
                 if store.isEndPickerPresented {
-                    DatePicker("endTimeDatePicker", selection: $store.endDate)
+                    DatePicker("endTimeDatePicker", selection: $store.moimSchedule.endDate)
                         .datePickerStyle(.graphical)
                         .labelsHidden()
                         .tint(Color.mainOrange)
@@ -261,11 +261,11 @@ extension MoimScheduleEditView {
                     .foregroundStyle(Color.mainText)
                 Spacer()
                 
-                Button(action: {                    
+                Button(action: {
                     store.send(.goToKakaoMapView)
                 }) {
                     HStack(spacing: 8) {
-                        Text(store.locationName)
+                        Text(store.moimSchedule.locationName)
                             .font(.pretendard(.regular, size: 15))
                             .foregroundStyle(Color.mainText)
                         
@@ -290,7 +290,7 @@ extension MoimScheduleEditView {
                 }
             }
             
-            FlexibleGridView(data: store.participants) { participant in
+            FlexibleGridView(data: store.moimSchedule.participants) { participant in
                 Participant(name: participant.nickname,
                             color: PalleteColor(rawValue: participant.colorId ?? 1)?.color ?? .clear,
                             isOwner: participant.isOwner)

@@ -26,13 +26,13 @@ public struct MoimCoordinator {
     
     @ObservableState
     public struct State: Equatable {
-        public static let initialState = State(routes: [.root(.mainTab(.initialState), embedInNavigationView: true)], mainStore: .initialState, moimEditStore: .initialState)
+        public static let initialState = State(routes: [.root(.mainTab(.initialState), embedInNavigationView: true)], mainStore: .initialState, moimEditStore: .init())
         
         
         var routes: [Route<MoimScreen.State>]
         
         var isPresentedSheet: Bool = false
-                
+        
         var mainStore: MainViewStore.State
         
         var moimEditStore: MoimEditCoordinator.State
@@ -54,13 +54,17 @@ public struct MoimCoordinator {
         
         Reduce<State, Action> { state, action in
             switch action {
-            case .router(.routeAction(_, action: .mainTab(.moimListAction(.presentComposeSheet)))):                
+            case .router(.routeAction(_, action: .mainTab(.moimListAction(.presentComposeSheet)))):
                 state.isPresentedSheet = true
-                state.routes.presentCover(.moimEdit(.initialState))
+                state.routes.presentCover(.moimEdit(.init()))
                 return .none
             case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
                 state.isPresentedSheet = false
                 state.routes.dismiss()
+                return .none
+            case let .router(.routeAction(_, action: .mainTab(.moimListAction(.presentDetailSheet(moimSchedule))))):
+                state.routes.presentCover(.moimEdit(.init(moimEditStore: .init(moimSchedule: moimSchedule))))
+                state.isPresentedSheet = true
                 return .none
             case .router(.routeAction(_, action: .mainTab(.notificationButtonTap))):
                 state.routes.push(.notification)

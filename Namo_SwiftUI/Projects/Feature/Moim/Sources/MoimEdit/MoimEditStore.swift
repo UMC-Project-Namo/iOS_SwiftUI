@@ -42,9 +42,9 @@ extension MoimEditStore {
             case .createButtonTapped:
                 return .run { [state = state] send in
                     if state.mode == .compose {
-                        try await moimUseCase.createMoim(state.makeMoim(), state.coverImage)
+                        try await moimUseCase.createMoim(state.moimSchedule, state.coverImage)
                     } else {
-                        try await moimUseCase.editMoim(state.makeMoim(), state.coverImage)
+                        try await moimUseCase.editMoim(state.moimSchedule, state.coverImage)
                     }
                 }
             case .deleteButtonTapped:
@@ -52,10 +52,8 @@ extension MoimEditStore {
                 return .none
             case .deleteButtonConfirm:
                 return .run { [state = state] send in
-                    try await moimUseCase.withdrawMoim(state.moimScheduleId)
-                }         
-            case .goToKakaoMapView:                
-                return .none
+                    try await moimUseCase.withdrawMoim(state.moimSchedule.scheduleId)
+                }
             default:
                 return .none
             }
@@ -64,20 +62,7 @@ extension MoimEditStore {
     }
 }
 
-extension MoimEditStore.State {
-    func makeMoim() -> MoimSchedule {
-        .init(scheduleId: moimScheduleId,
-              title: title,
-              imageUrl: imageUrl,
-              startDate: startDate,
-              endDate: endDate,
-              longitude: longitude,
-              latitude: latitude,
-              locationName: locationName,
-              kakaoLocationId: kakaoLocationId,
-              participants: [])
-    }
-}
+
 
 
 

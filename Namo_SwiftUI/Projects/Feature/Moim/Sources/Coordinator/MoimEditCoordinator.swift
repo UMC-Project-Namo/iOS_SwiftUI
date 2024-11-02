@@ -11,10 +11,11 @@ import TCACoordinators
 
 import SharedDesignSystem
 import FeatureMoimInterface
+import DomainMoimInterface
 
 @Reducer(state: .equatable)
 public enum MoimEditScreen {
-    case createMoim(MoimEditStore)
+    case createMoim(MoimEditStore)    
     case kakaoMap
 }
 
@@ -23,9 +24,17 @@ public struct MoimEditCoordinator {
     public init() {}
     
     public struct State: Equatable {
-        public static let initialState = State(routes: [.root(.createMoim(.init()), embedInNavigationView: true)], moimEditStore: .init())
         
+        public init(moimEditStore: MoimEditStore.State) {
+            self.routes = [.root(.createMoim(.init(moimSchedule: moimEditStore.moimSchedule)), embedInNavigationView: true)]
+            self.moimEditStore = moimEditStore
+        }
         
+        public init() {
+            self.routes = [.root(.createMoim(.init()), embedInNavigationView: true)]
+            self.moimEditStore = .init()
+        }
+                
         var routes: [Route<MoimEditScreen.State>]
         
         var moimEditStore: MoimEditStore.State
@@ -47,7 +56,7 @@ public struct MoimEditCoordinator {
                 state.routes.push(.kakaoMap)
                 return .none
             case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))):
-                return .send(.moimEditAction(.cancleButtonTapped))
+                return .send(.moimEditAction(.cancleButtonTapped))            
             default:
                 return .none
             }

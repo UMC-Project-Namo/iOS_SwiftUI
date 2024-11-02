@@ -29,6 +29,7 @@ public struct MoimListStore {
         case moimListResponse([MoimScheduleItem])
         case moimCellSelected(meetingScheduleId: Int)
         case presentComposeSheet
+        case presentDetailSheet(MoimSchedule)
     }
     
     public var body: some ReducerOf<Self> {

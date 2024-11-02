@@ -30,16 +30,30 @@ public struct MoimSchedule: Decodable, Hashable {
         self.kakaoLocationId = kakaoLocationId
         self.participants = participants
     }
+    
+    public init() {
+        self.scheduleId = 0
+        self.title = ""
+        self.imageUrl = ""
+        self.startDate = .now
+        self.endDate = .now
+        self.longitude = 0.0
+        self.latitude = 0.0
+        self.locationName = ""
+        self.kakaoLocationId = ""
+        self.participants = []
+    }
+        
     public let scheduleId: Int
-    public let title: String
-    public let imageUrl: String
-    public let startDate: Date
-    public let endDate: Date
-    public let longitude: Double
-    public let latitude: Double
-    public let locationName: String
-    public let kakaoLocationId: String
-    public let participants: [Participant]
+    public var title: String
+    public var imageUrl: String
+    public var startDate: Date
+    public var endDate: Date
+    public var longitude: Double
+    public var latitude: Double
+    public var locationName: String
+    public var kakaoLocationId: String
+    public var participants: [Participant]
 }
 
 public struct Participant: Decodable, Hashable {
