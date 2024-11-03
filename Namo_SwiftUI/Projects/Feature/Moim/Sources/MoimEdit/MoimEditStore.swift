@@ -57,10 +57,6 @@ extension MoimEditStore {
                 return .run { [state = state] send in
                     try await moimUseCase.withdrawMoim(state.moimSchedule.scheduleId)
                 }            
-            case let .locationUpdated(locationInfo):
-                state.moimSchedule.locationName = locationInfo.placeName
-                state.moimSchedule.kakaoLocationId = locationInfo.id                
-                return .none
             default:
                 return .none
             }

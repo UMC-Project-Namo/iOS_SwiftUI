@@ -75,6 +75,9 @@ public struct MoimEditCoordinator {
             case .router(.routeAction(_, action: .kakaoMap(.backButtonTapped))):
                 if case var .createMoim(editStore) = state.routes[0].screen {
                     editStore.moimSchedule.locationName = state.placeSearchStore.locationName
+                    editStore.moimSchedule.latitude = state.placeSearchStore.y
+                    editStore.moimSchedule.longitude = state.placeSearchStore.x
+                    editStore.moimSchedule.kakaoLocationId = state.placeSearchStore.id
                     state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
                 }
                 return .none

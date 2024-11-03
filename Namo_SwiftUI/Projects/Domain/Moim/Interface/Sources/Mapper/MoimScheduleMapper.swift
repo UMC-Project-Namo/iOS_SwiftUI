@@ -26,8 +26,8 @@ public extension MoimSchedule {
                      imageUrl: nil,
                      period: PeriodDto(startDate: startDate.dateToISO8601(),
                                        endDate: endDate.dateToISO8601()),
-                     location: LocationDto(longitude: 0.0,
-                                           latitude: 0.0,
+                     location: LocationDto(longitude: longitude,
+                                           latitude: latitude,
                                            locationName: locationName,
                                            kakaoLocationId: kakaoLocationId),
                      participants: [11])

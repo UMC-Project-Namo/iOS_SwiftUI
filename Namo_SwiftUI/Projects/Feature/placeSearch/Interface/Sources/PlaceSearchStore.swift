@@ -35,6 +35,11 @@ public extension PlaceSearchStore {
                 return .none         
             case let .locationUpdated(locationInfo):
                 state.locationName = locationInfo.placeName
+                state.id = locationInfo.id
+                guard let x = Double(locationInfo.x),
+                      let y = Double(locationInfo.y) else { return .none }
+                state.x = x
+                state.y = y
                 return .none
             default:
                 return .none

@@ -41,6 +41,7 @@ public struct PlaceSearchStore {
         
         /// 검색결과 리스트
         public var placeList: [LocationInfo] = []
+                
     }
     
     public enum Action: BindableAction {
