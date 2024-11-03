@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
-import SharedDesignSystem
+
 import FeatureFriend
+import SharedDesignSystem
+
+import ComposableArchitecture
+
 
 struct FriendRequestView: View {
     let store: StoreOf<FriendRequestListStore>
@@ -19,7 +22,7 @@ struct FriendRequestView: View {
                 Text("새로운 요청")
                     .font(.pretendard(.bold, size: 16))
             }, left: {
-                NamoBackButton {                    
+                NamoBackButton {
                 }
             })
     }

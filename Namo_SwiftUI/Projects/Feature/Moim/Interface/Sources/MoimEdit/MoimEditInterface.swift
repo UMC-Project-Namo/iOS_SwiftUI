@@ -8,14 +8,17 @@
 import SwiftUI
 import UIKit
 import PhotosUI
-import ComposableArchitecture
 
 import DomainMoimInterface
 import DomainPlaceSearchInterface
+import DomainFriend
 
+import ComposableArchitecture
 
+/*
+ 모임일정 상세
+*/
 @Reducer
-/// 모임 생성/편집/조회
 public struct MoimEditStore {
     
     /// 편집 여부
@@ -50,7 +53,7 @@ public struct MoimEditStore {
         public var coverImage: UIImage?
         
         /// 편집 여부
-        public var mode: Mode = .compose
+        public var mode: Mode = .compose                
         
         public init(moimSchedule: MoimSchedule) {
             self.moimSchedule = moimSchedule
@@ -63,6 +66,7 @@ public struct MoimEditStore {
     }
     
     public enum Action: BindableAction, Equatable {
+        
         /// 바인딩액션 처리
         case binding(BindingAction<State>)
         

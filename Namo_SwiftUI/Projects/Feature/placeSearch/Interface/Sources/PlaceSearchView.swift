@@ -104,8 +104,7 @@ public struct PlaceSearchView: View {
     }
     
     private var backButton: some View {
-        Button(action: {
-            store.send(.viewOnDisappear)
+        Button(action: {            
             store.send(.backButtonTapped)            
         }, label: {
             Circle()

@@ -7,15 +7,40 @@
 
 import Foundation
 
-import ComposableArchitecture
-import TCACoordinators
-
 import DomainMoimInterface
 import FeatureMoimInterface
 import FeaturePlaceSearchInterface
 import SharedDesignSystem
 
+import ComposableArchitecture
+import TCACoordinators
 
+/**
+ MoimEdit(모임 편집) 코디네이터
+ 
+ Coordinator Structure:
+ 
+ MoimEditCoordinator (모임 편집 코디네이터)
+ ├─ CreateMoim (모임 생성/수정 화면)
+ │  ├─ KakaoMap (장소 검색)
+ │  │  └─ Push Presentation
+ │  │     ├─ 지도 검색
+ │  │     └─ POI 선택
+ │  │
+ │  └─ FriendInvite (친구 초대)
+ │      └─ Push Presentation
+ │
+ State Management:
+ - moimEditStore: 모임 생성/수정 관련 상태
+ - placeSearchStore: 카카오맵 장소 검색 관련 상태
+ 
+ Navigation Flow:
+ 1. CreateMoim -> KakaoMap (Push)
+    - 장소 선택 후 데이터 전달 (위치명, 좌표, ID)
+ 2. CreateMoim -> FriendInvite (Push)
+    - 친구 선택 후 초대 목록 관리
+ 3. 취소/완료 -> Dismiss to Parent Coordinator
+*/
 @Reducer(state: .equatable)
 public enum MoimEditScreen {
     case createMoim(MoimEditStore)
@@ -64,15 +89,15 @@ public struct MoimEditCoordinator {
         
         Reduce<State, Action> { state, action in
             switch action {
-                /// 지도검색 이동
+            //MARK: - 장소검색 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToKakaoMapView))):
                 state.routes.push(.kakaoMap(state.placeSearchStore))
                 return .none
-                /// 작업 취소 또는 완료시
+            // MARK: - 모임생성 수정 완료/취소
             case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))),
                     .router(.routeAction(_, action: .createMoim(.createButtonConfirm))):
                 return .send(.moimEditAction(.cancleButtonTapped))
-                /// 지도검색 뒤로가기
+            // MARK: - 장소선택 완료/취소
             case .router(.routeAction(_, action: .kakaoMap(.backButtonTapped))):
                 if case var .createMoim(editStore) = state.routes[0].screen {
                     editStore.moimSchedule.locationName = state.placeSearchStore.locationName
@@ -82,21 +107,24 @@ public struct MoimEditCoordinator {
                     state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
                 }
                 return .none
-                /// 검색결과
+            // MARK: - 검색결과 업데이트
             case let .router(.routeAction(_, action: .kakaoMap(.responsePlaceList(placeList)))):
                 state.placeSearchStore.placeList = placeList
                 return .none
-                /// 지도핀 선택
+            // MARK: - 장소선택
             case let .router(.routeAction(_, action: .kakaoMap(.poiTapped(poiID)))):
                 guard let place = state.placeSearchStore.placeList.filter({ $0.id == poiID }).first else { return .none }
                 return .send(.placeSearchAction(.locationUpdated(place)))
-                /// 친구 초대
+            // MARK: - 친구초대 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToFriendInvite))):
                 state.routes.push(.friendInvite(.init()))
                 return .none
-                /// 친구초대 뒤로가기
+            // MARK: - 친구초대 뒤로가기
             case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
                 state.routes.pop()
+                return .none
+            // MARK: - 친구 추가
+            case .router(.routeAction(_, action: .friendInvite(.addFriend(_)))):
                 return .none
             default:
                 return .none

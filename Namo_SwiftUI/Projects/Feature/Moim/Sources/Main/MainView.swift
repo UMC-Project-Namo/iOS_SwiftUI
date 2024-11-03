@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
 
-import SharedDesignSystem
 import FeatureFriend
 import FeatureMoimInterface
+import SharedDesignSystem
+
+import ComposableArchitecture
 
 
 public struct MainView: View {

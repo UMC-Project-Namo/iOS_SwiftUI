@@ -19,10 +19,7 @@ public struct PlaceSearchStore {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}    
-                
-        /// 맵뷰 렌더링 여부
-        public var draw: Bool = false                        
+        public init() {}                                              
                 
         /// 고유 id(poiID로 사용)
         public var id: String = ""
@@ -54,16 +51,12 @@ public struct PlaceSearchStore {
         case responsePlaceList([LocationInfo])
         
         ///  위치핀 탭
-        case poiTapped(String)
+        case poiTapped(String)    
         
-        /// 뷰나타남
-        case viewOnAppear
-        
-        /// 뷰사라짐
-        case viewOnDisappear
-        
+        /// 뒤로가기
         case backButtonTapped
         
+        /// 위치 업데이트
         case locationUpdated(LocationInfo)
     }
     

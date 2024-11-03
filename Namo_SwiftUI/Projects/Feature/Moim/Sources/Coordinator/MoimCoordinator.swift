@@ -7,17 +7,44 @@
 
 import Foundation
 
-import ComposableArchitecture
-import TCACoordinators
-
 import FeaturePlaceSearchInterface
 import FeatureMoimInterface
 import FeatureFriend
 
+import ComposableArchitecture
+import TCACoordinators
+
+/**
+ Root Coordinator for Moim(모임) Tab Feature
+ 
+ Coordinator Structure:
+ 
+ MoimCoordinator (루트 코디네이터)
+ ├─ MainTab (메인 탭 화면)
+ │  └─ MoimList (모임 목록)
+ │
+ ├─ MoimEditCoordinator (모임 수정 코디네이터)
+ │  └─ Sheet Presentation
+ │     ├─ Create Mode (새 모임 생성)
+ │     └─ Edit Mode (기존 모임 수정)
+ │
+ └─ Notification (알림 화면)
+     └─ Push Presentation
+ 
+ Flow:
+  1. 메인탭에서 모임 생성/수정 -> MoimEditCoordinator (Sheet)
+  2. 메인탭에서 알림 버튼 -> Notification (Push)
+ */
 @Reducer(state: .equatable)
 public enum MoimScreen {
+    
+    /// 메인탭(모임, 친구)
     case mainTab(MainViewStore)
+    
+    /// 모임 일정
     case moimEdit(MoimEditCoordinator)
+    
+    /// 친구 요청
     case notification
 }
 
@@ -27,13 +54,18 @@ public struct MoimCoordinator {
     
     @ObservableState
     public struct State: Equatable {
-        public static let initialState = State(routes: [.root(.mainTab(.initialState), embedInNavigationView: true)], mainTabStore: .initialState)
+        public static let initialState = State(
+            routes: [.root(.mainTab(.initialState), embedInNavigationView: true)],
+            mainTabStore: .initialState
+        )
         
-        
+        /// 라우팅 리스트
         var routes: [Route<MoimScreen.State>]
         
+        /// Sheet 보임여부
         var isPresentedSheet: Bool = false
-                        
+                      
+        /// 메인탭 스토어
         var mainTabStore: MainViewStore.State
     }
     

@@ -7,8 +7,14 @@
 
 import Foundation
 
+import DomainFriendInterface
+import DomainFriend
+
 import ComposableArchitecture
 
+/*
+ 친구초대
+ */
 @Reducer
 public struct FriendInviteStore {
     private let reducer: Reduce<State, Action>
@@ -17,9 +23,41 @@ public struct FriendInviteStore {
         self.reducer = reducer
     }
     
-    public struct State: Equatable {}
+    @ObservableState
+    public struct State: Equatable {
+        public init() {}
+        
+        /// 검색어
+        public var searchText = ""
+        
+        /// 친구목록
+        public var friendList: [Friend] = []
+        
+        /// 추가한 친구목록
+        public var addedFriend: [Friend] = []
+    }
     
-    public enum Action {
+    public enum Action: BindableAction {
+        
+        /// 바인딩액션
+        case binding(BindingAction<State>)
+        
+        /// 검색결과탭
+        case searchButtonTapped
+        
+        /// 검색결과 응답
+        case searchResponse(FriendResponse)
+        
+        /// 친구 추가
+        case addFriend(Friend)
+        
+        /// 뒤로가기
         case backButtonTapped
+    }
+    
+    public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
+        reducer
     }
 }

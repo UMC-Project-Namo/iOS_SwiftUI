@@ -6,11 +6,12 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
-import TCACoordinators
 
 import FeatureFriend
 import SharedDesignSystem
+
+import ComposableArchitecture
+import TCACoordinators
 
 public struct MoimCoordinatorView: View {
     let store: StoreOf<MoimCoordinator>

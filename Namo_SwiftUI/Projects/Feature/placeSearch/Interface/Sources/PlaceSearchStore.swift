@@ -22,17 +22,11 @@ public extension PlaceSearchStore {
                     await send(.responsePlaceList(placeList))
                 }
             case let .responsePlaceList(placeList):
-                state.placeList = placeList                
+                state.placeList = placeList
                 return .none
             case let .poiTapped(poiID):
                 state.id = poiID
                 return .none
-            case .viewOnAppear:
-                state.draw = true
-                return .none
-            case .viewOnDisappear:
-                state.draw = false
-                return .none         
             case let .locationUpdated(locationInfo):
                 state.locationName = locationInfo.placeName
                 state.id = locationInfo.id

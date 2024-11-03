@@ -6,9 +6,14 @@
 //
 
 import Foundation
-import ComposableArchitecture
+
 import DomainMoimInterface
 
+import ComposableArchitecture
+
+/*
+ 모임일정 리스트
+*/
 @Reducer
 public struct MoimListStore {
     
@@ -25,10 +30,20 @@ public struct MoimListStore {
     }
     
     public enum Action {
+        
+        /// viewOnAppear
         case viewOnAppear
+        
+        /// 모임결과 응답
         case moimListResponse([MoimScheduleItem])
+        
+        /// 모임셀 선택
         case moimCellSelected(meetingScheduleId: Int)
+        
+        /// 일정 생성
         case presentComposeSheet
+        
+        /// 일정 조회
         case presentDetailSheet(MoimSchedule)
     }
     
