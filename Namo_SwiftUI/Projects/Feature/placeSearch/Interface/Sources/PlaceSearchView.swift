@@ -11,6 +11,7 @@ import ComposableArchitecture
 
 public struct PlaceSearchView: View {
     @Perception.Bindable private var store: StoreOf<PlaceSearchStore>
+    @State var draw = false
     
     public init(store: StoreOf<PlaceSearchStore>) {
         self.store = store
@@ -34,8 +35,9 @@ public struct PlaceSearchView: View {
     }
     
     private var mapView: some View {
-        KakaoMapView(store: store)
-            .onAppear { store.send(.viewOnAppear) }
+        KakaoMapView(store: store, draw: $draw)
+            .onAppear { draw = true }
+            .onDisappear { draw = false }
             .frame(maxWidth: .infinity, maxHeight: 380)
     }
     

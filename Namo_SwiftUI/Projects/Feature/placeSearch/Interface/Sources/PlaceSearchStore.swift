@@ -22,7 +22,7 @@ public extension PlaceSearchStore {
                     await send(.responsePlaceList(placeList))
                 }
             case let .responsePlaceList(placeList):
-                state.placeList = placeList
+                state.placeList = placeList                
                 return .none
             case let .poiTapped(poiID):
                 state.id = poiID

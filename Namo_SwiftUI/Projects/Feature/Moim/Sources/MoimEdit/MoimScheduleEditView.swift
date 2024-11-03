@@ -26,7 +26,8 @@ import SharedDesignSystem
 
 public struct MoimScheduleEditView: View {
     @Perception.Bindable private var store: StoreOf<MoimEditStore>
-    private let placeStore: StoreOf<PlaceSearchStore>
+    @Perception.Bindable private var placeStore: StoreOf<PlaceSearchStore>
+    @State var draw = false
     
     public init(store: StoreOf<MoimEditStore>) {
         self.store = store
@@ -61,8 +62,8 @@ public struct MoimScheduleEditView: View {
                 DeleteCircleButton {
                     store.send(.deleteButtonTapped)
                 }
-                .offset(y: 20)            
-//                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
+                .offset(y: 20)
+                //                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
                 
                 WithPerceptionTracking {
                     VStack(spacing: 0) {
@@ -282,14 +283,17 @@ extension MoimScheduleEditView {
                 }
                 
                 if !store.moimSchedule.kakaoLocationId.isEmpty {
-                   KakaoMapView(store: placeStore)
-                        .onAppear {                            
-                            placeStore.send(.viewOnAppear)
+                    KakaoMapView(store: placeStore, draw: $draw)
+                        .id(store.moimSchedule.kakaoLocationId)
+                        .onAppear {
+                            placeStore.x = store.moimSchedule.latitude
+                            placeStore.y = store.moimSchedule.longitude
+                            draw = true
                         }
-                        .onDisappear {
-                            placeStore.send(.viewOnDisappear)
-                        }
+                        .onDisappear { draw = false }
+                        .allowsHitTesting(false)
                         .frame(maxWidth: .infinity, minHeight: 190)
+                        .border(Color.textUnselected, width: 1)
                 }
             }
         }

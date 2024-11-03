@@ -17,10 +17,11 @@ import SharedDesignSystem
 
 public struct KakaoMapView: UIViewRepresentable {
     let store: StoreOf<PlaceSearchStore>
-        
+    @Binding var draw: Bool
     
-    public init(store: StoreOf<PlaceSearchStore>) {
+    public init(store: StoreOf<PlaceSearchStore>, draw: Binding<Bool>) {
         self.store = store
+        self._draw = draw
     }
     
     public func makeUIView(context: Context) -> some KMViewContainer {
@@ -33,15 +34,19 @@ public struct KakaoMapView: UIViewRepresentable {
     }
     
     public func updateUIView(_ uiView: UIViewType, context: Context) {
-        if store.draw {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                context.coordinator.controller?.prepareEngine()
-                context.coordinator.controller?.activateEngine()
+        guard let controller = context.coordinator.controller else { return }
+        if draw {
+            if !controller.isEngineActive {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    context.coordinator.controller?.prepareEngine()
+                    context.coordinator.controller?.activateEngine()
+                }
             }
-        }
-        else {
-            context.coordinator.controller?.pauseEngine()
-            context.coordinator.controller?.resetEngine()
+        } else {
+            if controller.isEngineActive {
+                context.coordinator.controller?.pauseEngine()
+                context.coordinator.controller?.resetEngine()
+            }
         }
     }
     
@@ -62,6 +67,12 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
     public init(store: StoreOf<PlaceSearchStore>) {
         self.store = ViewStoreOf<PlaceSearchStore>(store, observe: { $0 })
         super.init()
+    }
+    
+    deinit {
+        controller?.pauseEngine()
+        controller?.resetEngine()
+        cancellables.removeAll()
     }
     
     // MARK: - Helper Methods
@@ -87,6 +98,7 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         store.publisher
             .placeList
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] placeList in
                 guard let firstLocation = placeList.first,
                       let longitude = Double(firstLocation.x),
@@ -102,19 +114,31 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         // 검색ID 구독
         store.publisher
             .id
-            .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] poiID in
                 self?.changePoiStyle(poiID: poiID)
                 self?.showInfoWindow(poiID: poiID)
             })
-            .store(in: &cancellables)        
+            .store(in: &cancellables)
+        
+        // 검색결과x 좌표만 있는경우
+        Publishers
+            .CombineLatest(store.publisher.x, store.publisher.y)
+            .filter { (x, y) in self.store.placeList.isEmpty}
+            .filter { (x, y) in x != 0 && y != 0 }
+            .sink(receiveValue: { [weak self] (x, y) in
+                self?.createPoiStyle()
+                self?.createLabelLayer()
+                self?.createPoi(longitude: y, latitude: x)
+            })
+            .store(in: &cancellables)
     }
     
     /// Poi 상단에 나타나는 infoWindow를 보여줍니다.
     private func showInfoWindow(poiID: String) {
+        guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
         guard let index = store.placeList.firstIndex(where: {$0.id == poiID}) else { return }
         let curPlace = store.placeList[index]
-        let mapView: KakaoMap = controller?.getView("mapview") as! KakaoMap
         guard let longitude = Double(curPlace.x), let latitude = Double(curPlace.y) else { return }
         
         let guiManager = mapView.getGuiManager()
@@ -124,14 +148,14 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         let infoWindow = InfoWindow("infoWindow")
         
         let bodyImage = GuiImage("bgImage")
-
+        
         bodyImage.image = UIImage.getDesignSystemImage(named: "ic_info_window")
         
         bodyImage.imageStretch = GuiEdgeInsets(top: 9, left: 9, bottom: 9, right: 9)
         
         // tailImage
         let tailImage = GuiImage("tailImage")
-
+        
         tailImage.image =  UIImage.getDesignSystemImage(named: "ic_info_window_tail")
         //bodyImage의 child로 들어갈 layout.
         let layout: GuiLayout = GuiLayout("layout")
@@ -163,9 +187,29 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         infoWindow.show()
     }
     
+    private func createPoi(longitude: Double, latitude: Double) {
+        guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
+        let manager = mapView.getLabelManager()
+        let layer = manager.getLabelLayer(layerID: "PoiLayer")
+        
+        let poiOption = PoiOptions(styleID: "selectedStyle", poiID: UUID().uuidString)
+        
+        poiOption.rank = 0
+        poiOption.clickable = true
+        
+        let poi1 = layer?.addPoi(option:poiOption, at: MapPoint(longitude: longitude, latitude: latitude))
+        
+        poi1?.show()
+                
+        layer?.showAllPois()
+        
+        moveCamera(longitude: longitude, latitude: latitude, durationInMillis: 0)
+        
+    }
+    
     /// poiStyle 변경
     private func changePoiStyle(poiID: String) {
-        let mapView: KakaoMap = controller?.getView("mapview") as! KakaoMap
+        guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
         let manager = mapView.getLabelManager()
         let layer = manager.getLabelLayer(layerID: "PoiLayer")
         
@@ -182,13 +226,9 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         moveCamera(longitude: longitude, latitude: latitude, durationInMillis: 800)
     }
     
-    private func showPoiOnlyOne() {
-        
-    }
-    
     /// 카메라 이동
     private func moveCamera(longitude: Double, latitude: Double, durationInMillis: UInt = 1500) {
-        let mapView: KakaoMap = controller?.getView("mapview") as! KakaoMap
+        guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
         let cameraUpdate = CameraUpdate.make(cameraPosition: CameraPosition(target: MapPoint(longitude: longitude, latitude: latitude), height: 200, rotation: 0, tilt: 0))
         
         mapView.animateCamera(cameraUpdate: cameraUpdate, options: CameraAnimationOptions(
@@ -199,16 +239,16 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
     
     /// LabelLayer 생성
     private func createLabelLayer() {
-        let view: KakaoMap = controller?.getView("mapview") as! KakaoMap
-        let manager = view.getLabelManager()
+        guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
+        let manager = mapView.getLabelManager()
         let layerOption = LabelLayerOptions(layerID: "PoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 1000)
         let _ = manager.addLabelLayer(option: layerOption)
     }
     
     /// poiStyle 설정
     func createPoiStyle() {
-        let view = controller?.getView("mapview") as! KakaoMap
-        let manager = view.getLabelManager()
+        guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
+        let manager = mapView.getLabelManager()
         
         // 검색 시 기본 핀
         
@@ -225,8 +265,8 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
     
     /// poi 생성
     func createPois(_ placeList: [LocationInfo]) {
-        let view = controller?.getView("mapview") as! KakaoMap
-        let manager = view.getLabelManager()
+        guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
+        let manager = mapView.getLabelManager()
         let layer = manager.getLabelLayer(layerID: "PoiLayer")
         
         let pois = layer?.getAllPois().map { $0.map { return $0.itemID} } ?? []
