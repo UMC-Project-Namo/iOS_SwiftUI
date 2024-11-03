@@ -6,13 +6,19 @@
 //
 
 import SwiftUI
+
+import ComposableArchitecture
+
 import SharedDesignSystem
 
 public struct FriendInviteView: View {
+    let store: StoreOf<FriendInviteStore>
     @State private var text = ""
     @State private var showingFriendInvites = false
     
-    public init() {}
+    public init(store: StoreOf<FriendInviteStore>) {
+        self.store = store
+    }
     
     public  var body: some View {
         VStack(spacing: 0) {
@@ -54,7 +60,9 @@ public struct FriendInviteView: View {
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(.black)
         }, left: {
-            Button(action: {}, label: {
+            Button(action: {
+                store.send(.backButtonTapped)
+            }, label: {
                 Image(asset: SharedDesignSystemAsset.Assets.icArrowLeftThick)
             })
         })

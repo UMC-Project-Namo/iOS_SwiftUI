@@ -20,6 +20,7 @@ import SharedDesignSystem
 public enum MoimEditScreen {
     case createMoim(MoimEditStore)
     case kakaoMap(PlaceSearchStore)
+    case friendInvite(FriendInviteStore)
 }
 
 @Reducer
@@ -89,6 +90,14 @@ public struct MoimEditCoordinator {
             case let .router(.routeAction(_, action: .kakaoMap(.poiTapped(poiID)))):
                 guard let place = state.placeSearchStore.placeList.filter({ $0.id == poiID }).first else { return .none }
                 return .send(.placeSearchAction(.locationUpdated(place)))
+                /// 친구 초대
+            case .router(.routeAction(_, action: .createMoim(.goToFriendInvite))):
+                state.routes.push(.friendInvite(.init()))
+                return .none
+                /// 친구초대 뒤로가기
+            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
+                state.routes.pop()
+                return .none
             default:
                 return .none
             }

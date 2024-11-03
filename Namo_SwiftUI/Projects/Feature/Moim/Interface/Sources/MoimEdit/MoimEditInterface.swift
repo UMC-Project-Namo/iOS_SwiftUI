@@ -92,6 +92,9 @@ public struct MoimEditStore {
         
         /// 지도검색 이동
         case goToKakaoMapView
+        
+        /// 친구초대 이동
+        case goToFriendInvite
                 
         case locationUpdated(LocationInfo)
     }

@@ -283,8 +283,8 @@ extension MoimScheduleEditView {
                 
                 if !store.moimSchedule.kakaoLocationId.isEmpty {
                    KakaoMapView(store: placeStore)
-                        .onAppear {
-                            placeStore.send(.viewOnAppear)                                                        
+                        .onAppear {                            
+                            placeStore.send(.viewOnAppear)
                         }
                         .onDisappear {
                             placeStore.send(.viewOnDisappear)
@@ -304,7 +304,9 @@ extension MoimScheduleEditView {
                     .foregroundStyle(Color.mainText)
                 Spacer()
                 
-                Button(action: {}) {
+                Button(action: {
+                    store.send(.goToFriendInvite)
+                }) {
                     Image(asset: SharedDesignSystemAsset.Assets.icRight)
                 }
             }

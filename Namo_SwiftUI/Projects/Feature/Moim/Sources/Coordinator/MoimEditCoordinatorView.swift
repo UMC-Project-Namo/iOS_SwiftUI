@@ -27,6 +27,8 @@ public struct MoimEditCoordinatorView: View {
             case let .kakaoMap(store):
                 PlaceSearchView(store: store)
                 .toolbar(.hidden, for: .navigationBar)
+            case let .friendInvite(store):
+                FriendInviteView(store: store)
             }
         }
         .background(ClearBackground())
