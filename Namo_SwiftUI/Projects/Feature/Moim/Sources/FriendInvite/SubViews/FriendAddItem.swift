@@ -10,6 +10,8 @@ import SwiftUI
 import DomainFriend
 import SharedDesignSystem
 
+import Kingfisher
+
 struct FriendAddItem: View {
     let friend: Friend
     let isAdded: Bool
@@ -17,8 +19,14 @@ struct FriendAddItem: View {
     var body: some View {
         VStack {
             HStack(spacing: 16) {
-                Image(asset: SharedDesignSystemAsset.Assets.appLogo)
-                    .cornerRadius(10)
+                KFImage(URL(string: friend.profileImage ?? ""))
+                    .placeholder({
+                        Image(asset: SharedDesignSystemAsset.Assets.friendDefaultImage)
+                    })
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
                 
                 VStack(spacing: 6) {
                     HStack(spacing: 4) {
@@ -26,7 +34,7 @@ struct FriendAddItem: View {
                             .font(.pretendard(.bold, size: 15))
                             .foregroundStyle(Color.mainText)
                         
-                        Image(asset: SharedDesignSystemAsset.Assets.icHeart)
+                        Image(asset: friend.favoriteFriend ? SharedDesignSystemAsset.Assets.icHeartSelected : SharedDesignSystemAsset.Assets.icHeart)
                             .resizable()
                             .frame(width: 12, height: 12)
                         

@@ -43,7 +43,7 @@ extension MoimEditStore {
                 
             case .createButtonTapped:
                 return .run { [state = state] send in
-                    if state.mode == .compose {
+                    if state.mode == .compose {                        
                         try await moimUseCase.createMoim(state.moimSchedule, state.coverImage)
                     } else {
                         try await moimUseCase.editMoim(state.moimSchedule, state.coverImage)

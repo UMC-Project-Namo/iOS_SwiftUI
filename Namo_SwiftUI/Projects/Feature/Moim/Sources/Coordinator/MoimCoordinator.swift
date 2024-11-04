@@ -81,22 +81,22 @@ public struct MoimCoordinator {
         
         Reduce<State, Action> { state, action in
             switch action {            
-            /// 일정 생성
+            // MARK: - 일정생성 Navigation
             case .router(.routeAction(_, action: .mainTab(.moimListAction(.presentComposeSheet)))):
                 state.isPresentedSheet = true
                 state.routes.presentCover(.moimEdit(.init()))
                 return .none
-            /// 일정 조회
+            // MARK: - 일정조회 Navigation
             case let .router(.routeAction(_, action: .mainTab(.moimListAction(.presentDetailSheet(moimSchedule))))):
                 state.routes.presentCover(.moimEdit(.init(moimEditStore: .init(moimSchedule: moimSchedule))))
                 state.isPresentedSheet = true
                 return .none
-            /// 완료 또는 취소 작업
+            // MARK: - 일정 생성, 편집 취소
             case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
                 state.isPresentedSheet = false
-                state.routes.dismiss()
-                return .none
-            /// 친구 요청
+                state.routes.dismiss()                        
+                return .send(.mainTabAction(.moimListAction(.viewOnAppear)))
+            // MARK: - 친구요청 Navigation
             case .router(.routeAction(_, action: .mainTab(.notificationButtonTap))):
                 state.routes.push(.notification)
                 return .none            

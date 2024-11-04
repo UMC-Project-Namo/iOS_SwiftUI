@@ -13,7 +13,6 @@ import SharedDesignSystem
 
 import ComposableArchitecture
 
-
 public struct MainView: View {
     @Perception.Bindable private var store: StoreOf<MainViewStore>
     
@@ -25,17 +24,27 @@ public struct MainView: View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
                 TabBarView(currentTab: $store.currentTab, tabBarOptions: ["모임 일정", "친구리스트"])
-                
+              
                 TabView(selection: $store.currentTab) {
+                   
+                    MoimListView(
+                        store: store.scope(
+                            state: \.moimListStore,
+                            action: \.moimListAction
+                        )
+                    )
+                    .tag(0)                    
                     
-                    MoimListView(store: store.scope(state: \.moimListStore, action: \.moimListAction))
-                        .tag(0)
-                 
-//                    FriendListView(store: store.scope(state: \.friendListStore, action: \.friendListAction))
-//                        .tag(1)
+                    FriendListView(
+                        store: store.scope(
+                            state: \.friendListStore,
+                            action: \.friendListAction
+                        )
+                    )
+                    .tag(1)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-            }            
+            }
             .namoNabBar(left: {
                 Text("Group Calendar")
                     .font(.pretendard(.bold, size: 22))
@@ -47,6 +56,6 @@ public struct MainView: View {
                     Image(asset: SharedDesignSystemAsset.Assets.icNotification)
                 }
             })
-        }        
+        }
     }
 }

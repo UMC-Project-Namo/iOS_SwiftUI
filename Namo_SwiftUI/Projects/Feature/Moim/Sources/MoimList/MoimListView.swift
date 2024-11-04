@@ -22,6 +22,7 @@ struct MoimListView: View {
     
     var body: some View {
         WithPerceptionTracking {
+            
             ZStack {
                 if !store.moimList.isEmpty {
                     ScrollView {

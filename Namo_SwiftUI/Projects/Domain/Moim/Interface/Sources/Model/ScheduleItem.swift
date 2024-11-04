@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct MoimScheduleItem: Decodable, Hashable {
+public struct MoimScheduleItem: Decodable, Hashable, Identifiable {
     public init(meetingScheduleId: Int,
                 title: String,
                 startDate: String,
@@ -21,6 +21,7 @@ public struct MoimScheduleItem: Decodable, Hashable {
         self.participantCount = participantCount
         self.participantNicknames = participantNicknames
     }
+    public var id: Int { meetingScheduleId }
     public let meetingScheduleId: Int
     public let title: String
     public let startDate: String

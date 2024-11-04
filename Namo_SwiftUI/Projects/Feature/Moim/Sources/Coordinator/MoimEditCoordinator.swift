@@ -95,8 +95,7 @@ public struct MoimEditCoordinator {
         Scope(state: \.friendInviteStore, action: \.friendInviteAction) {
             FriendInviteStore()
         }
-        
-        //TODO: - 코디네이터는 화면이동 및 데이터 조율만을 담당하도록(현재는 비즈니스로직이 흔재)
+                
         Reduce<State, Action> { state, action in
             switch action {
                 //MARK: - 장소검색 Navigation
@@ -119,8 +118,7 @@ public struct MoimEditCoordinator {
                 return .none
                 // MARK: - 검색결과 업데이트
             case let .router(.routeAction(_, action: .kakaoMap(.responsePlaceList(placeList)))):
-                state.placeSearchStore.placeList = placeList
-                return .none
+                return .send(.placeSearchAction(.responsePlaceList(placeList)))
                 // MARK: - 장소선택
             case let .router(.routeAction(_, action: .kakaoMap(.poiTapped(poiID)))):
                 guard let place = state.placeSearchStore.placeList.filter({ $0.id == poiID }).first else { return .none }
@@ -138,13 +136,10 @@ public struct MoimEditCoordinator {
                 return .none
                 // MARK: - 친구 초대
             case let .router(.routeAction(_, action: .friendInvite(.addFriend(friend)))):
-                state.friendInviteStore.addedFriend.append(friend)
-                return .none
+                return .send(.friendInviteAction(.addFriend(friend)))
                 // MARK: - 초대친구 제거
             case let .router(.routeAction(_, action: .friendInvite(.removeFriend(memberId)))):
-                guard let index = state.friendInviteStore.addedFriend.firstIndex(where: {$0.memberId == memberId}) else { return .none }
-                state.friendInviteStore.addedFriend.remove(at: index)
-                return .none
+                return .send(.friendInviteAction(.removeFriend(memberId: memberId)))
             default:
                 return .none
             }

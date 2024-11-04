@@ -38,21 +38,21 @@ public struct MainViewStore {
         case binding(BindingAction<State>)
         case moimListAction(MoimListStore.Action)
         case friendListAction(FriendListStore.Action)
-        case notificationButtonTap
+        case notificationButtonTap        
     }
     
     public var body: some Reducer<State, Action> {
         BindingReducer()
         
         Scope(state: \.moimListStore, action: \.moimListAction) {
-            MoimListStore()
+            MoimListStore()                
         }
         Scope(state: \.friendListStore, action: \.friendListAction) {
             FriendListStore()
         }
         
         Reduce<State, Action> { state, action in
-            switch action {            
+            switch action {
             default:
                 return .none
             }

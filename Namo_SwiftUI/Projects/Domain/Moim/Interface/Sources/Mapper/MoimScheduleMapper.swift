@@ -25,7 +25,7 @@ public extension MoimScheduleListResponseDTO {
 public extension MoimSchedule {
     func toDto() -> MoimScheduleRequestDTO {
         return .init(title: title,
-                     imageUrl: nil,
+                     imageUrl: imageUrl,
                      period: PeriodDto(startDate: startDate.dateToISO8601(),
                                        endDate: endDate.dateToISO8601()),
                      location: LocationDto(longitude: longitude,

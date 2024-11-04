@@ -25,8 +25,10 @@ public struct MoimListStore {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}
-        public var moimList: [MoimScheduleItem] = []
+        public init() {
+            self.moimList = .init()
+        }
+        public var moimList: IdentifiedArrayOf<MoimScheduleItem>
     }
     
     public enum Action {
@@ -45,6 +47,7 @@ public struct MoimListStore {
         
         /// 일정 조회
         case presentDetailSheet(MoimSchedule)
+                
     }
     
     public var body: some ReducerOf<Self> {

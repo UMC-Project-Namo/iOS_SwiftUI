@@ -7,9 +7,11 @@
 
 import SwiftUI
 
+import FeatureMoimInterface
 import SharedDesignSystem
 
 import ComposableArchitecture
+
 
 public struct FriendInviteView: View {
     @Perception.Bindable private var store: StoreOf<FriendInviteStore>
@@ -47,9 +49,13 @@ public struct FriendInviteView: View {
                     }
                     .padding(.horizontal, 25)
                     
+                    if showingFriendInvites {
+                        FriendInvitedListView(store: store)                            
+                            .padding(.top, 20)
+                    }
+                    
                     FriendSearchListView(store: store)
                         .padding(.top, 20)
-                    
                 }
                 .padding(.top, 20)
                 

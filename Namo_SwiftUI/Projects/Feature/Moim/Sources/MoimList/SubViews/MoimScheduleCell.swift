@@ -23,6 +23,9 @@ struct MoimScheduleCell: View {
         VStack(spacing: 0) {
             HStack(spacing: 16) {
                 KFImage(URL(string: scheduleItem.imageUrl))
+                    .placeholder({
+                        Image(asset: SharedDesignSystemAsset.Assets.moimDefaultImage)
+                    })
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 48, height: 48)
