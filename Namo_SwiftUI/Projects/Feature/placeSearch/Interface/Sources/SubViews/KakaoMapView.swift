@@ -72,7 +72,6 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
     deinit {
         controller?.pauseEngine()
         controller?.resetEngine()
-        cancellables.removeAll()
     }
     
     // MARK: - Helper Methods
@@ -124,7 +123,10 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         // 검색결과x 좌표만 있는경우
         Publishers
             .CombineLatest(store.publisher.x, store.publisher.y)
-            .filter { (x, y) in self.store.placeList.isEmpty}
+            .filter { [weak self] (x, y) in
+                guard let self = self else { return false }
+                return store.placeList.isEmpty
+            }
             .filter { (x, y) in x != 0 && y != 0 }
             .sink(receiveValue: { [weak self] (x, y) in
                 self?.createPoiStyle()
