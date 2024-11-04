@@ -54,7 +54,7 @@ public struct FriendInviteView: View {
                 .padding(.top, 20)
                 
                 Spacer()
-            }
+            }            
             .namoNabBar(center: {
                 Text("친구 초대하기")
                     .font(.pretendard(.bold, size: 16))

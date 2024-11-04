@@ -19,14 +19,19 @@ struct FriendSearchListView: View {
             ScrollView {
                 LazyVStack {
                     ForEach(store.friendList, id: \.self.memberId) { friend in
-                        FriendAddItem(friend: friend, isAdded: store.addedFriend.contains(friend))
+                        let isAdded = store.addedFriend.map { $0.memberId }.contains(friend.memberId)
+                        FriendAddItem(friend: friend, isAdded: isAdded)
                             .onTapGesture {
-                                store.send(.addFriend(friend))
+                                if isAdded {                                    
+                                    store.send(.removeFriend(memberId: friend.memberId))
+                                } else {
+                                    store.send(.addFriend(friend))
+                                }                                
                             }
                     }
                 }
                 .padding(.horizontal, 25)
-            }
+            }            
         }
     }
 }

@@ -84,3 +84,5 @@ extension FriendCategoryDTO {
 		return FriendCategory(categoryName: categoryName, colorId: colorId)
 	}
 }
+
+

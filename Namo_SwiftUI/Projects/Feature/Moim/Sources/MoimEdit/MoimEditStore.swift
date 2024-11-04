@@ -16,7 +16,7 @@ import ComposableArchitecture
 
 extension MoimEditStore {
     public init() {
-        @Dependency(\.moimUseCase) var moimUseCase
+        @Dependency(\.moimUseCase) var moimUseCase        
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
             switch action {
@@ -51,7 +51,6 @@ extension MoimEditStore {
                     await send(.createButtonConfirm)
                 }
             case .deleteButtonTapped:
-                state.isAlertPresented = true
                 return .none
             case .deleteButtonConfirm:
                 return .run { [state = state] send in

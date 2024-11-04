@@ -12,8 +12,8 @@ import DomainFriend
 
 import ComposableArchitecture
 
-/*
- 친구초대
+/**
+ Reducer for FriendInvite(친구초대) Feature
  */
 @Reducer
 public struct FriendInviteStore {
@@ -50,6 +50,9 @@ public struct FriendInviteStore {
         
         /// 친구 추가
         case addFriend(Friend)
+        
+        /// 초대친구 삭제
+        case removeFriend(memberId: Int)
         
         /// 뒤로가기
         case backButtonTapped

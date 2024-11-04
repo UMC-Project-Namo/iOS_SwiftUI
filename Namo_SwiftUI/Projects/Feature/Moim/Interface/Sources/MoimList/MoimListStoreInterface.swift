@@ -11,8 +11,8 @@ import DomainMoimInterface
 
 import ComposableArchitecture
 
-/*
- 모임일정 리스트
+/**
+ Reducer for MoimList(일정 목록조회) Feature
 */
 @Reducer
 public struct MoimListStore {

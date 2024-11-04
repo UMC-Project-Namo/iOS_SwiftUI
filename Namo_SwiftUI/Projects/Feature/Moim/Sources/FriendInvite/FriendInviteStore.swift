@@ -29,6 +29,10 @@ extension FriendInviteStore {
             case let .addFriend(friend):
                 state.addedFriend.append(friend)
                 return .none
+            case let .removeFriend(memberId):
+                guard let index = state.addedFriend.firstIndex(where: { $0.memberId == memberId }) else { return .none }
+                state.addedFriend.remove(at: index)
+                return .none
             default:
                 return .none
             }}

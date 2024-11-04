@@ -15,30 +15,37 @@ import DomainFriend
 
 import ComposableArchitecture
 
-/*
- 모임일정 상세
+/**
+ Reducer for MoimEdit(모임 편집) Feature
 */
 @Reducer
 public struct MoimEditStore {
     
-    /// 편집 여부
-    public enum Mode: Equatable {
-        case view, edit, compose
-    }
     private let reducer: Reduce<State, Action>
     
     public init(reducer: Reduce<State, Action>) {
         self.reducer = reducer
     }
     
+    /// 편집 여부
+    public enum Mode: Equatable {
+        case view, edit, compose
+    }
+    
     @ObservableState
     public struct State: Equatable {
+        
+        /// 편집 여부
+        public var mode: Mode = .compose
         
         /// 모임일정
         public var moimSchedule: MoimSchedule
         
         /// 커버이미지
         public var coverImageItem: PhotosPickerItem?
+        
+        /// 커버이미지
+        public var coverImage: UIImage?
         
         /// 시작 날짜 선택 캘린더 보임여부
         public var isStartPickerPresented: Bool = false
@@ -49,17 +56,13 @@ public struct MoimEditStore {
         /// 삭제 알림 보임여부
         public var isAlertPresented: Bool = false
         
-        /// 커버이미지
-        public var coverImage: UIImage?
-        
-        /// 편집 여부
-        public var mode: Mode = .compose                
-        
+        /// 모임일정 조회, 편집 initializer
         public init(moimSchedule: MoimSchedule) {
             self.moimSchedule = moimSchedule
 //            mode = self.moimSchedule.isOwner ? .edit : .view
         }
         
+        /// 모임일정 생성 initializer
         public init() {
             self.moimSchedule = .init()
         }
@@ -100,6 +103,7 @@ public struct MoimEditStore {
         /// 친구초대 이동
         case goToFriendInvite
                 
+        /// 위치정보 업데이트
         case locationUpdated(LocationInfo)
     }
     
