@@ -27,7 +27,7 @@ struct MoimListView: View {
                 if !store.moimList.isEmpty {
                     ScrollView {
                         LazyVStack(spacing: 20) {
-                            ForEach(store.moimList, id: \.meetingScheduleId) { moimSchedule in
+                            ForEach(store.moimList) { moimSchedule in
                                 MoimScheduleCell(scheduleItem: moimSchedule)
                                     .onTapGesture {
                                         store.send(.moimCellSelected(meetingScheduleId: moimSchedule.meetingScheduleId))
@@ -45,8 +45,8 @@ struct MoimListView: View {
                 FloatingButton {
                     store.send(.presentComposeSheet)
                 }
-            }
-            .onAppear {
+            }         
+            .onAppear {               
                 store.send(.viewOnAppear)
             }
         }

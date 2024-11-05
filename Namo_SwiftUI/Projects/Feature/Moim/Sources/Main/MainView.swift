@@ -24,7 +24,7 @@ public struct MainView: View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
                 TabBarView(currentTab: $store.currentTab, tabBarOptions: ["모임 일정", "친구리스트"])
-              
+               
                 TabView(selection: $store.currentTab) {
                    
                     MoimListView(
@@ -32,8 +32,8 @@ public struct MainView: View {
                             state: \.moimListStore,
                             action: \.moimListAction
                         )
-                    )
-                    .tag(0)                    
+                    )                    
+                    .tag(0)
                     
                     FriendListView(
                         store: store.scope(
@@ -44,7 +44,7 @@ public struct MainView: View {
                     .tag(1)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-            }
+            }            
             .namoNabBar(left: {
                 Text("Group Calendar")
                     .font(.pretendard(.bold, size: 22))

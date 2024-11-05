@@ -37,7 +37,7 @@ public struct MoimListStore {
         case viewOnAppear
         
         /// 모임결과 응답
-        case moimListResponse([MoimScheduleItem])
+        case moimListResponse(IdentifiedArrayOf<MoimScheduleItem>)
         
         /// 모임셀 선택
         case moimCellSelected(meetingScheduleId: Int)

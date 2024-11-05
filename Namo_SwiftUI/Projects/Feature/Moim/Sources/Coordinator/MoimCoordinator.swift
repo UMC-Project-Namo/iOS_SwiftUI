@@ -67,6 +67,7 @@ public struct MoimCoordinator {
                       
         /// 메인탭 스토어
         var mainTabStore: MainViewStore.State
+                
     }
     
     public enum Action {
@@ -93,9 +94,12 @@ public struct MoimCoordinator {
                 return .none
             // MARK: - 일정 생성, 편집 취소
             case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
-                state.isPresentedSheet = false
-                state.routes.dismiss()                        
                 return .send(.mainTabAction(.moimListAction(.viewOnAppear)))
+            case let .mainTabAction(.moimListAction(.moimListResponse(response))):
+                state.mainTabStore.moimListStore.moimList = response
+                state.isPresentedSheet = false
+                state.routes = [.root(.mainTab(state.mainTabStore))]
+                return .none
             // MARK: - 친구요청 Navigation
             case .router(.routeAction(_, action: .mainTab(.notificationButtonTap))):
                 state.routes.push(.notification)

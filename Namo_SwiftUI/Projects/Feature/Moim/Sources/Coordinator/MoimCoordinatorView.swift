@@ -25,7 +25,7 @@ public struct MoimCoordinatorView: View {
             TCARouter(store.scope(state: \.routes, action: \.router)) { screen in
                 switch screen.case {
                 case let .mainTab(store):
-                    MainView(store: store)
+                    MainView(store: store)                        
                 case let .moimEdit(store):
                     MoimEditCoordinatorView(store: store)
                 case .notification:

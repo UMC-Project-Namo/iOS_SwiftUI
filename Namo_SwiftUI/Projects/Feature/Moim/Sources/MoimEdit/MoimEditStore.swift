@@ -55,7 +55,9 @@ extension MoimEditStore {
             case .deleteButtonConfirm:
                 return .run { [state = state] send in
                     try await moimUseCase.withdrawMoim(state.moimSchedule.scheduleId)
-                }            
+                }                  
+            case .createButtonConfirm:
+                return .none
             default:
                 return .none
             }

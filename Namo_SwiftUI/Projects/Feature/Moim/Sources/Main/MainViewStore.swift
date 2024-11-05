@@ -28,10 +28,11 @@ public struct MainViewStore {
         public var currentTab = 0
         
         // 모임리스트
-        var moimListStore: MoimListStore.State
+        public var moimListStore: MoimListStore.State
         
         // 친구리스트
-        var friendListStore: FriendListStore.State
+        public var friendListStore: FriendListStore.State
+        
     }
     
     public enum Action: BindableAction {
@@ -39,13 +40,14 @@ public struct MainViewStore {
         case moimListAction(MoimListStore.Action)
         case friendListAction(FriendListStore.Action)
         case notificationButtonTap        
+        case refreshMoimList
     }
     
     public var body: some Reducer<State, Action> {
         BindingReducer()
         
         Scope(state: \.moimListStore, action: \.moimListAction) {
-            MoimListStore()                
+            MoimListStore()
         }
         Scope(state: \.friendListStore, action: \.friendListAction) {
             FriendListStore()
@@ -53,6 +55,8 @@ public struct MainViewStore {
         
         Reduce<State, Action> { state, action in
             switch action {
+            case .refreshMoimList:                
+                return .send(.moimListAction(.viewOnAppear))
             default:
                 return .none
             }
