@@ -35,6 +35,7 @@ import TCACoordinators
   1. 메인탭에서 모임 생성/수정 -> MoimEditCoordinator (Sheet)
   2. 메인탭에서 알림 버튼 -> Notification (Push)
  */
+
 @Reducer(state: .equatable)
 public enum MoimScreen {
     
@@ -95,10 +96,11 @@ public struct MoimCoordinator {
             // MARK: - 일정 생성, 편집 취소
             case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
                 return .send(.mainTabAction(.moimListAction(.viewOnAppear)))
-            case let .mainTabAction(.moimListAction(.moimListResponse(response))):
-                state.mainTabStore.moimListStore.moimList = response
+            // MARK: - 리스트 업데이트후 Navigation
+            // TODO: 현재는 상태를 끌어올려서 경로를 초기화하는 방식 추후 더좋은방법 고민
+            case .mainTabAction(.moimListAction(.moimListResponse)):
                 state.isPresentedSheet = false
-                state.routes = [.root(.mainTab(state.mainTabStore))]
+                state.routes = [.root(.mainTab(state.mainTabStore), embedInNavigationView: true)]
                 return .none
             // MARK: - 친구요청 Navigation
             case .router(.routeAction(_, action: .mainTab(.notificationButtonTap))):
@@ -111,6 +113,3 @@ public struct MoimCoordinator {
         .forEachRoute(\.routes, action: \.router)
     }
 }
-
-
-
