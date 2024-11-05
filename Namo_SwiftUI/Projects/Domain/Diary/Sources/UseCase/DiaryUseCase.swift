@@ -14,11 +14,29 @@ import CoreNetwork
 
 @DependencyClient
 public struct DiaryUseCase {
-	// 캘린더 일정 월별로 가져오기
-	public func getCalendarByMonth(ym: YearMonth) async throws -> DiaryCalendar {
-		let response: BaseResponse<DiaryCalendar> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.getCalendarByMonth(ym: ym))
+	// 캘린더 일정 +-1 달씩 월별로 가져오기
+	public func getCalendarByMonth(ym: YearMonth) async throws -> [YearMonthDay: DiaryScheduleType] {
+		var result: [YearMonthDay: DiaryScheduleType] = [:]
 		
-		return response.result!
+		for i in -1...1 {
+			let currentYM = ym.addMonth(i)
+			let response: BaseResponse<DiaryCalendar> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.getCalendarByMonth(ym: currentYM))
+			
+			response.result?.diaryDateForPersonal.forEach { day in
+				result[YearMonthDay(year: currentYM.year, month: currentYM.month, day: day), default: .noSchedule] = .personalOrBirthdaySchedule
+			}
+			
+			response.result?.diaryDateForBirthday.forEach { day in
+				result[YearMonthDay(year: currentYM.year, month: currentYM.month, day: day), default: .noSchedule] = .personalOrBirthdaySchedule
+			}
+			
+			response.result?.diaryDateForMeeting.forEach { day in
+				result[YearMonthDay(year: currentYM.year, month: currentYM.month, day: day), default: .noSchedule] = .meetingSchedule
+			}
+			
+		}
+		
+		return result
 	}
 	
 	// 특정 일 스케쥴 가져오기

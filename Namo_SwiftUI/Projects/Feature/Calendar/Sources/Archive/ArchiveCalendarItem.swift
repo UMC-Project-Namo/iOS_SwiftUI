@@ -15,7 +15,7 @@ import DomainDiary
 struct ArchiveCalendarItem: View {
 	@Binding var focusDate: YearMonthDay?
 	let date: YearMonthDay
-	let schedules: [DiarySchedule]
+	let diaryScheduleType: DiaryScheduleType
 	
 	private let MAX_SCHEDULE = screenHeight < 800 ? 3 : 4
 	
@@ -24,7 +24,9 @@ struct ArchiveCalendarItem: View {
 			VStack(alignment: .leading, spacing: 4) {
 				dayView
 				
-//				calendarItem(geometry: geometry)
+				if diaryScheduleType != .noSchedule {
+					calendarItem
+				}
 			}
 			.padding(.top, 4)
 			.padding(.leading, 5)
@@ -43,6 +45,25 @@ struct ArchiveCalendarItem: View {
 					.font(.pretendard(.bold, size: 12))
 					.foregroundStyle(Color.black)
 			}
+		}
+	}
+	
+	private var calendarItem: some View {
+		VStack {
+			if focusDate == nil {
+				if diaryScheduleType == .meetingSchedule {
+					Image(asset: SharedDesignSystemAsset.Assets.icArchiveMongOrange)
+				} else if diaryScheduleType == .personalOrBirthdaySchedule {
+					Image(asset: SharedDesignSystemAsset.Assets.icArchiveMongGray)
+				}
+			} else {
+				if diaryScheduleType == .meetingSchedule {
+					Image(asset: SharedDesignSystemAsset.Assets.icArchiveLeafOrange)
+				} else if diaryScheduleType == .personalOrBirthdaySchedule {
+					Image(asset: SharedDesignSystemAsset.Assets.icArchiveLeafGray)
+				}
+			}
+			
 		}
 	}
 	

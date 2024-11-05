@@ -13,11 +13,12 @@ import SharedUtil
 import SharedDesignSystem
 import DomainDiary
 
-
 public struct NamoArchiveCalendarView: View {
 	@ObservedObject var calendarController: CalendarController
 	// 현재 포커싱된(detailView) 날짜
 	@Binding var focusDate: YearMonthDay?
+	// 스케쥴 타입
+	@Binding var diaryScheduleTypes: [YearMonthDay: DiaryScheduleType]
 	// 캘린더에 표시할 스케쥴
 	@Binding var schedules: [YearMonthDay: [DiarySchedule]]
 	// 상단에 요일을 보이게 할지
@@ -32,6 +33,7 @@ public struct NamoArchiveCalendarView: View {
 	public init(
 		calendarController: CalendarController,
 		focusDate: Binding<YearMonthDay?> = .constant(nil),
+		diaryScheduleTypes: Binding<[YearMonthDay: DiaryScheduleType]> = .constant([:]),
 		schedules: Binding<[YearMonthDay: [DiarySchedule]]> = .constant([:]),
 		showWeekDay: Bool = true,
 		showDetailView: Bool = true,
@@ -39,6 +41,7 @@ public struct NamoArchiveCalendarView: View {
 	) {
 		self.calendarController = calendarController
 		self._focusDate = focusDate
+		self._diaryScheduleTypes = diaryScheduleTypes
 		self._schedules = schedules
 		self.showWeekDay = showWeekDay
 		self.showDetailView = showDetailView
@@ -60,7 +63,7 @@ public struct NamoArchiveCalendarView: View {
 								ArchiveCalendarItem(
 									focusDate: $focusDate,
 									date: date,
-									schedules: schedules[date] ?? []
+									diaryScheduleType: diaryScheduleTypes[date] ?? .noSchedule
 								)
 								.onTapGesture {
 									dateTapAction(date)

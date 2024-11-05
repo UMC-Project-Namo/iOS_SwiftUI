@@ -29,8 +29,10 @@ public struct ArchiveCalendarView: View {
 				NamoArchiveCalendarView(
 					calendarController: calendarController,
 					focusDate: $store.focusDate,
+					diaryScheduleTypes: $store.diaryScheduleTypes,
 					schedules: $store.schedules,
 					dateTapAction: { date in
+						store.send(.getScheduleDetail(ymd: date))
 						store.send(.selectDate(date), animation: .default)
 					}
 				)
@@ -39,6 +41,12 @@ public struct ArchiveCalendarView: View {
 					.frame(height: tabBarHeight)
 			}
 			.ignoresSafeArea(edges: .bottom)
+			.onAppear {
+				store.send(.getSchedules(ym: calendarController.yearMonth))
+			}
+			.onChange(of: calendarController.yearMonth) { newYM in
+				store.send(.getSchedules(ym: calendarController.yearMonth))
+			}
 			.namoNabBar(
 				center: {
 					Text("보관함")
