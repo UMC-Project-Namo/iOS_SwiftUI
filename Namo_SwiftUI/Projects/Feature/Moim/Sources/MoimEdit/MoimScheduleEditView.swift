@@ -118,7 +118,9 @@ extension MoimScheduleEditView {
     
     /// 일정 보기
     private var showScheduleButton: some View {
-        Button(action: {}, label: {
+        Button(action: {
+            store.send(.goToFriendCalendar)
+        }, label: {
             HStack(spacing: 12) {
                 Image(asset: SharedDesignSystemAsset.Assets.icCalendar)
                 Text("초대한 친구 일정 보기")

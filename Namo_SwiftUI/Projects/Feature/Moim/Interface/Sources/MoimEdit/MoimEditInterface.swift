@@ -105,6 +105,9 @@ public struct MoimEditStore {
         
         /// 친구초대 이동
         case goToFriendInvite
+        
+        /// 친구캘린더 이동
+        case goToFriendCalendar
                 
         /// 위치정보 업데이트
         case locationUpdated(LocationInfo)

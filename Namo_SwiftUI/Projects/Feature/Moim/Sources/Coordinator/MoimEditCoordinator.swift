@@ -12,6 +12,7 @@ import DomainFriend
 import FeatureMoimInterface
 import FeaturePlaceSearchInterface
 import FeatureFriendInterface
+import FeatureFriend
 import SharedDesignSystem
 
 import ComposableArchitecture
@@ -49,6 +50,7 @@ public enum MoimEditScreen {
     case createMoim(MoimEditStore)
     case kakaoMap(PlaceSearchStore)
     case friendInvite(FriendInviteStore)
+    case friendCalendar
 }
 
 @Reducer
@@ -142,6 +144,10 @@ public struct MoimEditCoordinator {
                 // MARK: - 초대친구 제거
             case let .router(.routeAction(_, action: .friendInvite(.removeFriend(memberId)))):
                 return .send(.friendInviteAction(.removeFriend(memberId: memberId)))
+                // MARK: - 친구캘린더 Navigation
+            case .router(.routeAction(_, action: .createMoim(.goToFriendCalendar))):
+                state.routes.push(.friendCalendar)
+                return .none
             default:
                 return .none
             }

@@ -9,6 +9,7 @@ import SwiftUI
 
 import SharedDesignSystem
 import FeaturePlaceSearchInterface
+import FeatureFriend
 
 import ComposableArchitecture
 import TCACoordinators
@@ -30,6 +31,8 @@ public struct MoimEditCoordinatorView: View {
                 .toolbar(.hidden, for: .navigationBar)
             case let .friendInvite(store):
                 FriendInviteView(store: store)
+            case .friendCalendar:
+                Text("친구일정")
             }
         }
         .background(ClearBackground())
