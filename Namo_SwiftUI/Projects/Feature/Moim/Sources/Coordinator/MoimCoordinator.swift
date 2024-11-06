@@ -94,7 +94,7 @@ public struct MoimCoordinator {
                 state.isPresentedSheet = true
                 return .none
             // MARK: - 일정 생성, 편집 취소
-            case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):
+            case .router(.routeAction(_, action: .moimEdit(.moimEditAction(.cancleButtonTapped)))):                
                 return .send(.mainTabAction(.moimListAction(.viewOnAppear)))
             // MARK: - 리스트 업데이트후 Navigation
             // TODO: 현재는 상태를 끌어올려서 경로를 초기화하는 방식 추후 더좋은방법 고민

@@ -51,11 +51,13 @@ extension MoimEditStore {
                     await send(.createButtonConfirm)
                 }
             case .deleteButtonTapped:
+                state.isAlertPresented = true
                 return .none
             case .deleteButtonConfirm:
                 return .run { [state = state] send in
                     try await moimUseCase.withdrawMoim(state.moimSchedule.scheduleId)
-                }                  
+                    await send(.deleteConfirm)
+                }
             case .createButtonConfirm:
                 return .none
             default:

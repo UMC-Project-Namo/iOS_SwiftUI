@@ -59,7 +59,7 @@ public struct MoimEditStore {
         /// 모임일정 조회, 편집 initializer
         public init(moimSchedule: MoimSchedule) {
             self.moimSchedule = moimSchedule
-//            mode = self.moimSchedule.isOwner ? .edit : .view
+            mode = self.moimSchedule.isOwner ? .edit : .view            
         }
         
         /// 모임일정 생성 initializer
@@ -96,6 +96,9 @@ public struct MoimEditStore {
         
         /// 삭제확인
         case deleteButtonConfirm     
+        
+        /// 삭제처리 완료
+        case deleteConfirm
         
         /// 지도검색 이동
         case goToKakaoMapView

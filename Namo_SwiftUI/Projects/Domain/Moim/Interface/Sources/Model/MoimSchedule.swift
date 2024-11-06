@@ -8,6 +8,8 @@
 import Foundation
 import CoreNetwork
 
+import SharedUtil
+
 public struct MoimSchedule: Decodable, Hashable, Equatable {
     public init(scheduleId: Int,
                 title: String,
@@ -78,8 +80,16 @@ public struct Participant: Decodable, Hashable {
     public let isOwner: Bool
 }
 
-//public extension MoimSchedule {
-//    var isOwner: Bool {
-//        participants.firstIndex(where: { $0.isOwner && $0.userId == UserDefaults.standard.integer(forKey: "userId")}) != nil
-//    }
-//}
+public extension MoimSchedule {
+    var isOwner: Bool {
+        do {
+           guard let readUserId = try? KeyChainManager.readItem(key: "userId"),
+                 let userId = Int(readUserId) else {
+               return false
+           }
+           return participants.firstIndex(where: { $0.isOwner && $0.userId == userId}) != nil
+        } catch {
+            return false
+        }
+    }
+}

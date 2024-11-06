@@ -59,11 +59,11 @@ public struct MoimScheduleEditView: View {
         WithPerceptionTracking {
             VStack {
                 // deleteButton
-                DeleteCircleButton {
+                DeleteCircleButton {                    
                     store.send(.deleteButtonTapped)
                 }
                 .offset(y: 20)
-                //                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
+                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
                 
                 WithPerceptionTracking {
                     VStack(spacing: 0) {
@@ -105,7 +105,7 @@ public struct MoimScheduleEditView: View {
             .edgesIgnoringSafeArea(.bottom)
             .namoAlertView(isPresented: $store.isAlertPresented,
                            title: "모임 일정에서 정말 나가시겠어요?",
-                           content: "모임 일정과 해당 일정의 기록을 \n 더 이상 보실 수 없습니다.",
+                           content: "모임 일정과 해당 일정의 기록을 더 이상 \n 보실 수 없으며, 방장 권한이 위임됩니다.",
                            confirmAction: {
                 store.send(.deleteButtonConfirm)
             })
@@ -317,7 +317,7 @@ extension MoimScheduleEditView {
             
             FlexibleGridView(data: store.moimSchedule.participants) { participant in
                 ParticipantCell(name: participant.nickname,
-                                pallete: .init(rawValue: participant.colorId ?? 1) ?? .namoOrange)                
+                                pallete: .init(rawValue: participant.colorId ?? 1) ?? .namoOrange)
             }
             .id(store.moimSchedule.participants.count)
         }

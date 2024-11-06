@@ -96,16 +96,17 @@ public struct MoimEditCoordinator {
         Scope(state: \.friendInviteStore, action: \.friendInviteAction) {
             FriendInviteStore()
         }
-                
+        
         Reduce<State, Action> { state, action in
             switch action {
                 //MARK: - 장소검색 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToKakaoMapView))):
                 state.routes.push(.kakaoMap(state.placeSearchStore))
                 return .none
-                // MARK: - 모임생성 수정 완료/취소
+                // MARK: - 모임생성 수정 완료/취소/삭제
             case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))),
-                    .router(.routeAction(_, action: .createMoim(.createButtonConfirm))):
+                    .router(.routeAction(_, action: .createMoim(.createButtonConfirm))),
+                    .router(.routeAction(_, action: .createMoim(.deleteConfirm))):
                 return .send(.moimEditAction(.cancleButtonTapped))
                 // MARK: - 장소선택 완료/취소
             case .router(.routeAction(_, action: .kakaoMap(.backButtonTapped))):
