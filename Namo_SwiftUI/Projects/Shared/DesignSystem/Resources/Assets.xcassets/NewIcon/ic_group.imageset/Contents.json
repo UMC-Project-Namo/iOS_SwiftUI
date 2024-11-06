@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "Property=Group.png",
+      "filename" : "Property=Group, Selected=false.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Property=Group@2x.png",
+      "filename" : "Property=Group, Selected=false@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Property=Group@3x.png",
+      "filename" : "Property=Group, Selected=false@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
