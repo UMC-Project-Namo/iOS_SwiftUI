@@ -13,7 +13,7 @@ import ComposableArchitecture
 
 /**
  Reducer for MoimList(일정 목록조회) Feature
-*/
+ */
 @Reducer
 public struct MoimListStore {
     
@@ -23,12 +23,25 @@ public struct MoimListStore {
         self.reducer = reducer
     }
     
+    public enum Filter {
+        case allSchedules, hidePastSchedules
+    }
+    
     @ObservableState
     public struct State: Equatable {
         public init() {
             self.moimList = .init()
         }
         public var moimList: IdentifiedArrayOf<MoimScheduleItem>
+        
+        public var filter: Filter = .allSchedules
+        
+        public var filteredList: IdentifiedArrayOf<MoimScheduleItem> {
+            switch filter {
+            case .allSchedules: moimList
+            case .hidePastSchedules: []
+            }
+        }
     }
     
     public enum Action {
@@ -47,7 +60,9 @@ public struct MoimListStore {
         
         /// 일정 조회
         case presentDetailSheet(MoimSchedule)
-                
+        
+        /// 필터옵션 토글
+        case toggleFilterOption
     }
     
     public var body: some ReducerOf<Self> {

@@ -317,8 +317,9 @@ extension MoimScheduleEditView {
             
             FlexibleGridView(data: store.moimSchedule.participants) { participant in
                 ParticipantCell(name: participant.nickname,
-                            pallete: .init(rawValue: participant.colorId ?? 1) ?? .namoOrange)
+                                pallete: .init(rawValue: participant.colorId ?? 1) ?? .namoOrange)                
             }
+            .id(store.moimSchedule.participants.count)
         }
     }
 }

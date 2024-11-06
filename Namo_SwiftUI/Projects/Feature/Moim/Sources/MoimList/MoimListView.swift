@@ -22,19 +22,36 @@ struct MoimListView: View {
     
     var body: some View {
         WithPerceptionTracking {
-            
             ZStack {
                 if !store.moimList.isEmpty {
-                    ScrollView {
-                        LazyVStack(spacing: 20) {
-                            ForEach(store.moimList) { moimSchedule in
-                                MoimScheduleCell(scheduleItem: moimSchedule)
-                                    .onTapGesture {
-                                        store.send(.moimCellSelected(meetingScheduleId: moimSchedule.meetingScheduleId))
-                                    }
-                            }
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            Spacer()
+                            
+                            Text("지난 모임 일정 숨기기")
+                                .font(.pretendard(.medium, size: 12))
+                                .foregroundStyle(Color.textDisabled)
+                            
+                            Image(asset: store.filter == .allSchedules ? SharedDesignSystemAsset.Assets.icCheck : SharedDesignSystemAsset.Assets.icCheckSelected)
+                                .padding(.leading, 8)
+                                .onTapGesture {
+                                    store.send(.toggleFilterOption)
+                                }
                         }
-                        .padding(20)
+                        .padding(.horizontal, 25)
+                        .padding(.vertical, 12)
+                        
+                        ScrollView {
+                            LazyVStack(spacing: 20) {
+                                ForEach(store.filteredList) { moimSchedule in
+                                    MoimScheduleCell(scheduleItem: moimSchedule)
+                                        .onTapGesture {
+                                            store.send(.moimCellSelected(meetingScheduleId: moimSchedule.meetingScheduleId))
+                                        }
+                                }
+                            }
+                            .padding(.horizontal, 25)
+                        }
                     }
                 } else {
                     EmptyListView(title: "모임 일정이 없습니다.\n 친구와의 모임 약속을 잡아보세요!")

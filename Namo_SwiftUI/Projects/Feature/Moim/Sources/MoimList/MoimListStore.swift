@@ -35,6 +35,13 @@ public extension MoimListStore {
                     let moimSchedule = try await moimUseCase.getMoimDetail(meetingScheduleId)
                     await send(.presentDetailSheet(moimSchedule))
                 }            
+            case .toggleFilterOption:
+                if state.filter == .allSchedules {
+                    state.filter = .hidePastSchedules
+                } else {
+                    state.filter = .allSchedules
+                }
+                return .none
             default:
                 return .none
             }
