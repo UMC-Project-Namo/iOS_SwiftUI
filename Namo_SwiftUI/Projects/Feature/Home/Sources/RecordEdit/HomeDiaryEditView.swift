@@ -9,31 +9,15 @@ import SwiftUI
 import SharedDesignSystem
 import SharedUtil
 import _PhotosUI_SwiftUI
-
-struct TempStore {
-    let isRevise: Bool = false // 외부 주입
-    let recordName: String = "코딩 스터디" // 외부 주입
-    let monthString: String = "Oct"
-    let dayString: String = Date().toDD()
-    let dateString: String = Date().toYMDEHM() // 외부 주입?
-    let placeName: String = "강남역" // 외부 주입?
-    let enjoyRating: Int = 1
-    @State var contentString: String = ""
-    let contentLimit: Int = 200
-    @State var selectedImages: [UIImage] = []
-    @State var selectedItems: [PhotosPickerItem] = []
-    var saveButtonState: NamoButton.NamoButtonType = .inactive
-}
-
-extension TempStore {
-    var contentCount: Int { contentString.count }
-}
+import ComposableArchitecture
 
 public struct HomeDiaryEditView: View {
     
-    var store = TempStore()
+    var store: StoreOf<HomeDiaryEditStore>
     
-    public init() {}
+    public init(store: StoreOf<HomeDiaryEditStore>) {
+        self.store = store
+    }
     
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -72,7 +56,7 @@ public struct HomeDiaryEditView: View {
             )
         }
         .namoNabBar(center: {
-            Text(store.recordName)
+            Text(store.scheduleName)
                 .font(.pretendard(.bold, size: 22))
         }, left: {
             Button(action: {}, label: {
@@ -95,7 +79,7 @@ public struct HomeDiaryEditView: View {
 
 // MARK: DatePlaceView
 private extension HomeDiaryEditView {
-    func DatePlaceView(store: TempStore) -> some View {
+    func DatePlaceView(store: StoreOf<HomeDiaryEditStore>) -> some View {
         HStack(spacing: 25) {
             DateCircleView(monthString: store.monthString, dayString: store.dayString)
             
@@ -139,7 +123,7 @@ private extension HomeDiaryEditView {
 
 // MARK: EnojoyRateView
 private extension HomeDiaryEditView {
-    func EnjoyRateView(store: TempStore) -> some View {
+    func EnjoyRateView(store: StoreOf<HomeDiaryEditStore>) -> some View {
         HStack {
             Text("재미도")
                 .font(.pretendard(.bold, size: 15))
@@ -165,21 +149,21 @@ private extension HomeDiaryEditView {
 // MARK: ContentView
 private extension HomeDiaryEditView {
     
-    func ContentView(store: TempStore) -> some View {
+    func ContentView(store: StoreOf<HomeDiaryEditStore>) -> some View {
         VStack(spacing: 10) {
             ContentInputView(store: store)
-            ContentFooterView(count: store.contentCount, maxCount: store.contentLimit)
+            ContentFooterView(count: store.contentString.count, maxCount: HomeDiaryEditStore.contentLimit)
         }
     }
     
-    func ContentInputView(store: TempStore) -> some View {
+    func ContentInputView(store: StoreOf<HomeDiaryEditStore>) -> some View {
         HStack(spacing: 0) {
             // 좌측 고정 빨간 박스
             Rectangle()
                 .fill(Color.namoPink)
                 .frame(width: 10)
             // 다중 줄 텍스트 입력
-            TextEditor(text: store.$contentString)
+            TextEditor(text: Binding(get: { store.contentString }, set: { store.send(.typeContent($0)) }))
                 .font(.pretendard(.regular, size: 14))
                 .foregroundStyle(Color.mainText)
                 .backgroundStyle(Color.itemBackground)
@@ -212,30 +196,44 @@ private extension HomeDiaryEditView {
 // MARK: DiaryImageView
 private extension HomeDiaryEditView {
     
-    func DiaryImageView(store: TempStore) -> some View {
-        PhotosPicker(selection: store.$selectedItems, maxSelectionCount: 3) {
-            ForEach(Array(store.selectedImages.enumerated()), id: \.self.element) { (offset, image) in
-                Image(uiImage: image)
-                    .resizable()
-                    .frame(width: 92, height: 92)
-                    .overlay(alignment: .topTrailing) {
-                        Circle()
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(.white)
-                            .overlay {
-                                Image(asset: SharedDesignSystemAsset.Assets.icXmark)
-                            }
-                            .offset(x: 10, y: -10)
-                            .onTapGesture {
-                                store.selectedImages.remove(at: offset)
-                            }
-                    }
+    func DiaryImageView(store: StoreOf<HomeDiaryEditStore>) -> some View {
+        
+        PhotosPicker(selection: Binding(get: { store.selectedItems }, set: { newItems in
+            if let newItem = newItems.last, newItems.count > store.selectedItems.count {
+                store.send(.selectPhoto(newItem))
             }
+        }), maxSelectionCount: 3) {
+            ForEach(Array(store.selectedImages.enumerated()), id: \.self.element) { (offset, imageData) in
+                DiaryImageListItemView(
+                    image: UIImage(data: imageData) ?? UIImage(),
+                    index: offset,
+                    store: store
+                )
+            }
+            
             if store.selectedImages.count < 3 {
                 Image(asset: SharedDesignSystemAsset.Assets.noPicture)
                     .resizable()
                     .frame(width: 92, height: 92)
             }
         }
+    }
+    
+    func DiaryImageListItemView(image: UIImage, index: Int, store: StoreOf<HomeDiaryEditStore>) -> some View {
+        Image(uiImage: image)
+            .resizable()
+            .frame(width: 92, height: 92)
+            .overlay(alignment: .topTrailing) {
+                Circle()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(.white)
+                    .overlay {
+                        Image(asset: SharedDesignSystemAsset.Assets.icXmark)
+                    }
+                    .offset(x: 10, y: -10)
+                    .onTapGesture {
+                        store.send(.deleteImage(index))
+                    }
+            }
     }
 }
