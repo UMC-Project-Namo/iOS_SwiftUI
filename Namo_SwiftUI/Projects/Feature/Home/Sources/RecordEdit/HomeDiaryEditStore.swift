@@ -50,6 +50,7 @@ public struct HomeDiaryEditStore {
         let placeName: String
         var enjoyRating: Int
         var contentString: String
+        var isContentValid: Bool = true
         var selectedItems: [PhotosPickerItem]
         var selectedImages: [Data]
         var saveButtonState: NamoButton.NamoButtonType
@@ -62,6 +63,7 @@ public struct HomeDiaryEditStore {
         case binding(BindingAction<State>)
         case tapEnjoyRating(Int)
         case typeContent(String)
+        case validateContent(String)
         case selectPhoto(PhotosPickerItem)
         case addImage(Result<Data?, Error>)
         case deleteImage(Int)
@@ -85,6 +87,10 @@ public struct HomeDiaryEditStore {
                 
             case .typeContent(let content):
                 state.contentString = content
+                return .send(.validateContent(content))
+                
+            case .validateContent(let content):
+                state.isContentValid = content.count <= Self.contentLimit
                 return .none
                 
             case .selectPhoto(let pickerItem):

@@ -172,7 +172,11 @@ private extension HomeDiaryEditView {
     func ContentView(store: StoreOf<HomeDiaryEditStore>) -> some View {
         VStack(spacing: 10) {
             ContentInputView(store: store)
-            ContentFooterView(count: store.contentString.count, maxCount: HomeDiaryEditStore.contentLimit)
+            ContentFooterView(
+                count: store.contentString.count,
+                maxCount: HomeDiaryEditStore.contentLimit,
+                isValid: store.isContentValid
+            )
         }
     }
     
@@ -204,12 +208,12 @@ private extension HomeDiaryEditView {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
-    func ContentFooterView(count: Int, maxCount: Int) -> some View {
+    func ContentFooterView(count: Int, maxCount: Int, isValid: Bool) -> some View {
         HStack {
             Spacer()
             Text("\(count) / \(maxCount)")
                 .font(.pretendard(.bold, size: 12))
-                .foregroundStyle(Color.textUnselected)
+                .foregroundStyle(isValid ? Color.textUnselected : Color.mainOrange)
         }
     }
 }
