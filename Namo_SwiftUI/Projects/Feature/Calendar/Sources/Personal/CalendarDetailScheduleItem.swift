@@ -23,7 +23,7 @@ public struct CalendarDetailScheduleItem: View {
 	public init(
 		ymd: YearMonthDay,
 		schedule: Schedule,
-		diaryEditAction: @escaping () -> Void
+		diaryEditAction: @escaping () -> Void = {}
 	) {
 		self.ymd = ymd
 		self.schedule = schedule
@@ -52,9 +52,20 @@ public struct CalendarDetailScheduleItem: View {
 						.fill(Color.mainText)
 						.frame(width: 1, height: 10)
 					
-					Text(schedule.categoryInfo.name)
-						.font(.pretendard(.medium, size: 12))
-						.foregroundStyle(Color.mainText)
+					if schedule.scheduleType == 0 {
+						Text(schedule.categoryInfo.name)
+							.font(.pretendard(.medium, size: 12))
+							.foregroundStyle(Color.mainText)
+					} else if schedule.scheduleType == 1 {
+						Text("친구의 생일")
+							.font(.pretendard(.medium, size: 12))
+							.foregroundStyle(Color.mainText)
+					} else if schedule.scheduleType == 2 {
+						Text("모임")
+							.font(.pretendard(.medium, size: 12))
+							.foregroundStyle(Color.mainText)
+					}
+					
 				}
 				
 				Text(schedule.title)

@@ -22,70 +22,70 @@ public struct NamoDialogModifier: ViewModifier {
     
     public func body(content: Content) -> some View {
         content
-            .overlay {
-                if isPresented {
-                    ZStack {
-                        Color.black.opacity(0.5)
-                            .ignoresSafeArea(.all)
+            .fullScreenCover(isPresented: $isPresented, content: {
+                ZStack {
+                    Color.black.opacity(0.2)
+                    
+                        .ignoresSafeArea(.all)
+                    VStack(spacing: 0) {
                         VStack(spacing: 0) {
-                            VStack(spacing: 0) {
-                                Text(title)
-                                    .font(.pretendard(.bold, size: 16))
-                                    .foregroundStyle(Color.mainText)
-                                    .padding(.top, 8)
+                            Text(title)
+                                .font(.pretendard(.bold, size: 16))
+                                .foregroundStyle(Color.mainText)
+                                .padding(.top, 8)
+                            
+                            Text(description)
+                                .font(.pretendard(.regular, size: 14))
+                                .foregroundStyle(Color.mainText)
+                                .padding(.top, 8)
+                            
+                                .multilineTextAlignment(.center)
+                            
+                            // button
+                            HStack(spacing: 8) {
+                                Button(action: {
+                                    isPresented = false
+                                }, label: {
+                                    Text("취소")
+                                        .font(.pretendard(.bold, size: 14))
+                                        .foregroundStyle(Color.mainText)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 41)
+                                })
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 41)
+                                .background(Color.mainGray)
+                                .cornerRadius(4)
                                 
-                                Text(description)
-                                    .font(.pretendard(.regular, size: 14))
-                                    .foregroundStyle(Color.mainText)
-                                    .padding(.top, 8)
-                                    
-                                    .multilineTextAlignment(.center)
-                                
-                                // button
-                                HStack(spacing: 8) {
-                                    Button(action: {
-                                        isPresented = false
-                                    }, label: {
-                                        Text("취소")
-                                            .font(.pretendard(.bold, size: 14))
-                                            .foregroundStyle(Color.mainText)
-                                            .frame(maxWidth: .infinity)
-                                            .frame(height: 41)
-                                    })
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 41)
-                                    .background(Color.mainGray)
-                                    .cornerRadius(4)
-                                    
-                                    Button(action: {
-                                        confirmAction?()
-                                        isPresented = false
-                                    }, label: {
-                                        Text("확인")
-                                            .font(.pretendard(.bold, size: 14))
-                                            .foregroundStyle(Color.white)
-                                            .frame(maxWidth: .infinity)
-                                            .frame(height: 41)
-                                    })
-                                    .background(Color.mainOrange)
-                                    .cornerRadius(4)
-                                }
-                                .padding(.top, 20)
+                                Button(action: {
+                                    confirmAction?()
+                                    isPresented = false
+                                }, label: {
+                                    Text("확인")
+                                        .font(.pretendard(.bold, size: 14))
+                                        .foregroundStyle(Color.white)
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 41)
+                                })
+                                .background(Color.mainOrange)
+                                .cornerRadius(4)
                             }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 16)
+                            .padding(.top, 20)
                         }
-                        .frame(maxWidth: .infinity)
-                        .background(.white)
-                        .cornerRadius(8)
-                        .shadow(color: .black.opacity(0.25), radius: 5, x: 0, y: 0)
-                        .padding(.horizontal, 40)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
                     }
-                    .frame(
-                        width: UIScreen.main.bounds.width,
-                        height: UIScreen.main.bounds.height
-                    )
+                    .frame(maxWidth: .infinity)
+                    .background(.white)
+                    .cornerRadius(8)
+                    .shadow(color: .black.opacity(0.25), radius: 5, x: 0, y: 0)
+                    .padding(.horizontal, 40)
+                    
                 }
+                .background(ClearBackground())
+            })
+            .transaction { transaction in
+                transaction.disablesAnimations = true
             }
     }
 }

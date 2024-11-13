@@ -25,9 +25,17 @@ public struct FriendListView: View {
 					.padding(.top, 20)
 					.padding(.horizontal, 30)
 				
-				friendListSection
-					.padding(.horizontal, 22)
+				if !store.friends.isEmpty {
+					friendListSection
+						.padding(.horizontal, 22)
+				} else {
+					EmptyListView(title: "추가된 친구가 없습니다.\n친구와 함께 나모를 사용해보세요!")
+						.offset(y: -32.5)
+				}
 				
+			}
+			.onAppear {
+				store.send(.loadFriends)
 			}
 			.overlay(alignment: .bottomTrailing) {
 				addFriendButton
@@ -39,20 +47,34 @@ public struct FriendListView: View {
 					addFriendPopup
 				}
 			)
+//			.namoPopupView(
+//				isPresented: $store.showFriendInfoPopup,
+//				title: "친구 정보",
+//				content: {
+//					FriendInfoPopupView(
+//						store: Store(
+//							initialState: FriendInfoPopupStore.State(
+//								friend: store.selectedFriend!
+//							),
+//							reducer: {
+//								FriendInfoPopupStore()
+//							}
+//						)
+//					)
+//				}
+//			)
 			.namoPopupView(
 				isPresented: $store.showFriendInfoPopup,
 				title: "친구 정보",
 				content: {
-					FriendInfoPopupView(
-						store: Store(
-							initialState: FriendInfoPopupStore.State(
-								friend: store.selectedFriend ?? DummyFriend(id: 0)
-							),
-							reducer: {
-								FriendInfoPopupStore()
-							}
+					IfLetStore(
+						store.scope(
+							state: \.friendInfoPopupState,
+							action: \.friendInfoPopup
 						)
-					)
+					) { popupStore in
+						FriendInfoPopupView(store: popupStore)
+					}
 				}
 			)
 			.namoToastView(
@@ -88,7 +110,7 @@ public struct FriendListView: View {
 			
 			Button(
 				action: {
-					
+					store.send(.searchFriends)
 				},
 				label: {
 					Text("검색")
@@ -108,11 +130,11 @@ public struct FriendListView: View {
 	private var friendListSection: some View {
 		ScrollView {
 			LazyVStack(spacing: 20) {
-				ForEach(store.friends, id: \.id) { friend in
+				ForEach(store.friends, id: \.memberId) { friend in
 					FriendItemView(
 						friend: friend,
 						favoriteToggleAction: {
-							store.send(.favoriteBtnTapped(friend.id))
+							store.send(.favoriteBtnTapped(friendId: friend.memberId))
 						}
 					)
 					.onTapGesture {
@@ -122,6 +144,14 @@ public struct FriendListView: View {
 			}
 			.padding(.top, 3)
 			.padding(.horizontal, 3)
+			
+			if store.showPageIndicator {
+				ProgressView()
+					.progressViewStyle(.circular)
+					.onAppear {
+						
+					}
+			}
 			
 			Spacer()
 				.frame(height: 100)

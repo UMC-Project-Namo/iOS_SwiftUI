@@ -18,6 +18,8 @@ public enum ScheduleEndPoint {
 	case createSchedule(schedule: ScheduleEditDTO)
 	// 개인 일정 삭제
 	case deleteSchedule(scheduleId: Int)
+	// 친구 캘린더 조회
+	case getFriendSchedule(friendId: Int, startDate: String, endDate: String)
 }
 
 extension ScheduleEndPoint: EndPoint {
@@ -35,6 +37,8 @@ extension ScheduleEndPoint: EndPoint {
 			return ""
 		case .deleteSchedule(let scheduleId):
 			return "/\(scheduleId)"
+		case .getFriendSchedule:
+			return "/calendar/friends"
 		}
 	}
 	
@@ -48,6 +52,8 @@ extension ScheduleEndPoint: EndPoint {
 			return .post
 		case .deleteSchedule:
 			return .delete
+		case .getFriendSchedule:
+			return .get
 		}
 	}
 	
@@ -68,6 +74,16 @@ extension ScheduleEndPoint: EndPoint {
 			return .requestJSONEncodable(parameters: schedule)
 		case .deleteSchedule:
 			return .requestPlain
+		case let .getFriendSchedule(friendId, startDate, endDate):
+			let parameters: [String: Any] = [
+				"startDate": startDate,
+				"endDate": endDate,
+				"memberId": friendId
+			]
+			return .requestParameters(
+				parameters: parameters,
+				encoding: URLEncoding.default
+			)
 		}
 	}
 	

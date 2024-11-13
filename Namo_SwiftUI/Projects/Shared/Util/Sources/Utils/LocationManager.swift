@@ -10,6 +10,7 @@ import Combine
 import UIKit
 import Dependencies
 
+
 public protocol LocationManagerProtocol {
     /// 위치 권한 요청
     func requestLocationAuthorization()

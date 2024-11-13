@@ -14,7 +14,8 @@ let targets: [Target] = [
 		interface: .Friend,
 		factory: .init(
 			dependencies: [
-				.core
+				.core,
+				.domain(implements: .Schedule)
 			]
 		)
 	),
