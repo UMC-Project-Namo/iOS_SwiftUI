@@ -20,6 +20,7 @@ let targets: [Target] = [
                 .domain(implements: .Moim),
                 .domain(implements: .Auth),
                 .domain(implements: .PlaceSearch),
+				.domain(implements: .Diary)
 			]
 		)
 	)

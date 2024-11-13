@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "isSelected=yes, shape=square.png",
+      "filename" : "ic_check.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "isSelected=yes, shape=square@2x.png",
+      "filename" : "Rectangle 65@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "isSelected=yes, shape=square@3x.png",
+      "filename" : "Rectangle 65@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

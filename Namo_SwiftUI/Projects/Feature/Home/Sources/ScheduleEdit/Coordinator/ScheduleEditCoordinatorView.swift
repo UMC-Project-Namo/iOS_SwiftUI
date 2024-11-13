@@ -9,6 +9,7 @@ import SwiftUI
 
 import ComposableArchitecture
 import TCACoordinators
+import SharedDesignSystem
 
 public struct ScheduleEditCoordinatorView: View {
 	let store: StoreOf<ScheduleEditCoordinator>

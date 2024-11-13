@@ -8,82 +8,68 @@
 import SwiftUI
 import UIKit
 import PhotosUI
-import ComposableArchitecture
+
 import DomainMoimInterface
+import DomainPlaceSearchInterface
+import DomainFriend
 
+import ComposableArchitecture
 
+/**
+ Reducer for MoimEdit(모임 편집) Feature
+*/
 @Reducer
-/// 모임 생성/편집/조회
 public struct MoimEditStore {
     
-    /// 편집 여부
-    public enum Mode: Equatable {
-        case view
-        case edit
-        case compose
-    }
     private let reducer: Reduce<State, Action>
     
     public init(reducer: Reduce<State, Action>) {
         self.reducer = reducer
     }
     
+    /// 편집 여부
+    public enum Mode: Equatable {
+        case view, edit, compose
+    }
+    
+    @ObservableState
     public struct State: Equatable {
-        /// 타이틀
-        @BindingState public var title: String = ""
-        
-        /// 커버이미지
-        @BindingState public var coverImageItem: PhotosPickerItem?
-        
-        /// 시작 날짜
-        @BindingState public var startDate: Date = .now
-        
-        /// 종료 날짜
-        @BindingState public var endDate: Date = .now
-        
-        /// 시작 날짜 선택 캘린더 보임여부
-        @BindingState public var isStartPickerPresented: Bool = false
-        
-        /// 종료 날짜 선택 캘린더 보임여부
-        @BindingState public var isEndPickerPresented: Bool = false
-        
-        /// 삭제 알림 보임여부
-        @BindingState public var isAlertPresented: Bool = false
-        
-        /// 모임일정 id
-        public var moimScheduleId: Int = 0
-        
-        /// 커버이미지 url
-        public var imageUrl: String = ""
-        
-        /// 커버이미지
-        public var coverImage: UIImage?
-        
-        /// 모임장소 좌표(위도)
-        public var latitude = 0.0
-        
-        /// 모임장소 좌표(경도)*
-        public var longitude = 0.0
-        
-        /// 모임장소명
-        public var locationName = ""
-        
-        /// 카카오 locationId
-        public var kakaoLocationId = ""
-        
-        /// 참석자 정보
-        public var participants: [Participant] = []
-        
-        /// 방장 여부
-        public var isOwner: Bool = false
         
         /// 편집 여부
         public var mode: Mode = .compose
         
-        public init() {}
+        /// 모임일정
+        public var moimSchedule: MoimSchedule
+        
+        /// 커버이미지
+        public var coverImageItem: PhotosPickerItem?
+        
+        /// 커버이미지
+        public var coverImage: UIImage?
+        
+        /// 시작 날짜 선택 캘린더 보임여부
+        public var isStartPickerPresented: Bool = false
+        
+        /// 종료 날짜 선택 캘린더 보임여부
+        public var isEndPickerPresented: Bool = false
+        
+        /// 삭제 알림 보임여부
+        public var isAlertPresented: Bool = false
+        
+        /// 모임일정 조회, 편집 initializer
+        public init(moimSchedule: MoimSchedule) {
+            self.moimSchedule = moimSchedule
+            mode = self.moimSchedule.isOwner ? .edit : .view            
+        }
+        
+        /// 모임일정 생성 initializer
+        public init() {
+            self.moimSchedule = .init()
+        }
     }
     
     public enum Action: BindableAction, Equatable {
+        
         /// 바인딩액션 처리
         case binding(BindingAction<State>)
         
@@ -99,6 +85,9 @@ public struct MoimEditStore {
         /// 모임생성 버튼탭
         case createButtonTapped
         
+        /// 생성확인
+        case createButtonConfirm
+        
         /// 취소버튼 탭
         case cancleButtonTapped
         
@@ -108,7 +97,20 @@ public struct MoimEditStore {
         /// 삭제확인
         case deleteButtonConfirm     
         
+        /// 삭제처리 완료
+        case deleteConfirm
+        
+        /// 지도검색 이동
         case goToKakaoMapView
+        
+        /// 친구초대 이동
+        case goToFriendInvite
+        
+        /// 친구캘린더 이동
+        case goToFriendCalendar
+                
+        /// 위치정보 업데이트
+        case locationUpdated(LocationInfo)
     }
     
     public var body: some ReducerOf<Self> {

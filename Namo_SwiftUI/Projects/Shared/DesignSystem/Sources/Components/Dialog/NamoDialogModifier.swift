@@ -85,7 +85,8 @@ public struct NamoDialogModifier: ViewModifier {
                 .background(ClearBackground())
             })
             .transaction { transaction in
-                transaction.disablesAnimations = true
+                transaction.animation = nil
+                transaction.disablesAnimations = true                                
             }
     }
 }
