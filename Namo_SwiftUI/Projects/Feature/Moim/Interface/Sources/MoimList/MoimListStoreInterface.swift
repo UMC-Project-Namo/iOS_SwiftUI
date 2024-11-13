@@ -6,9 +6,14 @@
 //
 
 import Foundation
-import ComposableArchitecture
+
 import DomainMoimInterface
 
+import ComposableArchitecture
+
+/**
+ Reducer for MoimList(일정 목록조회) Feature
+ */
 @Reducer
 public struct MoimListStore {
     
@@ -18,16 +23,46 @@ public struct MoimListStore {
         self.reducer = reducer
     }
     
+    public enum Filter {
+        case allSchedules, hidePastSchedules
+    }
+    
     @ObservableState
     public struct State: Equatable {
-        public init() {}
-        public var moimList: [MoimScheduleItem] = []
+        public init() {
+            self.moimList = .init()
+        }
+        public var moimList: IdentifiedArrayOf<MoimScheduleItem>
+        
+        public var filter: Filter = .allSchedules
+        
+        public var filteredList: IdentifiedArrayOf<MoimScheduleItem> {
+            switch filter {
+            case .allSchedules: moimList
+            case .hidePastSchedules: []
+            }
+        }
     }
     
     public enum Action {
+        
+        /// viewOnAppear
         case viewOnAppear
-        case moimListResponse([MoimScheduleItem])
+        
+        /// 모임결과 응답
+        case moimListResponse(IdentifiedArrayOf<MoimScheduleItem>)
+        
+        /// 모임셀 선택
         case moimCellSelected(meetingScheduleId: Int)
+        
+        /// 일정 생성
+        case presentComposeSheet
+        
+        /// 일정 조회
+        case presentDetailSheet(MoimSchedule)
+        
+        /// 필터옵션 토글
+        case toggleFilterOption
     }
     
     public var body: some ReducerOf<Self> {

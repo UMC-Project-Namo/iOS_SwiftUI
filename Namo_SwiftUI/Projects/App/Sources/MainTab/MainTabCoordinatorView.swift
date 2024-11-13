@@ -6,22 +6,29 @@
 //
 
 import SwiftUI
+
+import Feature
+import SharedDesignSystem
+
 import ComposableArchitecture
 import TCACoordinators
-import Feature
 
 struct MainTabCoordinatorView: View {
-    let store: StoreOf<MainTabCoordinator>
-    
+    @Perception.Bindable var store: StoreOf<MainTabCoordinator>
+        
     var body: some View {
         WithPerceptionTracking {
-            TabView {
+            TabView(selection: $store.currentTab) {
 				HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
-					.tabItem { Text("홈") }
-				
+                    .tag(Tab.home)
+                
                 MoimCoordinatorView(store: store.scope(state: \.moim, action: \.moim))
-                    .tabItem { Text("모임") }
+                    .tag(Tab.group)
             }
+            .overlay(alignment: .bottom) {
+                NamoTabView(currentTab: $store.currentTab)
+            }
+            .edgesIgnoringSafeArea(.bottom)
 			.onAppear {
 				store.send(.viewOnAppear)
 			}

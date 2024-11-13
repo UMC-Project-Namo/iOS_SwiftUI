@@ -6,21 +6,20 @@
 //
 
 import Foundation
-import ComposableArchitecture
-import TCACoordinators
+
 import Feature
 import Domain
 import Shared
 
+import ComposableArchitecture
+import TCACoordinators
 
 @Reducer
 struct MainTabCoordinator {
-    enum Tab: Hashable {
-		case home
-        case moim
-    }
     
-    enum Action {
+    
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
 		case home(HomeCoordinator.Action)
         case moim(MoimCoordinator.Action)
 		
@@ -31,9 +30,12 @@ struct MainTabCoordinator {
     
     @ObservableState
     struct State: Equatable {
-		static let intialState = State(home: .initialState, moim: .initialState)
+        static let intialState = State(currentTab: .home, home: .initialState, moim: .initialState)
+        
+        var currentTab: Tab
 		var home: HomeCoordinator.State
         var moim: MoimCoordinator.State
+        
 		
 		@Shared(.inMemory(SharedKeys.categories.rawValue)) var categories: [NamoCategory] = []
     }
@@ -41,7 +43,8 @@ struct MainTabCoordinator {
 	@Dependency(\.categoryUseCase) var categoryUseCase
     
     var body: some ReducerOf<Self> {
-        // 탭은 Navigatin을 가지지 않고 각 Coordinator를 Scope로 설정
+        BindingReducer()
+        
 		Scope(state: \.home, action: \.home) {
 			HomeCoordinator()
 		}

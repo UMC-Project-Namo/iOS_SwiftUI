@@ -7,18 +7,20 @@
 
 import SwiftUI
 import UIKit
-import ComposableArchitecture
-import FeatureMoimInterface
+
 import DomainMoimInterface
+import FeatureMoimInterface
 import SharedUtil
+
+import ComposableArchitecture
 
 extension MoimEditStore {
     public init() {
-        @Dependency(\.moimUseCase) var moimUseCase
+        @Dependency(\.moimUseCase) var moimUseCase        
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
             switch action {
-            case .binding(\.$coverImageItem):
+            case .binding(\.coverImageItem):
                 return .run { [imageItem = state.coverImageItem] send in
                     if let loaded = try? await imageItem?.loadTransferable(type: Data.self) {
                         guard let uiImage = UIImage(data: loaded) else {
@@ -41,20 +43,24 @@ extension MoimEditStore {
                 
             case .createButtonTapped:
                 return .run { [state = state] send in
-                    if state.mode == .compose {
-                        try await moimUseCase.createMoim(state.makeMoim(), state.coverImage)
+                    if state.mode == .compose {                        
+                        try await moimUseCase.createMoim(state.moimSchedule, state.coverImage)
                     } else {
-                        try await moimUseCase.editMoim(state.makeMoim(), state.coverImage)
+                        try await moimUseCase.editMoim(state.moimSchedule, state.coverImage)
                     }
+                    await send(.createButtonConfirm)
                 }
             case .deleteButtonTapped:
                 state.isAlertPresented = true
                 return .none
             case .deleteButtonConfirm:
                 return .run { [state = state] send in
-                    try await moimUseCase.withdrawMoim(state.moimScheduleId)
-                }         
-            default:                
+                    try await moimUseCase.withdrawMoim(state.moimSchedule.scheduleId)
+                    await send(.deleteConfirm)
+                }
+            case .createButtonConfirm:
+                return .none
+            default:
                 return .none
             }
         }
@@ -62,20 +68,7 @@ extension MoimEditStore {
     }
 }
 
-extension MoimEditStore.State {
-    func makeMoim() -> MoimSchedule {
-        .init(scheduleId: moimScheduleId,
-              title: title,
-              imageUrl: imageUrl,
-              startDate: startDate,
-              endDate: endDate,
-              longitude: longitude,
-              latitude: latitude,
-              locationName: locationName,
-              kakaoLocationId: kakaoLocationId,
-              participants: [])
-    }
-}
+
 
 
 

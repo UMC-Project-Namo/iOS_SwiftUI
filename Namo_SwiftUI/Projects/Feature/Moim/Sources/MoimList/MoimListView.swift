@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
-import SharedDesignSystem
-import FeatureMoimInterface
+
 import DomainMoimInterface
+import FeatureMoimInterface
+import SharedDesignSystem
+
+import ComposableArchitecture
 
 struct MoimListView: View {
     let store: StoreOf<MoimListStore>
@@ -22,23 +24,46 @@ struct MoimListView: View {
         WithPerceptionTracking {
             ZStack {
                 if !store.moimList.isEmpty {
-                    ScrollView {
-                        LazyVStack(spacing: 20) {
-                            ForEach(store.moimList, id: \.meetingScheduleId) { moimSchedule in
-                                MoimScheduleCell(scheduleItem: moimSchedule)
-                                    .onTapGesture {
-                                        store.send(.moimCellSelected(meetingScheduleId: moimSchedule.meetingScheduleId))
-                                    }
-                            }
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            Spacer()
+                            
+                            Text("지난 모임 일정 숨기기")
+                                .font(.pretendard(.medium, size: 12))
+                                .foregroundStyle(Color.textDisabled)
+                            
+                            Image(asset: store.filter == .allSchedules ? SharedDesignSystemAsset.Assets.icCheck : SharedDesignSystemAsset.Assets.icCheckSelected)
+                                .padding(.leading, 8)
+                                .onTapGesture {
+                                    store.send(.toggleFilterOption)
+                                }
                         }
-                        .padding(20)
+                        .padding(.horizontal, 25)
+                        .padding(.vertical, 12)
+                        
+                        ScrollView {
+                            LazyVStack(spacing: 20) {
+                                ForEach(store.filteredList) { moimSchedule in
+                                    MoimScheduleCell(scheduleItem: moimSchedule)
+                                        .onTapGesture {
+                                            store.send(.moimCellSelected(meetingScheduleId: moimSchedule.meetingScheduleId))
+                                        }
+                                }
+                            }
+                            .padding(.horizontal, 25)
+                        }
                     }
                 } else {
                     EmptyListView(title: "모임 일정이 없습니다.\n 친구와의 모임 약속을 잡아보세요!")
                 }
             }
             .frame(maxWidth: .infinity)
-            .onAppear {
+            .overlay(alignment: .bottomTrailing) {
+                FloatingButton {
+                    store.send(.presentComposeSheet)
+                }
+            }         
+            .onAppear {               
                 store.send(.viewOnAppear)
             }
         }
