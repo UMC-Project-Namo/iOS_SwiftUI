@@ -47,12 +47,7 @@ public struct HomeDiaryEditView: View {
                     verticalPadding: 30,
                     type: store.saveButtonState,
                     action: {
-                        switch store.saveButtonState {
-                        case .active:
-                            print("기록 저장")
-                        default:
-                            break
-                        }
+                        store.send(.tapSaveDiaryButton)
                     }
                 )
             }
@@ -88,7 +83,9 @@ public struct HomeDiaryEditView: View {
                 isPresented: $store.showAlert,
                 title: store.alertContent.content.title,
                 content: store.alertContent.content.message,
-                confirmAction: { }
+                confirmAction: {
+                    store.send(.handleAlertConfirm)
+                }
             )
         }
     }

@@ -27,7 +27,6 @@ public struct HomeDiaryEditStore {
             let apiResult_imageURLs: [String] = []
             let apiResult_selectedItems: [PhotosPickerItem] = []
             let apiResult_selectedImages: [Data] = []
-            let saveButtonState: NamoButton.NamoButtonType = .inactive
             
             self.isRevise = apiResult_isSuccess
             self.scheduleName = schedule.title
@@ -39,7 +38,6 @@ public struct HomeDiaryEditStore {
             self.contentString = apiResult_contentString
             self.selectedItems = apiResult_selectedItems
             self.selectedImages = apiResult_selectedImages
-            self.saveButtonState = saveButtonState
         }
         
         let isRevise: Bool
@@ -53,9 +51,9 @@ public struct HomeDiaryEditStore {
         var isContentValid: Bool = true
         var selectedItems: [PhotosPickerItem]
         var selectedImages: [Data]
-        var saveButtonState: NamoButton.NamoButtonType
+        var saveButtonState: NamoButton.NamoButtonType = .inactive
         var showToast: Bool = false
-        var alertContent: NamoAlertType = .custom(.init())
+        var alertContent: NamoAlertType = .none
         var showAlert: Bool = false
     }
     
@@ -70,6 +68,8 @@ public struct HomeDiaryEditStore {
         case tapBackButton
         case tapDeleteDiaryButton
         case tapSaveDiaryButton
+        case handleAlertConfirm
+        case dismiss
     }
     
     public var body: some ReducerOf<Self> {
@@ -117,6 +117,8 @@ public struct HomeDiaryEditStore {
                 return .none
                 
             case .tapBackButton:
+                state.alertContent = .backWithoutSave
+                state.showAlert = true
                 return .none
                 
             case .tapDeleteDiaryButton:
@@ -125,7 +127,30 @@ public struct HomeDiaryEditStore {
                 return .none
                 
             case .tapSaveDiaryButton:
-                print("Save Diary")
+                switch state.saveButtonState {
+                    
+                case .active:
+                    print("기록 저장")
+                    return .none
+                default:
+                    return .none
+                }
+                
+            case .handleAlertConfirm:
+                state.alertContent = .none // alert 초기화
+                switch state.alertContent {
+                    
+                case .deleteDiary:
+                    print("삭제 api 호출")
+                    return .none
+                case .backWithoutSave:
+                    return .send(.dismiss)
+                default:
+                    return .none
+                }
+                
+            case .dismiss:
+                print("dismiss")
                 return .none
                 
             }

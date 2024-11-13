@@ -19,9 +19,12 @@ public enum NamoAlertType: Equatable {
     case deleteDiary
     case backWithoutSave
     case custom(NamoAlertContent)
+    case none
     
     public var content: NamoAlertContent {
         switch self {
+        case .none:
+            return NamoAlertContent()
         case .deleteDiary:
             return NamoAlertContent(title: "기록을 정말 삭제하시겠어요?")
         case .backWithoutSave:
