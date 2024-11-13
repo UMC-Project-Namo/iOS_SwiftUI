@@ -10,6 +10,7 @@ import ComposableArchitecture
 import DomainSchedule
 import _PhotosUI_SwiftUI
 import SharedDesignSystem
+import SharedUtil
 
 @Reducer
 public struct HomeDiaryEditStore {
@@ -53,6 +54,8 @@ public struct HomeDiaryEditStore {
         var selectedImages: [Data]
         var saveButtonState: NamoButton.NamoButtonType
         var showToast: Bool = false
+        var alertContent: NamoAlertType = .custom(.init())
+        var showAlert: Bool = false
     }
     
     public enum Action: BindableAction {
@@ -62,6 +65,7 @@ public struct HomeDiaryEditStore {
         case selectPhoto(PhotosPickerItem)
         case addImage(Result<Data?, Error>)
         case deleteImage(Int)
+        case tapBackButton
         case tapDeleteDiaryButton
         case tapSaveDiaryButton
     }
@@ -106,8 +110,12 @@ public struct HomeDiaryEditStore {
                 state.selectedImages.remove(at: index)
                 return .none
                 
+            case .tapBackButton:
+                return .none
+                
             case .tapDeleteDiaryButton:
-                print("Delete Diary")
+                state.alertContent = .deleteDiary
+                state.showAlert = true
                 return .none
                 
             case .tapSaveDiaryButton:

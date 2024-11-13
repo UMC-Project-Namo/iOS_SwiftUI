@@ -60,12 +60,16 @@ public struct HomeDiaryEditView: View {
                 Text(store.scheduleName)
                     .font(.pretendard(.bold, size: 22))
             }, left: {
-                Button(action: {}, label: {
+                Button(action: {
+                    store.send(.tapBackButton, animation: .default)
+                }, label: {
                     Image(asset: SharedDesignSystemAsset.Assets.icArrowLeftThick)
                         .frame(width: 32, height: 32)
                 })
             }, right: {
-                Button(action: {}, label: {
+                Button(action: {
+                    store.send(.tapDeleteDiaryButton, animation: .default)
+                }, label: {
                     Image(asset: SharedDesignSystemAsset.Assets.icTrashcan)
                         .resizable()
                         .scaledToFit()
@@ -79,6 +83,12 @@ public struct HomeDiaryEditView: View {
                 isPresented: $store.showToast,
                 title: "기록이 저장되었습니다.",
                 isTabBarScreen: false
+            )
+            .namoAlertView(
+                isPresented: $store.showAlert,
+                title: store.alertContent.content.title,
+                content: store.alertContent.content.message,
+                confirmAction: { }
             )
         }
     }
