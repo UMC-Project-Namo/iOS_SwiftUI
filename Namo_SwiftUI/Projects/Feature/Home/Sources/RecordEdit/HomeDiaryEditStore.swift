@@ -32,7 +32,7 @@ public struct HomeDiaryEditStore {
             self.scheduleName = schedule.title
             self.monthString = schedule.startDate.toMM()
             self.dayString = schedule.startDate.toDD()
-            self.dateString = schedule.startDate.toYMDEHM()
+            self.dateString = "\(schedule.startDate.toYMDEHM()) \n - \(schedule.endDate.toYMDEHM())"
             self.placeName = schedule.locationInfo?.locationName ?? ""
             self.enjoyRating = apiResult_enjoyRating
             self.contentString = apiResult_contentString

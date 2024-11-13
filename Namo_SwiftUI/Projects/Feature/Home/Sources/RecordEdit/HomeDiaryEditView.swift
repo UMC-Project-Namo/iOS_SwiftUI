@@ -20,60 +20,62 @@ public struct HomeDiaryEditView: View {
     }
     
     public var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-
-            DatePlaceView(store: store)
-                .padding(.horizontal, 30)
-                .padding(.bottom, 24)
-
-            EnjoyRateView(store: store)
-                .padding(.horizontal, 45)
-                .padding(.bottom, 16)
-
-            ContentView(store: store)
-                .padding(.horizontal, 30)
-                .padding(.bottom, 20)
-
-            DiaryImageView(store: store)
-                .padding(.horizontal, 30)
-            
-            Spacer()
-
-            NamoButton(
-                title: store.isRevise ? "변경 내용 저장" : "기록 저장",
-                font: .pretendard(.bold, size: 15),
-                cornerRadius: 0,
-                verticalPadding: 30,
-                type: store.saveButtonState,
-                action: {
-                    switch store.saveButtonState {
-                    case .active:
-                        print("기록 저장")
-                    default:
-                        break
+        WithPerceptionTracking {
+            VStack(alignment: .leading, spacing: 0) {
+                
+                DatePlaceView(store: store)
+                    .padding(.horizontal, 30)
+                    .padding(.bottom, 24)
+                
+                EnjoyRateView(store: store)
+                    .padding(.horizontal, 45)
+                    .padding(.bottom, 16)
+                
+                ContentView(store: store)
+                    .padding(.horizontal, 30)
+                    .padding(.bottom, 20)
+                
+                DiaryImageView(store: store)
+                    .padding(.horizontal, 30)
+                
+                Spacer()
+                
+                NamoButton(
+                    title: store.isRevise ? "변경 내용 저장" : "기록 저장",
+                    font: .pretendard(.bold, size: 15),
+                    cornerRadius: 0,
+                    verticalPadding: 30,
+                    type: store.saveButtonState,
+                    action: {
+                        switch store.saveButtonState {
+                        case .active:
+                            print("기록 저장")
+                        default:
+                            break
+                        }
                     }
-                }
-            )
+                )
+            }
+            .namoNabBar(center: {
+                Text(store.scheduleName)
+                    .font(.pretendard(.bold, size: 22))
+            }, left: {
+                Button(action: {}, label: {
+                    Image(asset: SharedDesignSystemAsset.Assets.icArrowLeftThick)
+                        .frame(width: 32, height: 32)
+                })
+            }, right: {
+                Button(action: {}, label: {
+                    Image(asset: SharedDesignSystemAsset.Assets.icTrashcan)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .disabled(!store.isRevise)
+                        .hidden(!store.isRevise)
+                })
+            })
+            .ignoresSafeArea(.container, edges: .bottom)
         }
-        .namoNabBar(center: {
-            Text(store.scheduleName)
-                .font(.pretendard(.bold, size: 22))
-        }, left: {
-            Button(action: {}, label: {
-                Image(asset: SharedDesignSystemAsset.Assets.icArrowLeftThick)
-                    .frame(width: 32, height: 32)
-            })
-        }, right: {
-            Button(action: {}, label: {
-                Image(asset: SharedDesignSystemAsset.Assets.icTrashcan)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 24, height: 24)
-                    .disabled(!store.isRevise)
-                    .hidden(!store.isRevise)
-            })
-        })
-        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
@@ -109,7 +111,7 @@ private extension HomeDiaryEditView {
     }
     
     func DatePlaceItem(title: String, content: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(alignment: .top, spacing: 12) {
             Text(title)
                 .font(.pretendard(.bold, size: 15))
                 .foregroundStyle(Color.mainText)
@@ -129,18 +131,21 @@ private extension HomeDiaryEditView {
                 .font(.pretendard(.bold, size: 15))
                 .foregroundStyle(Color.mainText)
             Spacer()
-            EnjoyCountView(rate: store.enjoyRating)
+            EnjoyCountView(store: store)
         }
     }
     
-    func EnjoyCountView(rate: Int) -> some View {
+    func EnjoyCountView(store: StoreOf<HomeDiaryEditStore>) -> some View {
         HStack(spacing: 4) {
             ForEach(0..<3) { index in
-                let isFilled = index < rate
+                let isFilled = index < store.enjoyRating
                 Image(asset: isFilled ? SharedDesignSystemAsset.Assets.icHeartSelected : SharedDesignSystemAsset.Assets.icHeart)
                     .resizable()
                     .scaledToFit()
                     .frame(width: 18, height: 18)
+                    .onTapGesture {
+                        store.send(.tapEnjoyRating(index + 1), animation: .default)
+                    }
             }
         }
     }
@@ -166,7 +171,7 @@ private extension HomeDiaryEditView {
             TextEditor(text: Binding(get: { store.contentString }, set: { store.send(.typeContent($0)) }))
                 .font(.pretendard(.regular, size: 14))
                 .foregroundStyle(Color.mainText)
-                .backgroundStyle(Color.itemBackground)
+                .scrollContentBackground(.hidden)
                 .padding(.vertical, 12)
                 .padding(.horizontal, 16)
                 .overlay(
@@ -180,6 +185,7 @@ private extension HomeDiaryEditView {
                 )
         }
         .frame(height: 150)
+        .background(Color.itemBackground)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     
@@ -222,6 +228,7 @@ private extension HomeDiaryEditView {
     func DiaryImageListItemView(image: UIImage, index: Int, store: StoreOf<HomeDiaryEditStore>) -> some View {
         Image(uiImage: image)
             .resizable()
+            .scaledToFit()
             .frame(width: 92, height: 92)
             .overlay(alignment: .topTrailing) {
                 Circle()
@@ -232,7 +239,7 @@ private extension HomeDiaryEditView {
                     }
                     .offset(x: 10, y: -10)
                     .onTapGesture {
-                        store.send(.deleteImage(index))
+                        store.send(.deleteImage(index), animation: .default)
                     }
             }
     }
