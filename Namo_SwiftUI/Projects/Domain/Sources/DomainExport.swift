@@ -11,3 +11,4 @@
 @_exported import DomainMoim
 @_exported import DomainAuth
 @_exported import DomainAuthInterface
+@_exported import DomainDiary
