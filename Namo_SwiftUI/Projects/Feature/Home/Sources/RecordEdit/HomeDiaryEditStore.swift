@@ -52,9 +52,11 @@ public struct HomeDiaryEditStore {
         var selectedItems: [PhotosPickerItem]
         var selectedImages: [Data]
         var saveButtonState: NamoButton.NamoButtonType
+        var showToast: Bool = false
     }
     
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case tapEnjoyRating(Int)
         case typeContent(String)
         case selectPhoto(PhotosPickerItem)
@@ -65,8 +67,13 @@ public struct HomeDiaryEditStore {
     }
     
     public var body: some ReducerOf<Self> {
+        BindingReducer()
+        
         Reduce { state, action in
             switch action {
+                
+            case .binding:
+                return .none
                 
             case .tapEnjoyRating(let rate):
                 state.enjoyRating = rate

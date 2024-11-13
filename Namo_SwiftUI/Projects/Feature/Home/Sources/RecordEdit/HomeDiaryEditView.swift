@@ -13,7 +13,7 @@ import ComposableArchitecture
 
 public struct HomeDiaryEditView: View {
     
-    var store: StoreOf<HomeDiaryEditStore>
+    @Perception.Bindable var store: StoreOf<HomeDiaryEditStore>
     
     public init(store: StoreOf<HomeDiaryEditStore>) {
         self.store = store
@@ -75,6 +75,11 @@ public struct HomeDiaryEditView: View {
                 })
             })
             .ignoresSafeArea(.container, edges: .bottom)
+            .namoToastView(
+                isPresented: $store.showToast,
+                title: "기록이 저장되었습니다.",
+                isTabBarScreen: false
+            )
         }
     }
 }
