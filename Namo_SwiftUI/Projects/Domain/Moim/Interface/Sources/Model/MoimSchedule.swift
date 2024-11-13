@@ -8,7 +8,9 @@
 import Foundation
 import CoreNetwork
 
-public struct MoimSchedule: Decodable, Hashable {
+import SharedUtil
+
+public struct MoimSchedule: Decodable, Hashable, Equatable {
     public init(scheduleId: Int,
                 title: String,
                 imageUrl: String,
@@ -30,16 +32,30 @@ public struct MoimSchedule: Decodable, Hashable {
         self.kakaoLocationId = kakaoLocationId
         self.participants = participants
     }
+    
+    public init() {
+        self.scheduleId = 0
+        self.title = ""
+        self.imageUrl = ""
+        self.startDate = .now
+        self.endDate = .now
+        self.longitude = 0.0
+        self.latitude = 0.0
+        self.locationName = ""
+        self.kakaoLocationId = ""
+        self.participants = []
+    }
+        
     public let scheduleId: Int
-    public let title: String
-    public let imageUrl: String
-    public let startDate: Date
-    public let endDate: Date
-    public let longitude: Double
-    public let latitude: Double
-    public let locationName: String
-    public let kakaoLocationId: String
-    public let participants: [Participant]
+    public var title: String
+    public var imageUrl: String
+    public var startDate: Date
+    public var endDate: Date
+    public var longitude: Double
+    public var latitude: Double
+    public var locationName: String
+    public var kakaoLocationId: String
+    public var participants: [Participant]
 }
 
 public struct Participant: Decodable, Hashable {
@@ -66,6 +82,14 @@ public struct Participant: Decodable, Hashable {
 
 public extension MoimSchedule {
     var isOwner: Bool {
-        participants.firstIndex(where: { $0.isOwner && $0.userId == UserDefaults.standard.integer(forKey: "userId")}) != nil
+        do {
+           guard let readUserId = try? KeyChainManager.readItem(key: "userId"),
+                 let userId = Int(readUserId) else {
+               return false
+           }
+           return participants.firstIndex(where: { $0.isOwner && $0.userId == userId}) != nil
+        } catch {
+            return false
+        }
     }
 }

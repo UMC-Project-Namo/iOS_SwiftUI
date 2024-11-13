@@ -5,133 +5,122 @@
 //  Created by 권석기 on 9/11/24.
 //
 
+//
+//  MoimCreateView.swift
+//  FeatureMoim
+//
+//  Created by 권석기 on 9/11/24.
+//
+
 import SwiftUI
-import SharedDesignSystem
 import PhotosUI
+
 import ComposableArchitecture
-import FeatureMoimInterface
-import SharedUtil
 import Kingfisher
+
+import FeatureMoimInterface
+import FeaturePlaceSearchInterface
+import SharedUtil
+import SharedDesignSystem
+
 
 public struct MoimScheduleEditView: View {
     @Perception.Bindable private var store: StoreOf<MoimEditStore>
-    @ObservedObject private var viewStore: ViewStoreOf<MoimEditStore>
+    @Perception.Bindable private var placeStore: StoreOf<PlaceSearchStore>
+    @State var draw = false
     
     public init(store: StoreOf<MoimEditStore>) {
         self.store = store
-        self.viewStore = ViewStore(store, observe: { $0 })
+        self.placeStore = .init(initialState: PlaceSearchStore.State(), reducer: {
+            PlaceSearchStore()
+        })
     }
     
     
     /// 편집여부에 따라 보여지는 텍스트 설정
     private var title: String {
-        switch viewStore.mode {
-        case .compose:
-            "새 모임 일정"
-        case .edit:
-            "모임 일정 편집"
-        case .view:
-            "모임 일정"
+        switch store.mode {
+        case .compose:  "새 모임 일정"
+        case .edit: "모임 일정 편집"
+        case .view: "모임 일정"
         }
     }
     
     /// 편집여부에 따라서 보여지는 버튼 텍스트 설정
     private var buttonTitle: String {
-        switch viewStore.mode {
-        case .compose:
-            "생성"
-        case .edit:
-            "저장"
-        case .view:
-            ""
+        switch store.mode {
+        case .compose: "생성"
+        case .edit: "저장"
+        case .view: ""
         }
-    }
-    
-    private var isVisible: Bool {
-        return !viewStore.isOwner
     }
     
     public  var body: some View {
-        // deleteButton
-        deleteScheduleButton
-            .padding(.bottom, 6)
-            .padding(.top, 10)
-            .opacity(isVisible ? 0 : 1)
-        
-        VStack(spacing: 0) {
-            WithPerceptionTracking {
-                // title
-                headerView
-                    .padding(.horizontal, 20)
-                
-                // content
-                ScrollView {
-                    VStack(spacing: 30) {
-                        // textField
-                        TextField("내 모임", text: viewStore.$title)
-                            .font(.pretendard(.bold, size: 22))
-                            .foregroundStyle(Color.mainText)
-                            .padding(.top, 20)
-                        
-                        // imagePicker
-                        imagePickerView
-                        
-                        // 장소, 시간
-                        settingView
-                        
-                        // 친구 초대
-                        participantListView
-                        
-                        
-                        // 일정보기 버튼
-                        showScheduleButton
-                        
-                    }
-                    .padding(.horizontal, 30)
+        WithPerceptionTracking {
+            VStack {
+                // deleteButton
+                DeleteCircleButton {                    
+                    store.send(.deleteButtonTapped)
                 }
+                .offset(y: 20)
+                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
+                
+                WithPerceptionTracking {
+                    VStack(spacing: 0) {
+                        // title
+                        headerView
+                            .padding(.horizontal, 20)
+                        
+                        // content
+                        ScrollView {
+                            VStack(spacing: 30) {
+                                // textField
+                                TextField("내 모임", text: $store.moimSchedule.title)
+                                    .font(.pretendard(.bold, size: 22))
+                                    .foregroundStyle(Color.mainText)
+                                    .padding(.top, 20)
+                                
+                                // imagePicker
+                                imagePickerView
+                                
+                                // 장소, 시간
+                                settingView
+                                
+                                // 친구 초대
+                                participantListView
+                                
+                                // 일정보기 버튼
+                                showScheduleButton
+                            }
+                            .padding(.horizontal, 30)
+                        }
+                    }
+                }
+                .background(.white)
+                .clipShape(UnevenRoundedRectangle(cornerRadii: .init(
+                    topLeading: 15,
+                    topTrailing: 15)))
+                .shadow(radius: 10)
             }
+            .edgesIgnoringSafeArea(.bottom)
+            .namoAlertView(isPresented: $store.isAlertPresented,
+                           title: "모임 일정에서 정말 나가시겠어요?",
+                           content: "모임 일정과 해당 일정의 기록을 더 이상 \n 보실 수 없으며, 방장 권한이 위임됩니다.",
+                           confirmAction: {
+                store.send(.deleteButtonConfirm)
+            })
+            .background(ClearBackground())
         }
-        .background(.white)
-        .clipShape(RoundedCorners(radius: 15, corners: [.topLeft, .topRight]))
-        .shadow(
-            color: Color.black.opacity(0.15),
-            radius: 12,
-            x: 0,
-            y: 0
-        )
-        .mask(Rectangle().padding(.top, -20))
-        .edgesIgnoringSafeArea(.bottom)
-        .namoAlertView(isPresented: viewStore.$isAlertPresented,
-                       title: "모임 일정에서 정말 나가시겠어요?",
-                       content: "모임 일정과 해당 일정의 기록을 \n 더 이상 보실 수 없습니다.",
-                       confirmAction: {
-            viewStore.send(.deleteButtonConfirm)
-        })
     }
 }
 
 extension MoimScheduleEditView {
     
-    private var deleteScheduleButton: some View {
-        Button(action: {
-            viewStore.send(.deleteButtonTapped)
-        }, label: {
-            Circle()
-                .frame(width: 40, height: 40)
-                .foregroundStyle(.white)
-                .overlay {
-                    Image(asset: SharedDesignSystemAsset.Assets.icTrash)
-                }
-                .shadow(
-                    color: Color.black.opacity(0.25),
-                    radius: 6
-                )
-        })
-    }
-    
     /// 일정 보기
     private var showScheduleButton: some View {
-        Button(action: {}, label: {
+        Button(action: {
+            store.send(.goToFriendCalendar)
+        }, label: {
             HStack(spacing: 12) {
                 Image(asset: SharedDesignSystemAsset.Assets.icCalendar)
                 Text("초대한 친구 일정 보기")
@@ -168,7 +157,7 @@ extension MoimScheduleEditView {
             
             Spacer()
             
-            if viewStore.mode == .view {
+            if store.mode == .view {
                 Text("취소")
                     .font(.pretendard(.regular, size: 15))
                     .foregroundStyle(Color.white)
@@ -201,14 +190,14 @@ extension MoimScheduleEditView {
             
             Spacer()
             
-            PhotosPicker(selection: viewStore.$coverImageItem, matching: .images) {
-                if let coverImage = viewStore.coverImage {
+            PhotosPicker(selection: $store.coverImageItem, matching: .images) {
+                if let coverImage = store.coverImage {
                     Image(uiImage: coverImage)
                         .resizable()
                         .frame(width: 55, height: 55)
                         .cornerRadius(5)
-                } else if !viewStore.imageUrl.isEmpty {
-                    KFImage(URL(string: viewStore.imageUrl))
+                } else if !store.moimSchedule.imageUrl.isEmpty {
+                    KFImage(URL(string: store.moimSchedule.imageUrl))
                         .placeholder({
                             Image(asset: SharedDesignSystemAsset.Assets.appLogo)
                         })
@@ -236,16 +225,16 @@ extension MoimScheduleEditView {
                     
                     Spacer()
                     
-                    Text(viewStore.startDate.toYMDEHM())
+                    Text(store.moimSchedule.startDate.toYMDEHM())
                         .font(.pretendard(.regular, size: 15))
                         .foregroundStyle(Color.mainText)
                         .onTapGesture {
-                            viewStore.send(.startPickerTapped)
+                            store.send(.startPickerTapped)
                         }
                 }
                 
-                if viewStore.isStartPickerPresented {
-                    DatePicker("startTimeDatePicker", selection: viewStore.$startDate)
+                if store.isStartPickerPresented {
+                    DatePicker("startTimeDatePicker", selection: $store.moimSchedule.startDate)
                         .datePickerStyle(.graphical)
                         .labelsHidden()
                         .tint(Color.mainOrange)
@@ -259,38 +248,54 @@ extension MoimScheduleEditView {
                         .foregroundStyle(Color.mainText)
                     
                     Spacer()
-                    Text(viewStore.endDate.toYMDEHM())
+                    Text(store.moimSchedule.endDate.toYMDEHM())
                         .font(.pretendard(.regular, size: 15))
                         .foregroundStyle(Color.mainText)
                         .onTapGesture {
-                            viewStore.send(.endPickerTapped)
+                            store.send(.endPickerTapped)
                         }
                 }
                 
-                if viewStore.isEndPickerPresented {
-                    DatePicker("endTimeDatePicker", selection: viewStore.$endDate)
+                if store.isEndPickerPresented {
+                    DatePicker("endTimeDatePicker", selection: $store.moimSchedule.endDate)
                         .datePickerStyle(.graphical)
                         .labelsHidden()
                         .tint(Color.mainOrange)
                 }
             }
             
-            HStack {
-                Text("장소")
-                    .font(.pretendard(.bold, size: 15))
-                    .foregroundStyle(Color.mainText)
-                Spacer()
-                
-                Button(action: {
-                    store.send(.goToKakaoMapView)
-                }) {
-                    HStack(spacing: 8) {
-                        Text(viewStore.locationName)
-                            .font(.pretendard(.regular, size: 15))
-                            .foregroundStyle(Color.mainText)
-                        
-                        Image(asset: SharedDesignSystemAsset.Assets.icRight)
+            VStack(spacing: 20) {
+                HStack {
+                    Text("장소")
+                        .font(.pretendard(.bold, size: 15))
+                        .foregroundStyle(Color.mainText)
+                    Spacer()
+                    
+                    Button(action: {
+                        store.send(.goToKakaoMapView)
+                    }) {
+                        HStack(spacing: 8) {
+                            Text(store.moimSchedule.locationName)
+                                .font(.pretendard(.regular, size: 15))
+                                .foregroundStyle(Color.mainText)
+                            
+                            Image(asset: SharedDesignSystemAsset.Assets.icRight)
+                        }
                     }
+                }
+                
+                if !store.moimSchedule.kakaoLocationId.isEmpty {
+                    KakaoMapView(store: placeStore, draw: $draw)
+                        .id(store.moimSchedule.kakaoLocationId)
+                        .onAppear {
+                            placeStore.x = store.moimSchedule.latitude
+                            placeStore.y = store.moimSchedule.longitude
+                            draw = true
+                        }
+                        .onDisappear { draw = false }
+                        .allowsHitTesting(false)
+                        .frame(maxWidth: .infinity, minHeight: 190)
+                        .border(Color.textUnselected, width: 1)
                 }
             }
         }
@@ -305,16 +310,18 @@ extension MoimScheduleEditView {
                     .foregroundStyle(Color.mainText)
                 Spacer()
                 
-                Button(action: {}) {
+                Button(action: {
+                    store.send(.goToFriendInvite)
+                }) {
                     Image(asset: SharedDesignSystemAsset.Assets.icRight)
                 }
             }
             
-            FlexibleGridView(data: viewStore.participants) { participant in
-                Participant(name: participant.nickname,
-                            color: PalleteColor(rawValue: participant.colorId ?? 1)?.color ?? .clear,
-                            isOwner: participant.isOwner)
+            FlexibleGridView(data: store.moimSchedule.participants) { participant in
+                ParticipantCell(name: participant.nickname,
+                                pallete: .init(rawValue: participant.colorId ?? 1) ?? .namoOrange)
             }
+            .id(store.moimSchedule.participants.count)
         }
     }
 }

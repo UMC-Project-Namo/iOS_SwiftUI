@@ -6,24 +6,19 @@
 //
 
 import SwiftUI
+
 import SharedDesignSystem
 
-struct Participant: View {
+struct ParticipantCell: View {
     let name: String
-    let color: Color
-    let isOwner: Bool
+    let pallete: PalleteColor
     
     var body: some View {
         VStack {
             HStack(spacing: 9) {
                 Circle()
                     .frame(width: 14, height: 14)
-                    .foregroundColor(color)
-                    .overlay {
-                        if isOwner {
-                            Image(asset: SharedDesignSystemAsset.Assets.icCrown)
-                        }
-                    }
+                    .foregroundColor(pallete.color)
                 
                 Text(name)
                     .font(.pretendard(.regular, size: 15))

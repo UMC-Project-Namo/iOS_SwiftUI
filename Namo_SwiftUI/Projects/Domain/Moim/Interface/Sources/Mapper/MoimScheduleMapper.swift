@@ -6,7 +6,9 @@
 //
 
 import Foundation
+
 import CoreNetwork
+import DomainFriend
 import SharedUtil
 
 public extension MoimScheduleListResponseDTO {
@@ -23,14 +25,14 @@ public extension MoimScheduleListResponseDTO {
 public extension MoimSchedule {
     func toDto() -> MoimScheduleRequestDTO {
         return .init(title: title,
-                     imageUrl: nil,
+                     imageUrl: imageUrl,
                      period: PeriodDto(startDate: startDate.dateToISO8601(),
                                        endDate: endDate.dateToISO8601()),
-                     location: LocationDto(longitude: 0.0,
-                                           latitude: 0.0,
+                     location: LocationDto(longitude: longitude,
+                                           latitude: latitude,
                                            locationName: locationName,
                                            kakaoLocationId: kakaoLocationId),
-                     participants: [11])
+                     participants: participants.map { $0.userId })
     }
 }
 
@@ -40,8 +42,8 @@ public extension MoimSchedule {
               imageUrl: imageUrl,
               period: PeriodDto(startDate: startDate.dateToISO8601(),
                                 endDate: startDate.dateToISO8601()),
-              location: LocationDto(longitude: 0.0,
-                                    latitude: 0.0,
+              location: LocationDto(longitude: longitude,
+                                    latitude: latitude,
                                     locationName: locationName,
                                     kakaoLocationId: kakaoLocationId),
               participantsToAdd: [],
@@ -72,5 +74,16 @@ public extension ParticipantsDto {
               nickname: nickname,
               colorId: colorId,
               isOwner: isOwner)
+    }
+}
+
+public extension Friend {
+    func toParticipant() -> Participant {
+        .init(participantId: 0,
+              userId: memberId,
+              isGuest: false,
+              nickname: nickname,
+              colorId: favoriteColorId,
+              isOwner: false)
     }
 }

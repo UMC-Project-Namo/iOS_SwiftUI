@@ -80,6 +80,7 @@ public extension AuthManager {
             try KeyChainManager.addItem(key: "refreshToken", value: result.refreshToken)
             
             // 3. userId 키체인 저장
+            
             try KeyChainManager.addItem(key: "userId", value: String(result.userId))
             
             // 4. 약관 동의, 필요 정보 작성 여부 저장
