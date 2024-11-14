@@ -55,3 +55,29 @@ extension DiaryScheduleParticipantDTO {
 		)
 	}
 }
+
+extension DiaryResponseDTO {
+    func toEntity() -> Diary {
+        return Diary(
+            id: diaryId,
+            content: content,
+            enjoyRating: enjoyRating,
+            images: mapAndSortDiaryImages(from: diaryImages)
+        )
+    }
+    
+    func mapAndSortDiaryImages(from responseDTOs: [DiaryImageResponseDTO]) -> [DiaryImage] {
+        return responseDTOs
+            .sorted(by: { $0.orderNumber < $1.orderNumber })
+            .map { DiaryImage(id: $0.diaryImageId, imageUrl: $0.imageUrl) }
+    }
+}
+
+extension DiaryImageResponseDTO {
+    func toEntity() -> DiaryImage {
+        return DiaryImage(
+            id: diaryImageId,
+            imageUrl: imageUrl
+        )
+    }
+}
