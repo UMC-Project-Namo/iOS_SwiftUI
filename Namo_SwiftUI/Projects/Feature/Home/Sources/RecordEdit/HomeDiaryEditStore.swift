@@ -40,14 +40,14 @@ public struct HomeDiaryEditStore {
             self.selectedImages = apiResult_selectedImages
         }
         
-        let isRevise: Bool
-        let scheduleName: String
-        let monthString: String
-        let dayString: String
-        let dateString: String
-        let placeName: String
-        var enjoyRating: Int
-        var contentString: String
+        let isRevise: Bool // 외부 주입
+        let scheduleName: String // 외부 주입
+        let monthString: String // 외부 주입
+        let dayString: String // 외부 주입
+        let dateString: String // 외부 주입
+        let placeName: String // 외부 주입
+        var enjoyRating: Int // API
+        var contentString: String // API
         var isContentValid: Bool = true
         var selectedItems: [PhotosPickerItem]
         var selectedImages: [Data]

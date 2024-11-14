@@ -18,6 +18,6 @@ protocol MoimDiaryRepository {
     func deleteMoimDiary(moimScheduleId: Int) async -> Bool
     func getMonthMoimDiary(req: GetMonthMoimDiaryReqDTO) async -> GetMonthMoimDiaryResDTO?
     func getOneMoimDiary(moimScheduleId: Int) async -> GetOneMoimDiaryResDTO?
-    func getOneMoimDiaryDetail(moimScheduleId: Int) async -> Diary?
+    func getOneMoimDiaryDetail(moimScheduleId: Int) async -> Diary_Old?
     func deleteMoimDiaryOnPersonal(scheduleId: Int) async -> Bool
 }

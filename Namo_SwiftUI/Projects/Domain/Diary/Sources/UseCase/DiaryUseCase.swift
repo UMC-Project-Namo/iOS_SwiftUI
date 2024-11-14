@@ -11,6 +11,7 @@ import ComposableArchitecture
 import SwiftUICalendar
 
 import CoreNetwork
+import SharedUtil
 
 @DependencyClient
 public struct DiaryUseCase {
@@ -66,6 +67,28 @@ public struct DiaryUseCase {
 			return "00:00 - 23:59"
 		}
 	}
+    
+    public func getDiaryBySchedule(id: Int) async throws -> Diary? {
+        let response: BaseResponse<DiaryResponseDTO> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.getDiaryBySchedule(id: id))
+    
+        return response.result?.toEntity()
+    }
+    
+    public func patchDiary(id: Int, reqDTO: DiaryPatchRequestDTO) async throws -> Void {
+        let response: BaseResponse<String > = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.patchDiary(id: id, reqDto: reqDTO))
+        
+        if response.code != 200 {
+            throw APIError.customError("기록 수정 실패: 응답 코드 \(response.code)")
+        }
+    }
+    
+    public func postDiary(id: Int, reqDTO: DiaryPostRequestDTO) async throws -> Void {
+        let response: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.postDiary(reqDto: reqDTO))
+        
+        if response.code != 200 {
+            throw APIError.customError("기록 작성 실패: 응답 코드 \(response.code)")
+        }
+    }
 }
 
 extension DiaryUseCase: DependencyKey {
