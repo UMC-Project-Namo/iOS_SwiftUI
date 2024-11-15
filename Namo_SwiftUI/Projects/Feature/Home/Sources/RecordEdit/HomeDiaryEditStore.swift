@@ -12,6 +12,7 @@ import _PhotosUI_SwiftUI
 import SharedDesignSystem
 import SharedUtil
 import DomainDiary
+import Kingfisher
 
 extension HomeDiaryEditStore {
     public enum Toast {
@@ -131,6 +132,7 @@ public struct HomeDiaryEditStore {
         case showAlert(AlertType)
         case loadDiary
         case loadDiaryCompleted(Diary)
+        case loadDiaryImages(Diary)
         case postDiaryImages([UIImage])
         case addPostedDiaryImages([DiaryImage])
         case postDiary
@@ -232,8 +234,49 @@ public struct HomeDiaryEditStore {
             case .loadDiary:
                 return .run { [id = state.schedule.scheduleId] send in
                     do {
-                        let result = try await diaryUseCase.getDiaryBySchedule(id: id)
-                        await send(.loadDiaryCompleted(result))
+                        let diary = try await diaryUseCase.getDiaryBySchedule(id: id)
+                        await send(.loadDiaryCompleted(diary))
+                    } catch {
+                        print(error.localizedDescription)
+                        await send(.showAlert(.loadFailed))
+                    }
+                }
+                
+            case .loadDiaryImages(let diary):
+                return .run { send in
+                    do {
+                        let updatedImages = try await withThrowingTaskGroup(of: Data.self) { group in
+                            
+                            for diaryImage in diary.images {
+                                group.addTask {
+                                    guard let url = URL(string: diaryImage.imageUrl) else {
+                                        throw APIError.customError("잘못된 URL")
+                                    }
+                                    
+                                    let data = try await withCheckedThrowingContinuation { continuation in
+                                        
+                                        KingfisherManager.shared.retrieveImage(with: url) { result in
+                                            switch result {
+                                            case .success(let value):
+                                                continuation.resume(returning: value.image.pngData() ?? Data())
+                                            case .failure(let error):
+                                                continuation.resume(throwing: error)
+                                            }
+                                        }
+                                    }
+                                    return data
+                                }
+                            }
+                            
+                            var images: [Data] = []
+                            for try await image in group {
+                                images.append(image)
+                            }
+                            return images
+                        }
+                        
+                        // TODO: addImage 배열로 바꾸고 다시 수정
+//                        await send(.addImage(.success(updatedImages)))
                     } catch {
                         print(error.localizedDescription)
                         await send(.showAlert(.loadFailed))
