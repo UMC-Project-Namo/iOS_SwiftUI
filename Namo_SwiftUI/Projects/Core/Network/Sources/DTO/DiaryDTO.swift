@@ -33,11 +33,23 @@ public struct DiaryPostRequestDTO: Encodable {
     public let content: String
     public let enjoyRating: Int
     public let diaryImages: [DiaryImageRequestDTO]
+    
+    public init(scheduleId: Int, content: String, enjoyRating: Int, diaryImages: [DiaryImageRequestDTO]) {
+        self.scheduleId = scheduleId
+        self.content = content
+        self.enjoyRating = enjoyRating
+        self.diaryImages = diaryImages
+    }
 }
 
 public struct DiaryImageRequestDTO: Encodable {
-    public let ordernumber: Int
+    public let orderNumber: Int
     public let imageUrl: String
+    
+    public init(orderNumber: Int, imageUrl: String) {
+        self.orderNumber = orderNumber
+        self.imageUrl = imageUrl
+    }
 }
 
 public struct Diary_Old: Decodable {
