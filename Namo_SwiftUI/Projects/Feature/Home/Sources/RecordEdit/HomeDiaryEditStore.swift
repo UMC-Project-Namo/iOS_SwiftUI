@@ -39,6 +39,31 @@ extension HomeDiaryEditStore {
     }
 }
 
+extension HomeDiaryEditStore {
+    public enum AlertType: Equatable {
+        case none
+        case deleteDiary
+        case backWithoutSave
+        case loadFailed
+        case custom(NamoAlertContent)
+        
+        public var content: NamoAlertContent {
+            switch self {
+            case .none:
+                return NamoAlertContent()
+            case .deleteDiary:
+                return NamoAlertContent(title: "기록을 정말 삭제하시겠어요?")
+            case .backWithoutSave:
+                return NamoAlertContent(title: "편집된 내용이 저장되지 않습니다.", message: "정말 나가시겠어요?")
+            case .loadFailed:
+                return NamoAlertContent(title: "기록 불러오기에 실패했습니다.\n다시 시도해주세요.")
+            case .custom(let content):
+                return NamoAlertContent(title: content.title, message: content.title)
+            }
+        }
+    }
+}
+
 @Reducer
 public struct HomeDiaryEditStore {
     
@@ -83,7 +108,7 @@ public struct HomeDiaryEditStore {
         /// 토스트 컨텐츠
         var toast: Toast = .none
         /// alert 컨텐츠
-        var alertContent: NamoAlertType = .none
+        var alertContent: AlertType = .none
         /// alert 표시
         var showAlert: Bool = false
     }
@@ -103,6 +128,7 @@ public struct HomeDiaryEditStore {
         case dismiss
         case onAppear
         case showToast(Toast)
+        case showAlert(AlertType)
         case loadDiary
         case loadDiaryCompleted(Diary)
         case postDiaryImages([UIImage])
@@ -154,15 +180,12 @@ public struct HomeDiaryEditStore {
                 return .none
                 
             case .tapBackButton:
-                state.alertContent = .backWithoutSave
-                state.showAlert = true
-                return .none
+                return state.isChanged
+                ? .send(.showAlert(.backWithoutSave))
+                : .none
                 
             case .tapDeleteDiaryButton:
-                // TODO : ALERT 로직 toast 처럼 수정
-                state.alertContent = .deleteDiary
-                state.showAlert = true
-                return .none
+                return .send(.showAlert(.deleteDiary))
                 
             case .tapSaveDiaryButton:
                 guard state.saveButtonState == .active else { return .none }
@@ -179,7 +202,7 @@ public struct HomeDiaryEditStore {
                     print("삭제 api 호출")
                     state.alertContent = .none
                     return .none
-                case .backWithoutSave:
+                case .backWithoutSave, .loadFailed:
                     state.alertContent = .none
                     return .send(.dismiss)
                 default:
@@ -201,6 +224,11 @@ public struct HomeDiaryEditStore {
                 state.showToast = true
                 return .none
                 
+            case .showAlert(let alert):
+                state.alertContent = alert
+                state.showAlert = true
+                return .none
+                
             case .loadDiary:
                 return .run { [id = state.schedule.scheduleId] send in
                     do {
@@ -208,8 +236,7 @@ public struct HomeDiaryEditStore {
                         await send(.loadDiaryCompleted(result))
                     } catch {
                         print(error.localizedDescription)
-                        // TODO: 로딩 실패 Alert 표시
-                        await send(.dismiss)
+                        await send(.showAlert(.loadFailed))
                     }
                 }
                 
