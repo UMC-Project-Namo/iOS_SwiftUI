@@ -77,7 +77,7 @@ public struct HomeDiaryEditView: View {
             .ignoresSafeArea(.container, edges: .bottom)
             .namoToastView(
                 isPresented: $store.showToast,
-                title: "기록이 저장되었습니다.",
+                title: store.toast.content,
                 isTabBarScreen: false
             )
             .namoAlertView(

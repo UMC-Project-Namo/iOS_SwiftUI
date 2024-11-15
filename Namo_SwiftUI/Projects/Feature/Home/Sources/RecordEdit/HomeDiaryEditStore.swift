@@ -13,6 +13,32 @@ import SharedDesignSystem
 import SharedUtil
 import DomainDiary
 
+extension HomeDiaryEditStore {
+    public enum Toast {
+        case none
+        case saveSuccess
+        case saveFailed
+        case addImageFailed
+        case uploadImageFailed
+        
+        var content: String {
+            switch self {
+            
+            case .none:
+                return ""
+            case .saveSuccess:
+                return "기록이 저장되었습니다."
+            case .saveFailed:
+                return "기록 저장에 실패했습니다.\n다시 시도해주세요."
+            case .addImageFailed:
+                return "사진 추가에 실패했습니다.\n다시 시도해주세요."
+            case .uploadImageFailed:
+                return "사진 업로드에 실패했습니다.\n다시 시도해주세요."
+            }
+        }
+    }
+}
+
 @Reducer
 public struct HomeDiaryEditStore {
     
@@ -54,6 +80,8 @@ public struct HomeDiaryEditStore {
         }
         /// 토스트 표시
         var showToast: Bool = false
+        /// 토스트 컨텐츠
+        var toast: Toast = .none
         /// alert 컨텐츠
         var alertContent: NamoAlertType = .none
         /// alert 표시
@@ -74,6 +102,7 @@ public struct HomeDiaryEditStore {
         case handleAlertConfirm
         case dismiss
         case onAppear
+        case showToast(Toast)
         case loadDiary
         case loadDiaryCompleted(Diary)
         case postDiaryImages([UIImage])
@@ -111,15 +140,14 @@ public struct HomeDiaryEditStore {
                 
             case .addImage(.success(let data)):
                 guard let data else {
-                    print("data is nil")
-                    return .none
+                    return .send(.showToast(.addImageFailed))
                 }
                 state.selectedImages.append(data)
                 return .none
                 
             case .addImage(.failure(let error)):
                 print("error occured: \(error.localizedDescription)")
-                return .none
+                return .send(.showToast(.addImageFailed))
                 
             case .deleteImage(let index):
                 state.selectedImages.remove(at: index)
@@ -131,6 +159,7 @@ public struct HomeDiaryEditStore {
                 return .none
                 
             case .tapDeleteDiaryButton:
+                // TODO : ALERT 로직 toast 처럼 수정
                 state.alertContent = .deleteDiary
                 state.showAlert = true
                 return .none
@@ -167,6 +196,11 @@ public struct HomeDiaryEditStore {
                 ? .send(.loadDiary)
                 : .none
                 
+            case .showToast(let toast):
+                state.toast = toast
+                state.showToast = true
+                return .none
+                
             case .loadDiary:
                 return .run { [id = state.schedule.scheduleId] send in
                     do {
@@ -174,6 +208,7 @@ public struct HomeDiaryEditStore {
                         await send(.loadDiaryCompleted(result))
                     } catch {
                         print(error.localizedDescription)
+                        // TODO: 로딩 실패 Alert 표시
                         await send(.dismiss)
                     }
                 }
@@ -185,8 +220,13 @@ public struct HomeDiaryEditStore {
                 
             case .postDiaryImages(let imgs):
                 return .run { [id = state.schedule.scheduleId] send in
-                    let diaryImgs = try await diaryUseCase.postDiaryImages(scheduleId: id, images: imgs)
-                    await send(.addPostedDiaryImages(diaryImgs))
+                    do {
+                        let diaryImgs = try await diaryUseCase.postDiaryImages(scheduleId: id, images: imgs)
+                        await send(.addPostedDiaryImages(diaryImgs))
+                    } catch {
+                        print(error.localizedDescription)
+                        await send(.showToast(.uploadImageFailed))
+                    }
                 }
             
             case .addPostedDiaryImages(let diaryImgs):
@@ -198,7 +238,13 @@ public struct HomeDiaryEditStore {
                     id = state.schedule.scheduleId,
                     diary = state.diary
                 ] send in
-                    try await diaryUseCase.postDiary(scheduleId: id, reqDiary: diary)
+                    do {
+                        try await diaryUseCase.postDiary(scheduleId: id, reqDiary: diary)
+                        await send(.showToast(.saveSuccess))
+                    }
+                    catch {
+                        await send(.showToast(.saveFailed))
+                    }
                 }
             }
         }
