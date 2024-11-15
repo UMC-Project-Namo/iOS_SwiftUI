@@ -51,6 +51,7 @@ public struct HomeDiaryEditView: View {
                     }
                 )
             }
+            .onAppear { store.send(.onAppear) }
             .namoNabBar(center: {
                 Text(store.scheduleName)
                     .font(.pretendard(.bold, size: 22))

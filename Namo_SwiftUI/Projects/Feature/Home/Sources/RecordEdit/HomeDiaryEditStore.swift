@@ -22,12 +22,13 @@ public struct HomeDiaryEditStore {
     
     @ObservableState
     public struct State: Equatable {
-        public init(schedule: Schedule) {
+        public init(schedule: Schedule, hasDiary: Bool) {
             self.schedule = schedule
+            self.isRevise = hasDiary
         }
         
         /// 기존 게시물 여부 - API 응답 결과
-        let isRevise: Bool = false // API 호출 후 변경되
+        let isRevise: Bool
         /// 컨텐츠 수정 상태
         var isChanged: Bool { initialDiary == diary }
         
@@ -40,7 +41,7 @@ public struct HomeDiaryEditStore {
         var placeName: String { schedule.locationInfo?.locationName ?? "" }
         
         /// 기록
-        let initialDiary: Diary = Diary()
+        var initialDiary: Diary = Diary()
         var diary: Diary = Diary()
         
         /// 본문 조건 적합 체크
@@ -70,6 +71,9 @@ public struct HomeDiaryEditStore {
         case tapSaveDiaryButton
         case handleAlertConfirm
         case dismiss
+        case onAppear
+        case loadDiary
+        case loadDiaryCompleted(Diary)
     }
     
     public var body: some ReducerOf<Self> {
@@ -153,6 +157,21 @@ public struct HomeDiaryEditStore {
                 print("dismiss")
                 return .none
                 
+            case .onAppear:
+                return state.isRevise
+                    ? .send(.loadDiary)
+                    : .none
+                
+            case .loadDiary:
+                return .run { [id = state.schedule.scheduleId] send in
+                    let result = try await diaryUseCase.getDiaryBySchedule(id: id)
+                    await send(.loadDiaryCompleted(result))
+                }
+                
+            case .loadDiaryCompleted(let diary):
+                state.diary = diary
+                state.initialDiary = diary
+                return .none
             }
         }
     }

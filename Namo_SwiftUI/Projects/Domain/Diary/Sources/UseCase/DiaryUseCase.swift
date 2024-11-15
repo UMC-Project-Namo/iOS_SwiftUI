@@ -68,10 +68,18 @@ public struct DiaryUseCase {
 		}
 	}
     
-    public func getDiaryBySchedule(id: Int) async throws -> Diary? {
+    public func getDiaryBySchedule(id: Int) async throws -> Diary {
         let response: BaseResponse<DiaryResponseDTO> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.getDiaryBySchedule(id: id))
-    
-        return response.result?.toEntity()
+        
+        if response.code != 200 {
+            throw APIError.customError("기록 로드 실패: 응답 코드 \(response.code)")
+        }
+        
+        guard let diary = response.result?.toEntity() else {
+            throw APIError.parseError("result.result is nil")
+        }
+        
+        return diary
     }
     
     public func patchDiary(id: Int, reqDTO: DiaryPatchRequestDTO) async throws -> Void {

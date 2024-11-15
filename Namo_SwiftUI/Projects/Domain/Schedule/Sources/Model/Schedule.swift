@@ -117,7 +117,7 @@ public struct ScheduleNotification: Decodable, Hashable {
 public extension Schedule {
 	static let dummySchedules: [Schedule] = [
 		Schedule(
-			scheduleId: 1,
+			scheduleId: 321,
 			title: "Test1",
 			categoryInfo: ScheduleCategory(
 				categoryId: 1,
