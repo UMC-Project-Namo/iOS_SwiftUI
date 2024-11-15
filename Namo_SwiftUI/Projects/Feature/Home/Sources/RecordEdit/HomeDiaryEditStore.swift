@@ -30,7 +30,7 @@ public struct HomeDiaryEditStore {
         /// 기존 게시물 여부 - API 응답 결과
         let isRevise: Bool
         /// 컨텐츠 수정 상태
-        var isChanged: Bool { initialDiary == diary }
+        var isChanged: Bool { initialDiary != diary }
         
         /// 스케쥴
         let schedule: Schedule
@@ -49,7 +49,9 @@ public struct HomeDiaryEditStore {
         var selectedItems: [PhotosPickerItem] = []
         var selectedImages: [Data] = []
         /// 저장 버튼 상태
-        var saveButtonState: NamoButton.NamoButtonType = .inactive
+        var saveButtonState: NamoButton.NamoButtonType {
+            return isChanged ? .active : .inactive
+        }
         /// 토스트 표시
         var showToast: Bool = false
         /// alert 컨텐츠
@@ -74,6 +76,9 @@ public struct HomeDiaryEditStore {
         case onAppear
         case loadDiary
         case loadDiaryCompleted(Diary)
+        case postDiaryImages([UIImage])
+        case addPostedDiaryImages([DiaryImage])
+        case postDiary
     }
     
     public var body: some ReducerOf<Self> {
@@ -131,25 +136,25 @@ public struct HomeDiaryEditStore {
                 return .none
                 
             case .tapSaveDiaryButton:
-                switch state.saveButtonState {
-                    
-                case .active:
-                    print("기록 저장")
-                    return .none
-                default:
-                    return .none
-                }
+                guard state.saveButtonState == .active else { return .none }
+                let images: [UIImage] = state.selectedImages.compactMap { UIImage(data: $0) }
+                
+                return images.count > 0
+                ? .send(.postDiaryImages(images))
+                : .send(.postDiary)
                 
             case .handleAlertConfirm:
-                state.alertContent = .none // alert 초기화
                 switch state.alertContent {
                     
                 case .deleteDiary:
                     print("삭제 api 호출")
+                    state.alertContent = .none
                     return .none
                 case .backWithoutSave:
+                    state.alertContent = .none
                     return .send(.dismiss)
                 default:
+                    state.alertContent = .none
                     return .none
                 }
                 
@@ -159,19 +164,42 @@ public struct HomeDiaryEditStore {
                 
             case .onAppear:
                 return state.isRevise
-                    ? .send(.loadDiary)
-                    : .none
+                ? .send(.loadDiary)
+                : .none
                 
             case .loadDiary:
                 return .run { [id = state.schedule.scheduleId] send in
-                    let result = try await diaryUseCase.getDiaryBySchedule(id: id)
-                    await send(.loadDiaryCompleted(result))
+                    do {
+                        let result = try await diaryUseCase.getDiaryBySchedule(id: id)
+                        await send(.loadDiaryCompleted(result))
+                    } catch {
+                        print(error.localizedDescription)
+                        await send(.dismiss)
+                    }
                 }
                 
             case .loadDiaryCompleted(let diary):
                 state.diary = diary
                 state.initialDiary = diary
                 return .none
+                
+            case .postDiaryImages(let imgs):
+                return .run { [id = state.schedule.scheduleId] send in
+                    let diaryImgs = try await diaryUseCase.postDiaryImages(scheduleId: id, images: imgs)
+                    await send(.addPostedDiaryImages(diaryImgs))
+                }
+            
+            case .addPostedDiaryImages(let diaryImgs):
+                state.diary.images = diaryImgs
+                return .send(.postDiary)
+                
+            case .postDiary:
+                return .run { [
+                    id = state.schedule.scheduleId,
+                    diary = state.diary
+                ] send in
+                    try await diaryUseCase.postDiary(scheduleId: id, reqDiary: diary)
+                }
             }
         }
     }
