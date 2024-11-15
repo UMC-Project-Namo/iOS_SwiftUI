@@ -150,7 +150,7 @@ private extension HomeDiaryEditView {
     func EnjoyCountView(store: StoreOf<HomeDiaryEditStore>) -> some View {
         HStack(spacing: 4) {
             ForEach(0..<3) { index in
-                let isFilled = index < store.enjoyRating
+                let isFilled = index < store.diary.enjoyRating
                 Image(asset: isFilled ? SharedDesignSystemAsset.Assets.icHeartSelected : SharedDesignSystemAsset.Assets.icHeart)
                     .resizable()
                     .scaledToFit()
@@ -170,7 +170,7 @@ private extension HomeDiaryEditView {
         VStack(spacing: 10) {
             ContentInputView(store: store)
             ContentFooterView(
-                count: store.contentString.count,
+                count: store.diary.content.count,
                 maxCount: HomeDiaryEditStore.contentLimit,
                 isValid: store.isContentValid
             )
@@ -184,7 +184,7 @@ private extension HomeDiaryEditView {
                 .fill(Color.namoPink)
                 .frame(width: 10)
             // 다중 줄 텍스트 입력
-            TextEditor(text: Binding(get: { store.contentString }, set: { store.send(.typeContent($0)) }))
+            TextEditor(text: Binding(get: { store.diary.content }, set: { store.send(.typeContent($0)) }))
                 .font(.pretendard(.regular, size: 14))
                 .foregroundStyle(Color.mainText)
                 .scrollContentBackground(.hidden)
@@ -194,7 +194,7 @@ private extension HomeDiaryEditView {
                     Text("내용 입력")
                         .font(.pretendard(.bold, size: 14))
                         .foregroundStyle(Color.textUnselected)
-                        .opacity(store.contentString.isEmpty ? 1 : 0)
+                        .opacity(store.diary.content.isEmpty ? 1 : 0)
                         .padding(.vertical, 16)
                         .padding(.horizontal, 16),
                     alignment: .topLeading

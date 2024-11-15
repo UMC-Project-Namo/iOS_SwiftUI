@@ -11,49 +11,49 @@ import DomainSchedule
 import _PhotosUI_SwiftUI
 import SharedDesignSystem
 import SharedUtil
+import DomainDiary
 
 @Reducer
 public struct HomeDiaryEditStore {
-    public init() {}
+    
+    @Dependency(\.diaryUseCase) var diaryUseCase
     public static let contentLimit: Int = 200
+    public init() {}
     
     @ObservableState
     public struct State: Equatable {
         public init(schedule: Schedule) {
-            // get API 호출
-            let apiResult_isSuccess = true // 존재하면 true, 없으면 false
-            let apiResult_enjoyRating = 3
-            let apiResult_contentString = "Hello, world!"
-            let apiResult_imageURLs: [String] = []
-            let apiResult_selectedItems: [PhotosPickerItem] = []
-            let apiResult_selectedImages: [Data] = []
-            
-            self.isRevise = apiResult_isSuccess
-            self.scheduleName = schedule.title
-            self.monthString = schedule.startDate.toMM()
-            self.dayString = schedule.startDate.toDD()
-            self.dateString = "\(schedule.startDate.toYMDEHM()) \n - \(schedule.endDate.toYMDEHM())"
-            self.placeName = schedule.locationInfo?.locationName ?? ""
-            self.enjoyRating = apiResult_enjoyRating
-            self.contentString = apiResult_contentString
-            self.selectedItems = apiResult_selectedItems
-            self.selectedImages = apiResult_selectedImages
+            self.schedule = schedule
         }
         
-        let isRevise: Bool // 외부 주입
-        let scheduleName: String // 외부 주입
-        let monthString: String // 외부 주입
-        let dayString: String // 외부 주입
-        let dateString: String // 외부 주입
-        let placeName: String // 외부 주입
-        var enjoyRating: Int // API
-        var contentString: String // API
+        /// 기존 게시물 여부 - API 응답 결과
+        let isRevise: Bool = false // API 호출 후 변경되
+        /// 컨텐츠 수정 상태
+        var isChanged: Bool { initialDiary == diary }
+        
+        /// 스케쥴
+        let schedule: Schedule
+        var scheduleName: String { schedule.title }
+        var monthString: String { schedule.startDate.toMM() }
+        var dayString: String { schedule.startDate.toDD() }
+        var dateString: String { "\(schedule.startDate.toYMDEHM()) \n - \(schedule.endDate.toYMDEHM())" }
+        var placeName: String { schedule.locationInfo?.locationName ?? "" }
+        
+        /// 기록
+        let initialDiary: Diary = Diary()
+        var diary: Diary = Diary()
+        
+        /// 본문 조건 적합 체크
         var isContentValid: Bool = true
-        var selectedItems: [PhotosPickerItem]
-        var selectedImages: [Data]
+        var selectedItems: [PhotosPickerItem] = []
+        var selectedImages: [Data] = []
+        /// 저장 버튼 상태
         var saveButtonState: NamoButton.NamoButtonType = .inactive
+        /// 토스트 표시
         var showToast: Bool = false
+        /// alert 컨텐츠
         var alertContent: NamoAlertType = .none
+        /// alert 표시
         var showAlert: Bool = false
     }
     
@@ -82,11 +82,11 @@ public struct HomeDiaryEditStore {
                 return .none
                 
             case .tapEnjoyRating(let rate):
-                state.enjoyRating = rate
+                state.diary.enjoyRating = rate
                 return .none
                 
             case .typeContent(let content):
-                state.contentString = content
+                state.diary.content = content
                 return .send(.validateContent(content))
                 
             case .validateContent(let content):
