@@ -90,11 +90,46 @@ public struct DiaryUseCase {
         }
     }
     
-    public func postDiary(id: Int, reqDTO: DiaryPostRequestDTO) async throws -> Void {
-        let response: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.postDiary(reqDto: reqDTO))
+    public func postDiary(scheduleId: Int, reqDiary: Diary) async throws -> Void {
+        let response: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.postDiary(reqDto: reqDiary.toPostDTO(scheduleId: scheduleId)))
         
         if response.code != 200 {
             throw APIError.customError("기록 작성 실패: 응답 코드 \(response.code)")
+        }
+    }
+    
+    public func postDiaryImages(scheduleId: Int, images: [UIImage]) async throws -> [DiaryImage] {
+        let compImgs = try images.map { image in
+            guard let compressedData = image.jpegData(compressionQuality: 0.6) else {
+                throw NSError(domain: "이미지 압축 에러", code: 1001)
+            }
+            return compressedData
+        }
+        
+        // 이미지 병렬 업로드 처리
+        return try await withThrowingTaskGroup(of: (Int, String).self) { group in
+            for (index, img) in compImgs.enumerated() {
+                group.addTask {
+                    let fileName = "diary_image_schedule_\(scheduleId)_index_\(index)_\(Int(Date().timeIntervalSince1970))_\(UUID().uuidString)"
+                    
+                    guard let url = try await APIManager.shared.getPresignedUrl(prefix: "diary", filename: fileName).result else {
+                        throw APIError.customError("S3 getPresignedUrl 에러")
+                    }
+                    
+                    guard let uploadedUrl = try await APIManager.shared.uploadImageToS3(presignedUrl: url, imageFile: img) else {
+                        throw APIError.customError("S3 uploadImageToS3 에러")
+                    }
+                    
+                    return (index, uploadedUrl)
+                }
+            }
+            
+            var uploadedImages: [DiaryImage] = []
+            for try await (index, uploadedUrl) in group {
+                uploadedImages.append(DiaryImage(orderNumber: index, imageUrl: uploadedUrl))
+            }
+            
+            return uploadedImages
         }
     }
 }
