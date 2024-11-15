@@ -15,12 +15,13 @@ import DomainDiary
 import Kingfisher
 
 extension HomeDiaryEditStore {
-    public enum Toast {
+    public enum Toast: Equatable {
         case none
         case saveSuccess
         case saveFailed
         case addImageFailed
         case uploadImageFailed
+        case custom(String)
         
         var content: String {
             switch self {
@@ -35,6 +36,8 @@ extension HomeDiaryEditStore {
                 return "사진 추가에 실패했습니다.\n다시 시도해주세요."
             case .uploadImageFailed:
                 return "사진 업로드에 실패했습니다.\n다시 시도해주세요."
+            case .custom(let content):
+                return content
             }
         }
     }
@@ -82,7 +85,7 @@ public struct HomeDiaryEditStore {
         /// 기존 게시물 여부 - API 응답 결과
         let isRevise: Bool
         /// 컨텐츠 수정 상태
-        var isChanged: Bool { initialDiary != diary }
+        var isChanged: Bool { initialDiary != diary || initialImages != selectedImages }
         
         /// 스케쥴
         let schedule: Schedule
@@ -99,6 +102,7 @@ public struct HomeDiaryEditStore {
         /// 본문 조건 적합 체크
         var isContentValid: Bool = true
         var selectedItems: [PhotosPickerItem] = []
+        var initialImages: [Data] = []
         var selectedImages: [Data] = []
         /// 저장 버튼 상태
         var saveButtonState: NamoButton.NamoButtonType {
@@ -133,6 +137,7 @@ public struct HomeDiaryEditStore {
         case loadDiary
         case loadDiaryCompleted(Diary)
         case loadDiaryImages(Diary)
+        case loadInitialImages([Data], Diary)
         case postDiaryImages([UIImage])
         case addPostedDiaryImages([DiaryImage])
         case postDiary
@@ -169,6 +174,9 @@ public struct HomeDiaryEditStore {
             case .addImage(.success(let data)):
                 guard let data else {
                     return .send(.showToast(.addImageFailed))
+                }
+                guard state.selectedImages.count < 3 else {
+                    return .send(.showToast(.custom("3개가 넘습니다")))
                 }
                 state.selectedImages.append(data)
                 return .none
@@ -235,7 +243,11 @@ public struct HomeDiaryEditStore {
                 return .run { [id = state.schedule.scheduleId] send in
                     do {
                         let diary = try await diaryUseCase.getDiaryBySchedule(id: id)
-                        await send(.loadDiaryCompleted(diary))
+                        if !diary.images.isEmpty {
+                            await send(.loadDiaryImages(diary))
+                        } else {
+                            await send(.loadDiaryCompleted(diary))
+                        }
                     } catch {
                         print(error.localizedDescription)
                         await send(.showAlert(.loadFailed))
@@ -275,13 +287,20 @@ public struct HomeDiaryEditStore {
                             return images
                         }
                         
-                        // TODO: addImage 배열로 바꾸고 다시 수정
-//                        await send(.addImage(.success(updatedImages)))
+                        for image in updatedImages {
+                            await send(.addImage(.success(image)))
+                        }
+                        
+                        await send(.loadInitialImages(updatedImages, diary))
                     } catch {
                         print(error.localizedDescription)
                         await send(.showAlert(.loadFailed))
                     }
                 }
+            
+            case .loadInitialImages(let imgs, let diary):
+                imgs.forEach { state.initialImages.append($0) }
+                return .send(.loadDiaryCompleted(diary))
                 
             case .loadDiaryCompleted(let diary):
                 state.diary = diary

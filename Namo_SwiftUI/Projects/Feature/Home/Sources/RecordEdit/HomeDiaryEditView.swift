@@ -220,12 +220,7 @@ private extension HomeDiaryEditView {
 private extension HomeDiaryEditView {
     
     func DiaryImageView(store: StoreOf<HomeDiaryEditStore>) -> some View {
-        
-        PhotosPicker(selection: Binding(get: { store.selectedItems }, set: { newItems in
-            if let newItem = newItems.last, newItems.count > store.selectedItems.count {
-                store.send(.selectPhoto(newItem))
-            }
-        }), maxSelectionCount: 3) {
+        HStack(spacing: 15) {
             ForEach(Array(store.selectedImages.enumerated()), id: \.self.element) { (offset, imageData) in
                 DiaryImageListItemView(
                     image: UIImage(data: imageData) ?? UIImage(),
@@ -234,10 +229,17 @@ private extension HomeDiaryEditView {
                 )
             }
             
-            if store.selectedImages.count < 3 {
-                Image(asset: SharedDesignSystemAsset.Assets.noPicture)
-                    .resizable()
-                    .frame(width: 92, height: 92)
+            PhotosPicker(selection: Binding(get: { store.selectedItems }, set: {
+                newItems in
+                guard let item = newItems.last else { return }
+                store.send(.selectPhoto(item))
+            }), maxSelectionCount: 1) {
+                
+                if store.selectedImages.count < 3 {
+                    Image(asset: SharedDesignSystemAsset.Assets.noPicture)
+                        .resizable()
+                        .frame(width: 92, height: 92)
+                }
             }
         }
     }
