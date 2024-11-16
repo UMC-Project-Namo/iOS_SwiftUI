@@ -14,63 +14,6 @@ import SharedUtil
 import DomainDiary
 import Kingfisher
 
-extension HomeDiaryEditStore {
-    public enum Toast: Equatable {
-        case none
-        case saveSuccess
-        case saveFailed
-        case addImageFailed
-        case uploadImageFailed
-        case deleteFailed
-        case custom(String)
-        
-        var content: String {
-            switch self {
-            
-            case .none:
-                return ""
-            case .saveSuccess:
-                return "기록이 저장되었습니다."
-            case .saveFailed:
-                return "기록 저장에 실패했습니다.\n다시 시도해주세요."
-            case .addImageFailed:
-                return "사진 추가에 실패했습니다.\n다시 시도해주세요."
-            case .uploadImageFailed:
-                return "사진 업로드에 실패했습니다.\n다시 시도해주세요."
-            case .deleteFailed:
-                return "기록 삭제에 실패했습니다.\n다시 시도해주세요."
-            case .custom(let content):
-                return content
-            }
-        }
-    }
-}
-
-extension HomeDiaryEditStore {
-    public enum AlertType: Equatable {
-        case none
-        case deleteDiary
-        case backWithoutSave
-        case loadFailed
-        case custom(NamoAlertContent)
-        
-        public var content: NamoAlertContent {
-            switch self {
-            case .none:
-                return NamoAlertContent()
-            case .deleteDiary:
-                return NamoAlertContent(title: "기록을 정말 삭제하시겠어요?")
-            case .backWithoutSave:
-                return NamoAlertContent(title: "편집된 내용이 저장되지 않습니다.", message: "정말 나가시겠어요?")
-            case .loadFailed:
-                return NamoAlertContent(title: "기록 불러오기에 실패했습니다.", message: "다시 시도해주세요.")
-            case .custom(let content):
-                return NamoAlertContent(title: content.title, message: content.title)
-            }
-        }
-    }
-}
-
 @Reducer
 public struct HomeDiaryEditStore {
     
@@ -436,4 +379,60 @@ public struct HomeDiaryEditStore {
     }
 }
 
+extension HomeDiaryEditStore {
+    public enum Toast: Equatable {
+        case none
+        case saveSuccess
+        case saveFailed
+        case addImageFailed
+        case uploadImageFailed
+        case deleteFailed
+        case custom(String)
+        
+        var content: String {
+            switch self {
+            
+            case .none:
+                return ""
+            case .saveSuccess:
+                return "기록이 저장되었습니다."
+            case .saveFailed:
+                return "기록 저장에 실패했습니다.\n다시 시도해주세요."
+            case .addImageFailed:
+                return "사진 추가에 실패했습니다.\n다시 시도해주세요."
+            case .uploadImageFailed:
+                return "사진 업로드에 실패했습니다.\n다시 시도해주세요."
+            case .deleteFailed:
+                return "기록 삭제에 실패했습니다.\n다시 시도해주세요."
+            case .custom(let content):
+                return content
+            }
+        }
+    }
+}
+
+extension HomeDiaryEditStore {
+    public enum AlertType: Equatable {
+        case none
+        case deleteDiary
+        case backWithoutSave
+        case loadFailed
+        case custom(NamoAlertContent)
+        
+        public var content: NamoAlertContent {
+            switch self {
+            case .none:
+                return NamoAlertContent()
+            case .deleteDiary:
+                return NamoAlertContent(title: "기록을 정말 삭제하시겠어요?")
+            case .backWithoutSave:
+                return NamoAlertContent(title: "편집된 내용이 저장되지 않습니다.", message: "정말 나가시겠어요?")
+            case .loadFailed:
+                return NamoAlertContent(title: "기록 불러오기에 실패했습니다.", message: "다시 시도해주세요.")
+            case .custom(let content):
+                return NamoAlertContent(title: content.title, message: content.title)
+            }
+        }
+    }
+}
 

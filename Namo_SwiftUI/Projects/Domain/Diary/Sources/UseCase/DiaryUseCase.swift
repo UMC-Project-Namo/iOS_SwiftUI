@@ -68,6 +68,7 @@ public struct DiaryUseCase {
 		}
 	}
     
+    /// SchduleId를 통해 해당 일정의 기록을 가져옵니다
     public func getDiaryBySchedule(id: Int) async throws -> Diary {
         let response: BaseResponse<DiaryResponseDTO> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.getDiaryBySchedule(id: id))
         
@@ -82,6 +83,7 @@ public struct DiaryUseCase {
         return diary
     }
     
+    /// 해당 일정의 기록을 수정합니다
     public func patchDiary(id: Int, reqDiary: Diary, deleteImages: [Int]) async throws -> Void {
         let response: BaseResponse<String > = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.patchDiary(id: id, reqDto: reqDiary.toPatchDTO(deleteImages: deleteImages)))
         
@@ -90,6 +92,7 @@ public struct DiaryUseCase {
         }
     }
     
+    /// 해당 ScheduleId의 일정의 기록을 추가합니다
     public func postDiary(scheduleId: Int, reqDiary: Diary) async throws -> Void {
         let response: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.postDiary(reqDto: reqDiary.toPostDTO(scheduleId: scheduleId)))
         
@@ -98,6 +101,7 @@ public struct DiaryUseCase {
         }
     }
     
+    /// 이미지 파일들을 S3에 업로드 후, 순서를 맞춰 DiaryImage 배열로 반환합니다.
     public func postDiaryImages(scheduleId: Int, images: [UIImage]) async throws -> [DiaryImage] {
         let compImgs = try images.map { image in
             guard let compressedData = image.jpegData(compressionQuality: 0.6) else {
@@ -133,7 +137,8 @@ public struct DiaryUseCase {
             return uploadedImages
         }
     }
-
+    
+    /// 해당 일정 기록을 삭제합니다.
     public func deleteDiary(id: Int) async throws -> Void {
         let response: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.deleteDiary(id: id))
         
