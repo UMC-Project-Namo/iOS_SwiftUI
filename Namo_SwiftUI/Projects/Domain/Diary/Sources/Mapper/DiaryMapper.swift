@@ -82,6 +82,15 @@ extension Diary {
             diaryImages: images.map { $0.toDTO() }
         )
     }
+    
+    func toPatchDTO(deleteImages: [Int]) -> DiaryPatchRequestDTO {
+        return DiaryPatchRequestDTO(
+            content: self.content,
+            enjoyRating: self.enjoyRating,
+            diaryImages: self.images.map { $0.toDTO() },
+            deleteImages: deleteImages
+        )
+    }
 }
 
 extension DiaryImageResponseDTO {

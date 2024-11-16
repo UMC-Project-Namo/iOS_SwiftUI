@@ -26,6 +26,13 @@ public struct DiaryPatchRequestDTO: Encodable {
     public let enjoyRating: Int
     public let diaryImages: [DiaryImageRequestDTO]
     public let deleteImages: [Int]
+    
+    public init(content: String, enjoyRating: Int, diaryImages: [DiaryImageRequestDTO], deleteImages: [Int]) {
+        self.content = content
+        self.enjoyRating = enjoyRating
+        self.diaryImages = diaryImages
+        self.deleteImages = deleteImages
+    }
 }
 
 public struct DiaryPostRequestDTO: Encodable {

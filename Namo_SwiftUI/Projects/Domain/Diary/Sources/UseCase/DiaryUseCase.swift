@@ -82,8 +82,8 @@ public struct DiaryUseCase {
         return diary
     }
     
-    public func patchDiary(id: Int, reqDTO: DiaryPatchRequestDTO) async throws -> Void {
-        let response: BaseResponse<String > = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.patchDiary(id: id, reqDto: reqDTO))
+    public func patchDiary(id: Int, reqDiary: Diary, deleteImages: [Int]) async throws -> Void {
+        let response: BaseResponse<String > = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.patchDiary(id: id, reqDto: reqDiary.toPatchDTO(deleteImages: deleteImages)))
         
         if response.code != 200 {
             throw APIError.customError("기록 수정 실패: 응답 코드 \(response.code)")
@@ -126,10 +126,19 @@ public struct DiaryUseCase {
             
             var uploadedImages: [DiaryImage] = []
             for try await (index, uploadedUrl) in group {
+                // TODO: index 0부터인지 1부터인지 확인
                 uploadedImages.append(DiaryImage(orderNumber: index, imageUrl: uploadedUrl))
             }
             
             return uploadedImages
+        }
+    }
+
+    public func deleteDiary(id: Int) async throws -> Void {
+        let response: BaseResponse<String> = try await APIManager.shared.performRequest(endPoint: DiaryEndPoint.deleteDiary(id: id))
+        
+        if response.code != 200 {
+            throw APIError.customError("기록 삭제 실패: 응답 코드 \(response.code)")
         }
     }
 }

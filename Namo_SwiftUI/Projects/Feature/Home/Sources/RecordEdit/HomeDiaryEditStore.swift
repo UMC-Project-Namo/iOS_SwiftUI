@@ -21,6 +21,7 @@ extension HomeDiaryEditStore {
         case saveFailed
         case addImageFailed
         case uploadImageFailed
+        case deleteFailed
         case custom(String)
         
         var content: String {
@@ -36,6 +37,8 @@ extension HomeDiaryEditStore {
                 return "사진 추가에 실패했습니다.\n다시 시도해주세요."
             case .uploadImageFailed:
                 return "사진 업로드에 실패했습니다.\n다시 시도해주세요."
+            case .deleteFailed:
+                return "기록 삭제에 실패했습니다.\n다시 시도해주세요."
             case .custom(let content):
                 return content
             }
@@ -60,7 +63,7 @@ extension HomeDiaryEditStore {
             case .backWithoutSave:
                 return NamoAlertContent(title: "편집된 내용이 저장되지 않습니다.", message: "정말 나가시겠어요?")
             case .loadFailed:
-                return NamoAlertContent(title: "기록 불러오기에 실패했습니다.\n다시 시도해주세요.")
+                return NamoAlertContent(title: "기록 불러오기에 실패했습니다.", message: "다시 시도해주세요.")
             case .custom(let content):
                 return NamoAlertContent(title: content.title, message: content.title)
             }
@@ -95,15 +98,17 @@ public struct HomeDiaryEditStore {
         var dateString: String { "\(schedule.startDate.toYMDEHM()) \n - \(schedule.endDate.toYMDEHM())" }
         var placeName: String { schedule.locationInfo?.locationName ?? "" }
         
-        /// 기록
+        // 기록
         var initialDiary: Diary = Diary()
         var diary: Diary = Diary()
         
         /// 본문 조건 적합 체크
         var isContentValid: Bool = true
+        // 이미지
         var selectedItems: [PhotosPickerItem] = []
         var initialImages: [Data] = []
         var selectedImages: [Data] = []
+        var deletedImages: [Int] = []
         /// 저장 버튼 상태
         var saveButtonState: NamoButton.NamoButtonType {
             return isChanged ? .active : .inactive
@@ -130,6 +135,7 @@ public struct HomeDiaryEditStore {
         case tapDeleteDiaryButton
         case tapSaveDiaryButton
         case handleAlertConfirm
+        case updateInitialValues
         case dismiss
         case onAppear
         case showToast(Toast)
@@ -141,6 +147,10 @@ public struct HomeDiaryEditStore {
         case postDiaryImages([UIImage])
         case addPostedDiaryImages([DiaryImage])
         case postDiary
+        case patchDiaryImages([UIImage])
+        case addPatchedDiaryImages([DiaryImage])
+        case patchDiary
+        case deleteDiary
     }
     
     public var body: some ReducerOf<Self> {
@@ -186,7 +196,12 @@ public struct HomeDiaryEditStore {
                 return .send(.showToast(.addImageFailed))
                 
             case .deleteImage(let index):
-                state.selectedImages.remove(at: index)
+                let deletedItem = state.selectedImages.remove(at: index)
+                // 기존에 로드한 이미지를 삭제하는 경우
+                if let initialIndex = state.initialImages.firstIndex(where: { $0 == deletedItem }) {
+                    state.diary.images.remove(at: initialIndex)
+                    state.deletedImages.append(initialIndex)
+                }
                 return .none
                 
             case .tapBackButton:
@@ -199,19 +214,39 @@ public struct HomeDiaryEditStore {
                 
             case .tapSaveDiaryButton:
                 guard state.saveButtonState == .active else { return .none }
-                let images: [UIImage] = state.selectedImages.compactMap { UIImage(data: $0) }
+
+                let imgChanged = state.initialImages != state.selectedImages
                 
-                return images.count > 0
-                ? .send(.postDiaryImages(images))
-                : .send(.postDiary)
+                if state.isRevise {
+                    if imgChanged {
+                        let changedImages = state.selectedImages
+                            .filter { !state.initialImages.contains($0) }
+                            .compactMap { UIImage(data: $0) }
+                        return .send(.patchDiaryImages(changedImages))
+                    } else {
+                        return .send(.patchDiary)
+                    }
+                } else {
+                    if imgChanged {
+                        let images: [UIImage] = state.selectedImages
+                            .compactMap { UIImage(data: $0) }
+                        return .send(.postDiaryImages(images))
+                    } else {
+                        return .send(.postDiary)
+                    }
+                }
                 
+            case .updateInitialValues:
+                state.initialDiary = state.diary
+                state.initialImages = state.selectedImages
+                return .none
+
             case .handleAlertConfirm:
                 switch state.alertContent {
                     
                 case .deleteDiary:
-                    print("삭제 api 호출")
                     state.alertContent = .none
-                    return .none
+                    return .send(.deleteDiary)
                 case .backWithoutSave, .loadFailed:
                     state.alertContent = .none
                     return .send(.dismiss)
@@ -257,7 +292,7 @@ public struct HomeDiaryEditStore {
             case .loadDiaryImages(let diary):
                 return .run { send in
                     do {
-                        let updatedImages = try await withThrowingTaskGroup(of: Data.self) { group in
+                        let updatedImages = try await withThrowingTaskGroup(of: (Int,Data).self) { group in
                             
                             for diaryImage in diary.images {
                                 group.addTask {
@@ -276,17 +311,21 @@ public struct HomeDiaryEditStore {
                                             }
                                         }
                                     }
-                                    return data
+                                    return (diaryImage.orderNumber, data)
                                 }
                             }
                             
-                            var images: [Data] = []
-                            for try await image in group {
-                                images.append(image)
+                            var imagesDict: [Int: Data] = [:]
+                            for try await (orderNumber, data) in group {
+                                imagesDict[orderNumber] = data
                             }
-                            return images
+                            
+                            let sortedImages = imagesDict.keys.sorted().compactMap { imagesDict[$0] }
+                            return sortedImages
+                                
                         }
                         
+                        // 최종 updatedImages 형태는 orderNumber대로 정렬된 imgData
                         for image in updatedImages {
                             await send(.addImage(.success(image)))
                         }
@@ -329,10 +368,67 @@ public struct HomeDiaryEditStore {
                 ] send in
                     do {
                         try await diaryUseCase.postDiary(scheduleId: id, reqDiary: diary)
+                        await send(.updateInitialValues)
                         await send(.showToast(.saveSuccess))
                     }
                     catch {
                         await send(.showToast(.saveFailed))
+                    }
+                }
+                
+            case .patchDiaryImages(let imgs):
+                return .run { [id = state.schedule.scheduleId] send in
+                    do {
+                        let diaryImgs = try await diaryUseCase.postDiaryImages(scheduleId: id, images: imgs)
+                        await send(.addPatchedDiaryImages(diaryImgs))
+                    } catch {
+                        print(error.localizedDescription)
+                        await send(.showToast(.uploadImageFailed))
+                    }
+                }
+                
+            case .addPatchedDiaryImages(let diaryImgs):
+                
+                let sortedDiaryImgs = diaryImgs.sorted { $0.orderNumber < $1.orderNumber }
+                state.diary.images.append(contentsOf: sortedDiaryImgs)
+                // 기존 이미지 순서 + 새로운 이미지 orderNum 순서 차례대로 새롭게 orderNum 배정
+                state.diary.images = state.diary.images.enumerated().map { index, img in
+                    var updatedImg = img
+                    updatedImg.orderNumber = index
+                    return updatedImg
+                }
+                
+                return .send(.patchDiary)
+            
+            case .patchDiary:
+                return .run { [diary = state.diary, deleted = state.deletedImages] send in
+
+                    do {
+                        guard let id = diary.id else {
+                            throw NSError.init(domain: "diaryId is nil", code: 1001)
+                        }
+                        
+                        try await diaryUseCase.patchDiary(id: id, reqDiary: diary, deleteImages: deleted)
+                        await send(.updateInitialValues)
+                        await send(.showToast(.saveSuccess))
+                    }
+                    catch {
+                        await send(.showToast(.saveFailed))
+                    }
+                    
+                }
+                
+            case .deleteDiary:
+                return .run { [diary = state.diary] send in
+                    do {
+                        guard let id = diary.id else {
+                            throw NSError.init(domain: "diaryId is nil", code: 1001)
+                        }
+                        try await diaryUseCase.deleteDiary(id: id)
+                        await send(.dismiss)
+                    }
+                    catch {
+                        await send(.showToast(.deleteFailed))
                     }
                 }
             }

@@ -16,6 +16,7 @@ public enum DiaryEndPoint {
     case getDiaryBySchedule(id: Int)
     case patchDiary(id: Int, reqDto: DiaryPatchRequestDTO)
     case postDiary(reqDto: DiaryPostRequestDTO)
+    case deleteDiary(id: Int)
 }
 
 extension DiaryEndPoint: EndPoint {
@@ -35,6 +36,8 @@ extension DiaryEndPoint: EndPoint {
             return "/\(id)"
         case .postDiary:
             return ""
+        case .deleteDiary(let id):
+            return "/\(id)"
         }
     }
     
@@ -50,6 +53,8 @@ extension DiaryEndPoint: EndPoint {
             return .patch
         case .postDiary:
             return .post
+        case .deleteDiary:
+            return .delete
         }
     }
     
@@ -65,6 +70,8 @@ extension DiaryEndPoint: EndPoint {
             return .requestJSONEncodable(parameters: reqDto)
         case .postDiary(let reqDto):
             return .requestJSONEncodable(parameters: reqDto)
+        case .deleteDiary:
+            return .requestPlain
         }
     }
     

@@ -26,7 +26,7 @@ public struct Diary: Equatable {
 
 public struct DiaryImage: Equatable {
     public let id: Int?
-    public let orderNumber: Int
+    public var orderNumber: Int
     public let imageUrl: String
     
     public init(
