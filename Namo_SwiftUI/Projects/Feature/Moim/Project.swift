@@ -24,7 +24,8 @@ let targets: [Target] = [
             dependencies: [
                 .feature(interface: .Moim),
                 .feature(interface: .PlaceSearch),
-                .feature(implements: .Friend)
+                .feature(implements: .Friend),
+                .feature(interface: .Activity)
             ]
         )
     ),

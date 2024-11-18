@@ -13,6 +13,7 @@ import FeatureMoimInterface
 import FeaturePlaceSearchInterface
 import FeatureFriendInterface
 import FeatureFriend
+import FeatureActivityInterface
 import SharedDesignSystem
 
 import ComposableArchitecture
@@ -51,6 +52,7 @@ public enum MoimEditScreen {
     case kakaoMap(PlaceSearchStore)
     case friendInvite(FriendInviteStore)
     case friendCalendar
+    case diary(DiaryEditStore)
 }
 
 @Reducer
@@ -63,7 +65,7 @@ public struct MoimEditCoordinator {
         public init(moimEditStore: MoimEditStore.State) {
             self.moimEditStore = moimEditStore
             self.placeSearchStore = .init()
-            self.friendInviteStore = .init()
+            self.friendInviteStore = .init()            
             self.routes = [.root(.createMoim(moimEditStore), embedInNavigationView: true)]
         }
         
@@ -147,6 +149,9 @@ public struct MoimEditCoordinator {
                 // MARK: - 친구캘린더 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToFriendCalendar))):
                 state.routes.push(.friendCalendar)
+                return .none
+            case .router(.routeAction(_, action: .createMoim(.goToDiary))):
+                state.routes.push(.diary(.init()))
                 return .none
             default:
                 return .none

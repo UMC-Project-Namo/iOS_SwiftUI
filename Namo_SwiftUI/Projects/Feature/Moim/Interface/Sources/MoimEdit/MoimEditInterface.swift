@@ -111,6 +111,8 @@ public struct MoimEditStore {
                 
         /// 위치정보 업데이트
         case locationUpdated(LocationInfo)
+        
+        case goToDiary
     }
     
     public var body: some ReducerOf<Self> {

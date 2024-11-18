@@ -21,7 +21,8 @@ let targets: [Target] = [
                 .feature(implements: .Onboarding),
 				.feature(implements: .Calendar),
                 .feature(implements: .PlaceSearch),
-				.feature(implements: .Archive)
+				.feature(implements: .Archive),
+                .feature(implements: .Activity)
 			]
 		)
 	)

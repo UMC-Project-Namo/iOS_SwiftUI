@@ -59,7 +59,7 @@ public struct MoimScheduleEditView: View {
         WithPerceptionTracking {
             VStack {
                 // deleteButton
-                DeleteCircleButton {                    
+                DeleteCircleButton {
                     store.send(.deleteButtonTapped)
                 }
                 .offset(y: 20)
@@ -89,8 +89,13 @@ public struct MoimScheduleEditView: View {
                                 // 친구 초대
                                 participantListView
                                 
-                                // 일정보기 버튼
-                                showScheduleButton
+                                VStack(spacing: 16) {
+                                    // 일정보기 버튼
+                                    showScheduleButton
+                                    
+                                    // 기록하기
+                                    showDiaryButton
+                                }
                             }
                             .padding(.horizontal, 30)
                         }
@@ -134,6 +139,26 @@ extension MoimScheduleEditView {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(.black, lineWidth: 1)
         )
+    }
+    
+    private var showDiaryButton: some View {
+        Button(action: {
+            store.send(.goToDiary)
+        }, label: {
+            HStack {
+                Image(asset: SharedDesignSystemAsset.Assets.icDiary)
+                    .renderingMode(.template)
+                
+                Text("기록하기")
+                    .font(.pretendard(.bold, size: 15))
+            }
+            .foregroundStyle(Color.white)
+            .padding(.vertical, 11)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: 136, maxHeight: 40)
+        })
+        .background(Color.namoOrange)
+        .cornerRadius(20)
     }
     
     /// 헤더뷰

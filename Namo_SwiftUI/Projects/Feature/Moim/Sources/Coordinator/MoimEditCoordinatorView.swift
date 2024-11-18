@@ -10,6 +10,7 @@ import SwiftUI
 import SharedDesignSystem
 import FeaturePlaceSearchInterface
 import FeatureFriend
+import FeatureActivityInterface
 
 import ComposableArchitecture
 import TCACoordinators
@@ -33,6 +34,8 @@ public struct MoimEditCoordinatorView: View {
                 FriendInviteView(store: store)
             case .friendCalendar:
                 Text("친구일정")
+            case .diary:
+                DiaryEditView()
             }
         }
         .background(ClearBackground())

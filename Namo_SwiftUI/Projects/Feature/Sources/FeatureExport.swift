@@ -13,3 +13,4 @@
 @_exported import FeatureCalendar
 @_exported import FeaturePlaceSearch
 @_exported import FeatureArchive
+@_exported import FeatureActivity
