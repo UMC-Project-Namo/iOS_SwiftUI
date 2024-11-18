@@ -106,9 +106,7 @@ public struct MoimScheduleEditView: View {
             .namoAlertView(isPresented: $store.isAlertPresented,
                            title: "모임 일정에서 정말 나가시겠어요?",
                            content: "모임 일정과 해당 일정의 기록을 더 이상 \n 보실 수 없으며, 방장 권한이 위임됩니다.",
-                           confirmAction: {
-                store.send(.deleteButtonConfirm)
-            })
+                           confirmAction: { store.send(.deleteButtonConfirm)})
             .background(ClearBackground())
         }
     }

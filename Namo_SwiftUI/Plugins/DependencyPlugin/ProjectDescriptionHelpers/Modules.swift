@@ -35,6 +35,7 @@ public extension ModulePath {
 		case Calendar
         case PlaceSearch
 		case Archive
+        case Activity
 		
 		public static let name: String = "Feature"
 	}
