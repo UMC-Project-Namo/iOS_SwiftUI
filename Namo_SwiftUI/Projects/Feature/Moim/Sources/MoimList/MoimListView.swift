@@ -25,22 +25,7 @@ struct MoimListView: View {
             ZStack {
                 if !store.moimList.isEmpty {
                     VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            Spacer()
-                            
-                            Text("지난 모임 일정 숨기기")
-                                .font(.pretendard(.medium, size: 12))
-                                .foregroundStyle(Color.textDisabled)
-                            
-                            Image(asset: store.filter == .allSchedules ? SharedDesignSystemAsset.Assets.icCheck : SharedDesignSystemAsset.Assets.icCheckSelected)
-                                .padding(.leading, 8)
-                                .onTapGesture {
-                                    store.send(.toggleFilterOption)
-                                }
-                        }
-                        .padding(.horizontal, 25)
-                        .padding(.vertical, 12)
-                        
+                        hidePastSchedule                        
                         ScrollView {
                             LazyVStack(spacing: 20) {
                                 ForEach(store.filteredList) { moimSchedule in
@@ -67,5 +52,23 @@ struct MoimListView: View {
                 store.send(.viewOnAppear)
             }
         }
+    }
+    
+    private var hidePastSchedule: some View {
+        HStack(spacing: 0) {
+            Spacer()
+            
+            Text("지난 모임 일정 숨기기")
+                .font(.pretendard(.medium, size: 12))
+                .foregroundStyle(Color.textDisabled)
+            
+            Image(asset: store.filter == .allSchedules ? SharedDesignSystemAsset.Assets.icCheck : SharedDesignSystemAsset.Assets.icCheckSelected)
+                .padding(.leading, 8)
+                .onTapGesture {
+                    store.send(.toggleFilterOption)
+                }
+        }
+        .padding(.horizontal, 25)
+        .padding(.vertical, 12)
     }
 }

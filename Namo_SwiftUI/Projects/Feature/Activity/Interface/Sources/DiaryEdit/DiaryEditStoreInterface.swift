@@ -24,6 +24,7 @@ public struct DiaryEditStore {
     
     public enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case backButtonTapped
     }
     
     public var body: some ReducerOf<Self> {

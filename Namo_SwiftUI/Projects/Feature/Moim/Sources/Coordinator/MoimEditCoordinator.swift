@@ -62,96 +62,100 @@ public struct MoimEditCoordinator {
     @ObservableState
     public struct State: Equatable {
         
-        public init(moimEditStore: MoimEditStore.State) {
-            self.moimEditStore = moimEditStore
-            self.placeSearchStore = .init()
-            self.friendInviteStore = .init()            
+        public init(moimEditStore: MoimEditStore.State = .init()) {
+            self.moimEdit = moimEditStore
+            self.placeSearch = .init()
+            self.friendInvite = .init()           
+            self.diaryEdit = .init()
             self.routes = [.root(.createMoim(moimEditStore), embedInNavigationView: true)]
-        }
-        
-        public init() {
-            self.moimEditStore = .init()
-            self.placeSearchStore = .init()
-            self.friendInviteStore = .init()
-            self.routes = [.root(.createMoim(.init()), embedInNavigationView: true)]
         }
         
         var routes: [Route<MoimEditScreen.State>]
         
-        var moimEditStore: MoimEditStore.State
-        var placeSearchStore: PlaceSearchStore.State
-        var friendInviteStore: FriendInviteStore.State
+        var diaryEdit: DiaryEditStore.State
+        var moimEdit: MoimEditStore.State
+        var placeSearch: PlaceSearchStore.State
+        var friendInvite: FriendInviteStore.State
     }
     
     public enum Action {
         case router(IndexedRouterActionOf<MoimEditScreen>)
-        case moimEditAction(MoimEditStore.Action)
-        case placeSearchAction(PlaceSearchStore.Action)
-        case friendInviteAction(FriendInviteStore.Action)
+        case moimEdit(MoimEditStore.Action)
+        case placeSearch(PlaceSearchStore.Action)
+        case friendInvite(FriendInviteStore.Action)
+        case diaryEdit(DiaryEditStore.Action)
     }
     
     public var body: some ReducerOf<Self> {
-        Scope(state: \.moimEditStore, action: \.moimEditAction) {
+        Scope(state: \.moimEdit, action: \.moimEdit) {
             MoimEditStore()
         }
-        Scope(state: \.placeSearchStore, action: \.placeSearchAction) {
+        Scope(state: \.placeSearch, action: \.placeSearch) {
             PlaceSearchStore()
         }
-        Scope(state: \.friendInviteStore, action: \.friendInviteAction) {
+        Scope(state: \.friendInvite, action: \.friendInvite) {
             FriendInviteStore()
+        }
+        Scope(state: \.diaryEdit, action: \.diaryEdit) {
+            DiaryEditStore()
         }
         
         Reduce<State, Action> { state, action in
             switch action {
                 //MARK: - 장소검색 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToKakaoMapView))):
-                state.routes.push(.kakaoMap(state.placeSearchStore))
+                state.routes.push(.kakaoMap(state.placeSearch))
                 return .none
                 // MARK: - 모임생성 수정 완료/취소/삭제
             case .router(.routeAction(_, action: .createMoim(.cancleButtonTapped))),
                     .router(.routeAction(_, action: .createMoim(.createButtonConfirm))),
                     .router(.routeAction(_, action: .createMoim(.deleteConfirm))):
-                return .send(.moimEditAction(.cancleButtonTapped))
+                return .send(.moimEdit(.cancleButtonTapped))
                 // MARK: - 장소선택 완료/취소
             case .router(.routeAction(_, action: .kakaoMap(.backButtonTapped))):
                 if case var .createMoim(editStore) = state.routes[0].screen {
-                    editStore.moimSchedule.locationName = state.placeSearchStore.locationName
-                    editStore.moimSchedule.latitude = state.placeSearchStore.y
-                    editStore.moimSchedule.longitude = state.placeSearchStore.x
-                    editStore.moimSchedule.kakaoLocationId = state.placeSearchStore.id
+                    editStore.moimSchedule.locationName = state.placeSearch.locationName
+                    editStore.moimSchedule.latitude = state.placeSearch.y
+                    editStore.moimSchedule.longitude = state.placeSearch.x
+                    editStore.moimSchedule.kakaoLocationId = state.placeSearch.id
                     state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
                 }
                 return .none
                 // MARK: - 검색결과 업데이트
             case let .router(.routeAction(_, action: .kakaoMap(.responsePlaceList(placeList)))):
-                return .send(.placeSearchAction(.responsePlaceList(placeList)))
+                return .send(.placeSearch(.responsePlaceList(placeList)))
                 // MARK: - 장소선택
             case let .router(.routeAction(_, action: .kakaoMap(.poiTapped(poiID)))):
-                guard let place = state.placeSearchStore.placeList.filter({ $0.id == poiID }).first else { return .none }
-                return .send(.placeSearchAction(.locationUpdated(place)))
+                guard let place = state.placeSearch.placeList.filter({ $0.id == poiID }).first else { return .none }
+                return .send(.placeSearch(.locationUpdated(place)))
                 // MARK: - 친구초대 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToFriendInvite))):
-                state.routes.push(.friendInvite(state.friendInviteStore))
+                state.routes.push(.friendInvite(state.friendInvite))
                 return .none
                 // MARK: - 친구 초대 뒤로가기
             case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
                 if case var .createMoim(editStore) = state.routes[0].screen {
-                    editStore.moimSchedule.participants = state.friendInviteStore.addedFriend.map { $0.toParticipant() }
+                    editStore.moimSchedule.participants = state.friendInvite.addedFriend.map { $0.toParticipant() }
                     state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
                 }
                 return .none
                 // MARK: - 친구 초대
             case let .router(.routeAction(_, action: .friendInvite(.addFriend(friend)))):
-                return .send(.friendInviteAction(.addFriend(friend)))
+                return .send(.friendInvite(.addFriend(friend)))
                 // MARK: - 초대친구 제거
             case let .router(.routeAction(_, action: .friendInvite(.removeFriend(memberId)))):
-                return .send(.friendInviteAction(.removeFriend(memberId: memberId)))
+                return .send(.friendInvite(.removeFriend(memberId: memberId)))
                 // MARK: - 친구캘린더 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToFriendCalendar))):
                 state.routes.push(.friendCalendar)
                 return .none
+               // MARK: - 모임기록 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToDiary))):
                 state.routes.push(.diary(.init()))
+                return .none
+              // MARK: - 모임기록 뒤로가기
+            case .router(.routeAction(_, action: .diary(.backButtonTapped))):
+                state.routes.pop()
                 return .none
             default:
                 return .none

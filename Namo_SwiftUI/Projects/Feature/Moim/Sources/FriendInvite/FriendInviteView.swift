@@ -26,56 +26,24 @@ public struct FriendInviteView: View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
                 searchSection
-                    .padding(.top, 16)
-                    .padding(.bottom, 20)
-                    .padding(.horizontal, 25)
-                
-                VStack(spacing: 0) {
-                    HStack {
-                        Text("초대한 친구")
-                            .font(.pretendard(.bold, size: 15))
-                            .foregroundStyle(Color.mainText)
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            withAnimation {
-                                showingFriendInvites.toggle()
-                            }
-                        }, label: {
-                            Image(asset: SharedDesignSystemAsset.Assets.icUp)
-                                .rotationEffect(.degrees(showingFriendInvites ? 0 : 180))
-                        })
-                    }
-                    .padding(.horizontal, 25)
-                    
-                    if showingFriendInvites {
-                        FriendInvitedListView(store: store)                            
-                            .padding(.top, 20)
-                    }
-                    
-                    FriendSearchListView(store: store)
-                        .padding(.top, 20)
+                invitedFriends
+                if showingFriendInvites {
+                    friendInvitedList
                 }
-                .padding(.top, 20)
-                
+                friendSearchList
+                    .padding(.top, 20)
                 Spacer()
-            }            
+            }
             .namoNabBar(center: {
-                Text("친구 초대하기")
-                    .font(.pretendard(.bold, size: 16))
-                    .foregroundStyle(.black)
+                headerTitle
             }, left: {
-                Button(action: {
-                    store.send(.backButtonTapped)
-                }, label: {
-                    Image(asset: SharedDesignSystemAsset.Assets.icArrowLeftThick)
-                })
+                backButton
             })
         }
     }
 }
 
+// MARK: - SubViews
 extension FriendInviteView {
     private var searchSection: some View {
         HStack(spacing: 32) {
@@ -115,5 +83,52 @@ extension FriendInviteView {
             .tint(Color.white)
             
         }
+        .padding(.top, 16)
+        .padding(.bottom, 20)
+        .padding(.horizontal, 25)
+    }
+    
+    private var invitedFriends: some View {
+        HStack {
+            Text("초대한 친구")
+                .font(.pretendard(.bold, size: 15))
+                .foregroundStyle(Color.mainText)
+            
+            Spacer()
+            
+            Button(action: {
+                withAnimation {
+                    showingFriendInvites.toggle()
+                }
+            }, label: {
+                Image(asset: SharedDesignSystemAsset.Assets.icUp)
+                    .rotationEffect(.degrees(showingFriendInvites ? 0 : 180))
+            })
+        }
+        .padding(.horizontal, 25)
+    }
+    
+    private var friendInvitedList: some View {
+        FriendInvitedListView(store: store)
+            .padding(.top, 20)
+    }
+    
+    private var friendSearchList: some View {
+        FriendSearchListView(store: store)
+            .padding(.top, 20)
+    }
+    
+    private var backButton: some View {
+        Button(action: {
+            store.send(.backButtonTapped)
+        }, label: {
+            Image(asset: SharedDesignSystemAsset.Assets.icArrowLeftThick)
+        })
+    }
+    
+    private var headerTitle: some View {
+        Text("친구 초대하기")
+            .font(.pretendard(.bold, size: 16))
+            .foregroundStyle(.black)
     }
 }

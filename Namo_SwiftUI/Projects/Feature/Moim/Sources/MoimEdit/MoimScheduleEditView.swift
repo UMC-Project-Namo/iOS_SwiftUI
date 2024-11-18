@@ -59,41 +59,18 @@ public struct MoimScheduleEditView: View {
         WithPerceptionTracking {
             VStack {
                 // deleteButton
-                DeleteCircleButton {
-                    store.send(.deleteButtonTapped)
-                }
-                .offset(y: 20)
-                .opacity(!store.moimSchedule.isOwner ? 0 : 1)
-                
+                deleteButton
                 WithPerceptionTracking {
                     VStack(spacing: 0) {
-                        // title
                         headerView
-                            .padding(.horizontal, 20)
-                        
-                        // content
                         ScrollView {
                             VStack(spacing: 30) {
-                                // textField
-                                TextField("내 모임", text: $store.moimSchedule.title)
-                                    .font(.pretendard(.bold, size: 22))
-                                    .foregroundStyle(Color.mainText)
-                                    .padding(.top, 20)
-                                
-                                // imagePicker
+                                textField
                                 imagePickerView
-                                
-                                // 장소, 시간
                                 settingView
-                                
-                                // 친구 초대
                                 participantListView
-                                
                                 VStack(spacing: 16) {
-                                    // 일정보기 버튼
                                     showScheduleButton
-                                    
-                                    // 기록하기
                                     showDiaryButton
                                 }
                             }
@@ -118,6 +95,21 @@ public struct MoimScheduleEditView: View {
 }
 
 extension MoimScheduleEditView {
+    /// 삭제
+    private var deleteButton: some View {
+        DeleteCircleButton {
+            store.send(.deleteButtonTapped)
+        }
+        .offset(y: 20)
+        .opacity(!store.moimSchedule.isOwner ? 0 : 1)
+    }
+    /// 일정 제목
+    private var textField: some View {
+        TextField("내 모임", text: $store.moimSchedule.title)
+            .font(.pretendard(.bold, size: 22))
+            .foregroundStyle(Color.mainText)
+            .padding(.top, 20)
+    }
     
     /// 일정 보기
     private var showScheduleButton: some View {
@@ -196,6 +188,7 @@ extension MoimScheduleEditView {
             
         }
         .frame(height: 48)
+        .padding(.horizontal, 20)
     }
     
     /// 커버이미지 피커

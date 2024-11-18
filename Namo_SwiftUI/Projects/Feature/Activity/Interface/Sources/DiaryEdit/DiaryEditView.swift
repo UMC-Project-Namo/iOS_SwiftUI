@@ -11,9 +11,12 @@ import SharedDesignSystem
 
 import ComposableArchitecture
 
-public struct DiaryEditView: View {
+public struct DiaryEditView: View {    
+    let store: StoreOf<DiaryEditStore>
     
-    public init() {}
+    public init(store: StoreOf<DiaryEditStore>) {
+        self.store = store
+    }
     public var body: some View {
         VStack {
             
@@ -22,11 +25,7 @@ public struct DiaryEditView: View {
             Text("나모 3기 회식")
                 .font(.pretendard(.bold, size: 22))
         } left: {
-            NamoBackButton(action: {})
+            NamoBackButton(action: {store.send(.backButtonTapped)})
         }
     }
-}
-
-#Preview {
-    DiaryEditView()
 }

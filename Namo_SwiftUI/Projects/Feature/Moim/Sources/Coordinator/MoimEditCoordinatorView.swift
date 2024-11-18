@@ -34,8 +34,8 @@ public struct MoimEditCoordinatorView: View {
                 FriendInviteView(store: store)
             case .friendCalendar:
                 Text("친구일정")
-            case .diary:
-                DiaryEditView()
+            case let .diary(store):
+                DiaryEditView(store: store)
             }
         }
         .background(ClearBackground())
