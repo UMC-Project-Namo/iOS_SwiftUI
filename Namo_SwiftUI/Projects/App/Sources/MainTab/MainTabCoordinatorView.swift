@@ -20,9 +20,9 @@ struct MainTabCoordinatorView: View {
         WithPerceptionTracking {
             TabView(selection: $store.currentTab) {
 				HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
-                    .tag(Tab.home)
+                    .tag(Tab.home)      
                 
-                MoimCoordinatorView(store: store.scope(state: \.moim, action: \.moim))
+                GroupListCoordinatorView(store: store.scope(state: \.group, action: \.group))
                     .tag(Tab.group)
             }
             .overlay(alignment: .bottom) {

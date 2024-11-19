@@ -53,7 +53,7 @@ struct AppCoordinator {
                 
             // mainTab 이동 - 로그인 체크 결과 goToMainScreen 시
             case .router(.routeAction(_, action: .onboarding(.goToMainScreen))):
-                state.routes = [.root(.mainTab(.init(currentTab: .home, home: .initialState, moim: .initialState)), embedInNavigationView: true)]
+                state.routes = [.root(.mainTab(.init(currentTab: .home, home: .initialState, groupList: .initialState)), embedInNavigationView: true)]
                 return .none
                 
             // Notification 에러 핸들링

@@ -13,3 +13,9 @@
 @_exported import FeatureCalendar
 @_exported import FeaturePlaceSearch
 @_exported import FeatureArchive
+@_exported import FeatureGroupList
+@_exported import FeatureGatheringListInterface
+@_exported import FeatureGatheringList
+@_exported import FeatureGatheringSchedule
+@_exported import FeatureKakaoMap
+@_exported import FeatureFriendInvite
