@@ -26,14 +26,10 @@ import SharedDesignSystem
 
 public struct MoimScheduleEditView: View {
     @Perception.Bindable private var store: StoreOf<MoimEditStore>
-    @Perception.Bindable private var placeStore: StoreOf<PlaceSearchStore>
     @State var draw = false
     
     public init(store: StoreOf<MoimEditStore>) {
         self.store = store
-        self.placeStore = .init(initialState: PlaceSearchStore.State(), reducer: {
-            PlaceSearchStore()
-        })
     }
     
     
@@ -58,44 +54,50 @@ public struct MoimScheduleEditView: View {
     public  var body: some View {
         WithPerceptionTracking {
             VStack {
-                // deleteButton
                 deleteButton
-                WithPerceptionTracking {
-                    VStack(spacing: 0) {
-                        headerView
-                        ScrollView {
-                            VStack(spacing: 30) {
-                                textField
-                                imagePickerView
-                                settingView
-                                participantListView
-                                VStack(spacing: 16) {
-                                    showScheduleButton
-                                    showDiaryButton
-                                }
-                            }
-                            .padding(.horizontal, 30)
+                VStack(spacing: 0) {
+                    headerView
+                    ScrollView {
+                        VStack {
+                            textField
+                            Spacer().frame(height: 30)
+                            imagePickerView
+                            Spacer().frame(height: 30)
+                            settingView
+                            Spacer().frame(height: 30)
+                            participantListView
+                            Spacer().frame(height: 30)
+                            showScheduleButton
+                            Spacer().frame(height: 16)
+                            showDiaryButton
                         }
+                        .padding(.horizontal, 30)
                     }
                 }
                 .background(.white)
-                .clipShape(UnevenRoundedRectangle(cornerRadii: .init(
-                    topLeading: 15,
-                    topTrailing: 15)))
+                .clipShape(
+                   UnevenRoundedRectangle(
+                       cornerRadii: .init(
+                           topLeading: 15,
+                           topTrailing: 15
+                       )
+                   )
+                )
                 .shadow(radius: 10)
             }
             .edgesIgnoringSafeArea(.bottom)
             .namoAlertView(isPresented: $store.isAlertPresented,
                            title: "모임 일정에서 정말 나가시겠어요?",
                            content: "모임 일정과 해당 일정의 기록을 더 이상 \n 보실 수 없으며, 방장 권한이 위임됩니다.",
-                           confirmAction: { store.send(.deleteButtonConfirm)})
+                           confirmAction: { store.send(.deleteButtonConfirm)} )
             .background(ClearBackground())
+            .onAppear { store.send(.viewOnAppear) }
         }
     }
 }
 
+// MARK: - 삭제 버튼
 extension MoimScheduleEditView {
-    /// 삭제
     private var deleteButton: some View {
         DeleteCircleButton {
             store.send(.deleteButtonTapped)
@@ -103,15 +105,20 @@ extension MoimScheduleEditView {
         .offset(y: 20)
         .opacity(!store.moimSchedule.isOwner ? 0 : 1)
     }
-    /// 일정 제목
+}
+
+// MARK: - 일정 TextField
+extension MoimScheduleEditView {
     private var textField: some View {
         TextField("내 모임", text: $store.moimSchedule.title)
             .font(.pretendard(.bold, size: 22))
             .foregroundStyle(Color.mainText)
             .padding(.top, 20)
     }
-    
-    /// 일정 보기
+}
+
+// MARK: - 일정보기 버튼
+extension MoimScheduleEditView {
     private var showScheduleButton: some View {
         Button(action: {
             store.send(.goToFriendCalendar)
@@ -132,7 +139,10 @@ extension MoimScheduleEditView {
                 .stroke(.black, lineWidth: 1)
         )
     }
-    
+}
+
+// MARK: - 활동 기록 보기
+extension MoimScheduleEditView {
     private var showDiaryButton: some View {
         Button(action: {
             store.send(.goToDiary)
@@ -152,8 +162,10 @@ extension MoimScheduleEditView {
         .background(Color.namoOrange)
         .cornerRadius(20)
     }
-    
-    /// 헤더뷰
+}
+
+// MARK: - NavigationTitle
+extension MoimScheduleEditView {
     private var headerView: some View {
         HStack(alignment: .center, spacing: 0) {
             Button(action: {
@@ -190,8 +202,10 @@ extension MoimScheduleEditView {
         .frame(height: 48)
         .padding(.horizontal, 20)
     }
-    
-    /// 커버이미지 피커
+}
+
+// MARK: - ImagePicker
+extension MoimScheduleEditView {
     private var imagePickerView: some View {
         HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 10) {
@@ -229,8 +243,10 @@ extension MoimScheduleEditView {
             }
         }
     }
-    
-    /// 날짜선택
+}
+
+// MARK: - 모임 설정(시작, 종료, 장소)
+extension MoimScheduleEditView {
     private var settingView: some View {
         VStack(spacing: 20) {
             VStack {
@@ -301,13 +317,8 @@ extension MoimScheduleEditView {
                 }
                 
                 if !store.moimSchedule.kakaoLocationId.isEmpty {
-                    KakaoMapView(store: placeStore, draw: $draw)
-                        .id(store.moimSchedule.kakaoLocationId)
-                        .onAppear {
-                            placeStore.x = store.moimSchedule.latitude
-                            placeStore.y = store.moimSchedule.longitude
-                            draw = true
-                        }
+                    KakaoMapView(store: store.scope(state: \.kakaoMap, action: \.kakaoMap), draw: $draw)
+                        .onAppear { draw = true }
                         .onDisappear { draw = false }
                         .allowsHitTesting(false)
                         .frame(maxWidth: .infinity, minHeight: 190)
@@ -316,8 +327,10 @@ extension MoimScheduleEditView {
             }
         }
     }
-    
-    /// 참가자 리스트
+}
+
+// MARK: - 친구리스트
+extension MoimScheduleEditView {
     private var participantListView: some View {
         VStack(spacing: 12) {
             HStack {

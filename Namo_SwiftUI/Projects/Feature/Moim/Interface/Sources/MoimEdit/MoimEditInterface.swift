@@ -12,6 +12,7 @@ import PhotosUI
 import DomainMoimInterface
 import DomainPlaceSearchInterface
 import DomainFriend
+import FeaturePlaceSearchInterface
 
 import ComposableArchitecture
 
@@ -41,6 +42,9 @@ public struct MoimEditStore {
         /// 모임일정
         public var moimSchedule: MoimSchedule
         
+        /// 카카오맵
+        public var kakaoMap: KakaoMapStore.State = .init()
+        
         /// 커버이미지
         public var coverImageItem: PhotosPickerItem?
         
@@ -57,14 +61,9 @@ public struct MoimEditStore {
         public var isAlertPresented: Bool = false
         
         /// 모임일정 조회, 편집 initializer
-        public init(moimSchedule: MoimSchedule) {
+        public init(moimSchedule: MoimSchedule = .init()) {
             self.moimSchedule = moimSchedule
-            mode = self.moimSchedule.isOwner ? .edit : .view            
-        }
-        
-        /// 모임일정 생성 initializer
-        public init() {
-            self.moimSchedule = .init()
+            mode = self.moimSchedule.isOwner ? .edit : .view
         }
     }
     
@@ -108,15 +107,21 @@ public struct MoimEditStore {
         
         /// 친구캘린더 이동
         case goToFriendCalendar
-                
-        /// 위치정보 업데이트
-        case locationUpdated(LocationInfo)
         
+        /// 다이어리 이동
         case goToDiary
+        
+        /// 지도관련
+        case kakaoMap(KakaoMapStore.Action)        
+        
+        case viewOnAppear
     }
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
+        Scope(state: \.kakaoMap, action: \.kakaoMap) {
+            KakaoMapStore()
+        }
         
         reducer
     }

@@ -92,6 +92,7 @@ public struct MoimEditCoordinator {
         }
         Scope(state: \.placeSearch, action: \.placeSearch) {
             PlaceSearchStore()
+                ._printChanges()
         }
         Scope(state: \.friendInvite, action: \.friendInvite) {
             FriendInviteStore()
@@ -112,32 +113,10 @@ public struct MoimEditCoordinator {
                     .router(.routeAction(_, action: .createMoim(.deleteConfirm))):
                 return .send(.moimEdit(.cancleButtonTapped))
                 // MARK: - 장소선택 완료/취소
-            case .router(.routeAction(_, action: .kakaoMap(.backButtonTapped))):
+            case .router(.routeAction(_, action: .kakaoMap(.backButtonTapped))):                
                 if case var .createMoim(editStore) = state.routes[0].screen {
-                    editStore.moimSchedule.locationName = state.placeSearch.locationName
-                    editStore.moimSchedule.latitude = state.placeSearch.y
-                    editStore.moimSchedule.longitude = state.placeSearch.x
-                    editStore.moimSchedule.kakaoLocationId = state.placeSearch.id
                     state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
-                }
-                return .none
-                // MARK: - 검색결과 업데이트
-            case let .router(.routeAction(_, action: .kakaoMap(.responsePlaceList(placeList)))):
-                return .send(.placeSearch(.responsePlaceList(placeList)))
-                // MARK: - 장소선택
-            case let .router(.routeAction(_, action: .kakaoMap(.poiTapped(poiID)))):
-                guard let place = state.placeSearch.placeList.filter({ $0.id == poiID }).first else { return .none }
-                return .send(.placeSearch(.locationUpdated(place)))
-                // MARK: - 친구초대 Navigation
-            case .router(.routeAction(_, action: .createMoim(.goToFriendInvite))):
-                state.routes.push(.friendInvite(state.friendInvite))
-                return .none
-                // MARK: - 친구 초대 뒤로가기
-            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
-                if case var .createMoim(editStore) = state.routes[0].screen {
-                    editStore.moimSchedule.participants = state.friendInvite.addedFriend.map { $0.toParticipant() }
-                    state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
-                }
+                }                
                 return .none
                 // MARK: - 친구 초대
             case let .router(.routeAction(_, action: .friendInvite(.addFriend(friend)))):
@@ -145,9 +124,19 @@ public struct MoimEditCoordinator {
                 // MARK: - 초대친구 제거
             case let .router(.routeAction(_, action: .friendInvite(.removeFriend(memberId)))):
                 return .send(.friendInvite(.removeFriend(memberId: memberId)))
+                // MARK: - 친구초대 Navigation
+            case .router(.routeAction(_, action: .createMoim(.goToFriendInvite))):
+                state.routes.push(.friendInvite(state.friendInvite))
+                return .none
                 // MARK: - 친구캘린더 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToFriendCalendar))):
                 state.routes.push(.friendCalendar)
+                return .none
+                // MARK: - 친구 초대 뒤로가기
+            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
+                if case var .createMoim(editStore) = state.routes[0].screen {
+                    state.routes = [.root(.createMoim(editStore), embedInNavigationView: true)]
+                }
                 return .none
                // MARK: - 모임기록 Navigation
             case .router(.routeAction(_, action: .createMoim(.goToDiary))):

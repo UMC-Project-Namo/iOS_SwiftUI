@@ -273,11 +273,10 @@ extension DiaryEditView {
     private var diaryPages: some View {
         VStack {
             TabView(selection: $selection) {
-                
                 ForEach(tabItems, id: \.self) { index in
-                    if index == tabItems.count - 1 {
-                        //                        diaryEditView
-                        activityView
+                    let isFirstPage = index == tabItems.count - 1
+                    if isFirstPage {
+                        diaryEditView
                     }
                     else {
                         activityView

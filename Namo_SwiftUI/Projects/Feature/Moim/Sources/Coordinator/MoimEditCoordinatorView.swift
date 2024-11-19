@@ -28,8 +28,7 @@ public struct MoimEditCoordinatorView: View {
             case let .createMoim(store):
                 MoimScheduleEditView(store: store)
             case let .kakaoMap(store):
-                PlaceSearchView(store: store)
-                .toolbar(.hidden, for: .navigationBar)
+                PlaceSearchView(store: store)            
             case let .friendInvite(store):
                 FriendInviteView(store: store)
             case .friendCalendar:

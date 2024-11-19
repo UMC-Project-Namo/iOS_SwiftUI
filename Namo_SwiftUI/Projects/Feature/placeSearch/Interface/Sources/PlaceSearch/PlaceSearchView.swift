@@ -25,23 +25,24 @@ public struct PlaceSearchView: View {
             }
         }
         .edgesIgnoringSafeArea(.bottom)
+        .toolbar(.hidden, for: .navigationBar)
     }
     
     private var placeSearchView: some View {
         VStack(spacing: 0) {
             mapView
-            searchAndResultView
+            searchResultView
         }
     }
     
     private var mapView: some View {
-        KakaoMapView(store: store, draw: $draw)
+        KakaoMapView(store: store.scope(state: \.kakaoMap, action: \.kakaoMap), draw: $draw)
             .onAppear { draw = true }
             .onDisappear { draw = false }
             .frame(maxWidth: .infinity, maxHeight: 380)
     }
     
-    private var searchAndResultView: some View {
+    private var searchResultView: some View {
         VStack {
             searchBar
             searchResults
@@ -86,14 +87,14 @@ public struct PlaceSearchView: View {
     private var searchResults: some View {
         ScrollView {
             LazyVStack(spacing: 20) {
-                ForEach(store.placeList, id: \.id) { place in
+                ForEach(store.searchList, id: \.id) { place in
                     Button(action: {
-                        store.send(.poiTapped(place.id))
+                        store.send(.searchResultTapped(poiID: place.id))
                     }, label: {
                         PlaceCell(placeName: place.placeName,
                                   addressName: place.addressName,
                                   roadAddressName: place.roadAddressName,
-                                  isSelected: place.id == store.id)
+                                  isSelected: place.id == store.currentPlace?.id ?? "")
                     })
                 }
             }
@@ -104,8 +105,8 @@ public struct PlaceSearchView: View {
     }
     
     private var backButton: some View {
-        Button(action: {            
-            store.send(.backButtonTapped)            
+        Button(action: {
+            store.send(.backButtonTapped)
         }, label: {
             Circle()
                 .overlay (

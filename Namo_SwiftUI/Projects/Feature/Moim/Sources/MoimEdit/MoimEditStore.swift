@@ -16,7 +16,7 @@ import ComposableArchitecture
 
 extension MoimEditStore {
     public init() {
-        @Dependency(\.moimUseCase) var moimUseCase        
+        @Dependency(\.moimUseCase) var moimUseCase
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
             switch action {
@@ -32,7 +32,6 @@ extension MoimEditStore {
             case let .selectedImage(image):
                 state.coverImage = image
                 return .none
-                
             case .startPickerTapped:
                 state.isStartPickerPresented.toggle()
                 return .none
@@ -43,7 +42,7 @@ extension MoimEditStore {
                 
             case .createButtonTapped:
                 return .run { [state = state] send in
-                    if state.mode == .compose {                        
+                    if state.mode == .compose {
                         try await moimUseCase.createMoim(state.moimSchedule, state.coverImage)
                     } else {
                         try await moimUseCase.editMoim(state.moimSchedule, state.coverImage)
@@ -58,8 +57,8 @@ extension MoimEditStore {
                     try await moimUseCase.withdrawMoim(state.moimSchedule.scheduleId)
                     await send(.deleteConfirm)
                 }
-            case .createButtonConfirm:
-                return .none
+            case .viewOnAppear:
+                return .send(.kakaoMap(.createPoi(longitude: state.moimSchedule.longitude, latitude: state.moimSchedule.latitude)))
             default:
                 return .none
             }

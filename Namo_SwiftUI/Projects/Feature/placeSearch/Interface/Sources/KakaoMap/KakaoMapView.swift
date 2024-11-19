@@ -5,23 +5,23 @@
 //  Created by 권석기 on 10/15/24.
 //
 
-import SwiftUI
 import Combine
-
-import KakaoMapsSDK
-import ComposableArchitecture
+import SwiftUI
 
 import DomainPlaceSearchInterface
 import SharedUtil
 import SharedDesignSystem
 
+import ComposableArchitecture
+import KakaoMapsSDK
+
 public struct KakaoMapView: UIViewRepresentable {
-    let store: StoreOf<PlaceSearchStore>
+    var store: StoreOf<KakaoMapStore>
     @Binding var draw: Bool
     
-    public init(store: StoreOf<PlaceSearchStore>, draw: Binding<Bool>) {
-        self.store = store
+    public init(store: StoreOf<KakaoMapStore>, draw: Binding<Bool>) {
         self._draw = draw
+        self.store = store
     }
     
     public func makeUIView(context: Context) -> some KMViewContainer {
@@ -56,16 +56,13 @@ public struct KakaoMapView: UIViewRepresentable {
 }
 
 public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEventDelegate, GuiEventDelegate {
-    
-    private let store: ViewStoreOf<PlaceSearchStore>
-    
+    private let store: ViewStoreOf<KakaoMapStore>
     private var cancellables = Set<AnyCancellable>()
-    
     public var controller: KMController?
     
     // MARK: - Initializer
-    public init(store: StoreOf<PlaceSearchStore>) {
-        self.store = ViewStoreOf<PlaceSearchStore>(store, observe: { $0 })
+    public init(store: StoreOf<KakaoMapStore>) {
+        self.store = ViewStoreOf<KakaoMapStore>(store, observe: { $0 })
         super.init()
     }
     
@@ -91,9 +88,8 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
     /// 뷰가 성공적으로 추가되었을떄 구독시작
     public func addViewSucceeded(_ viewName: String, viewInfoName: String) {
         let mapView: KakaoMap = controller?.getView("mapview") as! KakaoMap
-        mapView.eventDelegate = self
+        mapView.eventDelegate = self                
         
-        // 검색리스트 구독
         store.publisher
             .placeList
             .dropFirst()
@@ -108,30 +104,29 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
                 self?.createPoiStyle()
                 self?.createPois(placeList)
             }
-            .store(in: &cancellables)
+            .store(in: &cancellables)                            
         
-        // 검색ID 구독
         store.publisher
-            .id
+            .currentPoiID
+            .filter { !$0.isEmpty }
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] poiID in
-                self?.changePoiStyle(poiID: poiID)
-                self?.showInfoWindow(poiID: poiID)
+                guard let self = self else  { return }
+                changePoiStyle(poiID: poiID)
+                showInfoWindow(poiID: poiID)
             })
             .store(in: &cancellables)
         
-        // 검색결과x 좌표만 있는경우
         Publishers
-            .CombineLatest(store.publisher.x, store.publisher.y)
-            .filter { [weak self] (x, y) in
-                guard let self = self else { return false }
-                return store.placeList.isEmpty
-            }
-            .filter { (x, y) in x != 0 && y != 0 }
-            .sink(receiveValue: { [weak self] (x, y) in
-                self?.createPoiStyle()
-                self?.createLabelLayer()
-                self?.createPoi(longitude: y, latitude: x)
+            .CombineLatest(store.publisher.latitude, store.publisher.longitude)
+            .first()
+            .filter { (lat, lng) in lat != 0 && lng != 0 }
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] (lat, lng) in
+                guard let self = self else  { return }
+                createPoiStyle()
+                createLabelLayer()
+                createPoi(longitude: lng, latitude: lat)
             })
             .store(in: &cancellables)
     }
@@ -202,7 +197,7 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         let poi1 = layer?.addPoi(option:poiOption, at: MapPoint(longitude: longitude, latitude: latitude))
         
         poi1?.show()
-                
+        
         layer?.showAllPois()
         
         moveCamera(longitude: longitude, latitude: latitude, durationInMillis: 0)
@@ -295,7 +290,6 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         // 카메라 이동
         moveCamera(longitude: position.wgsCoord.longitude, latitude: position.wgsCoord.latitude, durationInMillis: 800)
         
-        // id 저장
-        store.send(.poiTapped(poiID))
+        store.send(.poiTapped(poiID: poiID))
     }
 }
