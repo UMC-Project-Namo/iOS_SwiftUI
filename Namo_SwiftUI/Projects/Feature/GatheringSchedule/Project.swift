@@ -17,7 +17,8 @@ let targets: [Target] = [
 			dependencies: [
 				.feature(interface: .GatheringSchedule),
                 .feature(interface: .KakaoMap),
-                .feature(interface: .FriendInvite)
+                .feature(interface: .FriendInvite),
+                .feature(interface: .LocationSearch),
 			]
 		)
 	),

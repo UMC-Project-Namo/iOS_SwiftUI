@@ -25,6 +25,7 @@ let targets: [Target] = [
                 .feature(implements: .GatheringList),
                 .feature(implements: .FriendInvite),
                 .feature(implements: .KakaoMap),
+                .feature(implements: .LocationSearch),
 			]
 		)
 	)

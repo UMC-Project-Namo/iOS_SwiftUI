@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+import FeatureGatheringScheduleInterface
+
 import ComposableArchitecture
 import TCACoordinators
 
@@ -23,6 +25,8 @@ public struct GroupListCoordinatorView: View {
                 switch screen.case {
                 case let .group(store):
                     GroupView(store: store)
+                case let .schedule(store):
+                    ScheduleCoordinatorView(store: store)
                 }
             }
         }

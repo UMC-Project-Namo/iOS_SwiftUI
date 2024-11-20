@@ -38,7 +38,8 @@ public extension ModulePath {
         case GatheringList
         case FriendInvite
         case KakaoMap
-		
+		case LocationSearch
+        
 		public static let name: String = "Feature"
 	}
 }

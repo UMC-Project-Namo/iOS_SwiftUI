@@ -19,6 +19,14 @@ struct GroupView: View {
             state: \.gatherList,
             action: \.gatherList)
         )
+        .overlay(alignment: .bottomTrailing) {
+            Button(action: {
+                store.send(.presentComposeSheet)
+            }, label: {
+                Text("add")
+            })
+            .padding(10)
+        }
     }
 }
 

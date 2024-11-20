@@ -21,6 +21,7 @@ public struct GroupViewStore {
     
     public enum Action {
         case gatherList(GatheringListStore.Action)
+        case presentComposeSheet
     }
     
     public var body: some ReducerOf<Self> {
@@ -29,7 +30,10 @@ public struct GroupViewStore {
         }
         
         Reduce { state, action in
-            return .none
+            switch action {
+            default:
+                return .none
+            }
         }
     }
 }

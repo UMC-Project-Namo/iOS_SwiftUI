@@ -25,6 +25,9 @@ public struct GatheringListView: View {
                     Text("\(schedule.participantCount)")
                     Text("\(schedule.participantNicknames)")
                 }
+                .onTapGesture {
+                    store.send(.scheduleCellSelected(meetingScheduleId: schedule.meetingScheduleId))
+                }
             }
         }
         .onAppear {            

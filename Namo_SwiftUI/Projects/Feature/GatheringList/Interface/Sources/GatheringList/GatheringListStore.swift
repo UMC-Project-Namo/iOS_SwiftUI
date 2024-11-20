@@ -26,6 +26,8 @@ public extension GatheringListStore {
             case let .responseSceduleList(scheduleList):
                 state.scheduleList = scheduleList
                 return .none
+            default:
+                return .none
             }
         }
         
