@@ -17,7 +17,7 @@ public extension GatheringListStore {
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
             switch action {
-            case .loadSceduleList:                
+            case .loadSceduleList:
                 return .run { send in
                     let result = try await moimUseCase.getMoimList()
                     let scheduleList = IdentifiedArray(uniqueElements: result)
@@ -26,6 +26,11 @@ public extension GatheringListStore {
             case let .responseSceduleList(scheduleList):
                 state.scheduleList = scheduleList
                 return .none
+            case let .scheduleCellSelected(meetingScheduleId):
+                return .run { send in
+                    let moimSchedule = try await moimUseCase.getMoimDetail(meetingScheduleId)
+                    await send(.presentDetailSheet(moimSchedule))
+                }
             default:
                 return .none
             }

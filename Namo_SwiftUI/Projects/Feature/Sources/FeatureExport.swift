@@ -17,6 +17,6 @@
 @_exported import FeatureGatheringScheduleInterface
 @_exported import FeatureGatheringSchedule
 @_exported import FeatureKakaoMapInterface
-@_exported import FeatureFriendInvite
+@_exported import FeatureFriendInviteInterface
 @_exported import FeatureLocationSearchInterface
 @_exported import FeatureLocationSearch

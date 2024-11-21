@@ -27,6 +27,7 @@ extension LocationSearchStore {
                 state.kakaoMap.longitude = longitude
                 state.kakaoMap.kakaoLocationId = selectedPlace.id      
                 state.kakaoMap.locationName = selectedPlace.placeName
+                state.kakaoMap.placeList = state.searchList
                 return .send(.updatedLocation(state.kakaoMap))
             case let .searchResultTapped(poiID):
                 guard let selectedPlace = state.searchList.first(where: {$0.id == poiID }),
@@ -38,6 +39,7 @@ extension LocationSearchStore {
                 state.kakaoMap.longitude = longitude
                 state.kakaoMap.kakaoLocationId = selectedPlace.id
                 state.kakaoMap.locationName = selectedPlace.placeName
+                state.kakaoMap.placeList = state.searchList
                 return .send(.updatedLocation(state.kakaoMap))
             case .searchButtonTapped:
                 return .run { [state = state] send in

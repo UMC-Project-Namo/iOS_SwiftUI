@@ -28,6 +28,7 @@ public struct GatheringListStore {
     public enum Action {
         case loadSceduleList
         case scheduleCellSelected(meetingScheduleId: Int)
+        case presentDetailSheet(MoimSchedule)
         case responseSceduleList(IdentifiedArrayOf<MoimScheduleItem>)
     }
     

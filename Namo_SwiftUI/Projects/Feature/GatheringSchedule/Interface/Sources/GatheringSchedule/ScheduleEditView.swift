@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 import FeatureLocationSearchInterface
 import SharedDesignSystem
 
 import ComposableArchitecture
+import Kingfisher
 
 public struct ScheduleEditView: View {
     @Perception.Bindable private var store: StoreOf<GatheringScheduleStore>
@@ -102,7 +104,9 @@ extension ScheduleEditView {
 
 extension ScheduleEditView {
     private var saveButton: some View {
-        Button(action: {}, label: {
+        Button(action: {
+            store.send(.createButtonTapped)
+        }, label: {
             Text("저장")
                 .font(.pretendard(.regular, size: 15))
                 .foregroundStyle(Color.mainText)
@@ -114,6 +118,7 @@ extension ScheduleEditView {
     private var textField: some View {
         TextField("내 모임", text: $store.title)
             .font(.pretendard(.bold, size: 22))
+            .foregroundStyle(Color.mainText)
     }
 }
 
@@ -127,33 +132,76 @@ extension ScheduleEditView {
             
             Spacer()
             
-            Image(asset: SharedDesignSystemAsset.Assets.addPicture)
+            PhotosPicker(selection: $store.coverImageItem, matching: .images) {
+                if let coverImage = store.coverImage {
+                    Image(uiImage: coverImage)
+                        .resizable()
+                        .frame(width: 55, height: 55)
+                        .cornerRadius(5)
+                } else if !store.imageUrl.isEmpty {
+                    KFImage(URL(string: store.imageUrl))
+                        .placeholder({
+                            Image(asset: SharedDesignSystemAsset.Assets.appLogo)
+                        })
+                        .resizable()
+                        .frame(width: 55, height: 55)
+                        .cornerRadius(5)
+                } else {
+                    Image(asset: SharedDesignSystemAsset.Assets.addPicture)
+                        .resizable()
+                        .frame(width: 55, height: 55)
+                        .cornerRadius(5)
+                }
+            }
         }
     }
 }
 
 extension ScheduleEditView {
     private var startDatePicker: some View {
-        HStack {
-            Text("시작")
-                .font(.pretendard(.bold, size: 15))
-                .foregroundStyle(Color.mainText)
-            Spacer()
-            Text("2024.08.07 (수) 08:00 AM")
-                .font(.pretendard(.regular, size: 15))
-                .foregroundStyle(Color.mainText)
+        VStack {
+            HStack {
+                Text("시작")
+                    .font(.pretendard(.bold, size: 15))
+                    .foregroundStyle(Color.mainText)
+                Spacer()
+                Text(store.startDate.toYMDEHM())
+                    .font(.pretendard(.regular, size: 15))
+                    .foregroundStyle(Color.mainText)
+                    .onTapGesture {
+                        store.send(.startPickerTapped)
+                    }
+            }
+            if store.isStartPickerPresented {
+                DatePicker("startTimeDatePicker", selection: $store.startDate)
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .tint(Color.mainOrange)
+            }
         }
     }
     
     private var endDatePicker: some View {
-        HStack {
-            Text("종료")
-                .font(.pretendard(.bold, size: 15))
-                .foregroundStyle(Color.mainText)
-            Spacer()
-            Text("2024.08.07 (수) 08:00 AM")
-                .font(.pretendard(.regular, size: 15))
-                .foregroundStyle(Color.mainText)
+        VStack {
+            HStack {
+                Text("종료")
+                    .font(.pretendard(.bold, size: 15))
+                    .foregroundStyle(Color.mainText)
+                Spacer()
+                Text(store.endDate.toYMDEHM())
+                    .font(.pretendard(.regular, size: 15))
+                    .foregroundStyle(Color.mainText)
+                    .onTapGesture {
+                        store.send(.endPickerTapped)
+                    }
+            }
+            
+            if store.isEndPickerPresented {
+                DatePicker("endTimeDatePicker", selection: $store.endDate)
+                    .datePickerStyle(.graphical)
+                    .labelsHidden()
+                    .tint(Color.mainOrange)
+            }
         }
     }
     
@@ -195,7 +243,6 @@ extension ScheduleEditView {
                     .allowsHitTesting(false)
                     .frame(maxWidth: .infinity, minHeight: 190)
                     .border(Color.textUnselected, width: 1)
-                Spacer().frame(height: 28)
             }
         }
     }

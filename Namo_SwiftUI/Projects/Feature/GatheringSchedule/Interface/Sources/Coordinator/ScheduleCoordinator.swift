@@ -9,6 +9,8 @@ import Foundation
 
 import ComposableArchitecture
 import TCACoordinators
+
+import FeatureFriendInviteInterface
 import FeatureLocationSearchInterface
 import FeatureLocationSearch
 
@@ -17,6 +19,7 @@ import FeatureLocationSearch
 public enum Screen {
     case scheduleEdit(GatheringScheduleStore)
     case locationSearch(LocationSearchStore)
+    case friendInvite(FriendInviteStore)
 }
 
 @Reducer
@@ -24,15 +27,13 @@ public struct ScheduleCoordinator {
     public init() {}
         
     public struct State: Equatable {
-        public init(routes: [Route<Screen.State>]) {
-            self.routes = routes
+        public init(schedule: GatheringScheduleStore.State = .init()) {
+            self.schedule = schedule
+            self.routes = [.root(.scheduleEdit(schedule), embedInNavigationView: true)]
         }
-        public static let initialState = State(
-            routes: [.root(.scheduleEdit(.init()), embedInNavigationView: true)]
-        )
         
         var routes: [Route<Screen.State>]
-        var schedule: GatheringScheduleStore.State = .init()
+        var schedule: GatheringScheduleStore.State
     }
     
     public enum Action {
@@ -51,7 +52,9 @@ public struct ScheduleCoordinator {
                 state.schedule.kakaoMap = kakaoMap
                 return .none
             case .router(.routeAction(_, action: .scheduleEdit(.goToLocationSearch))):
-                state.routes.push(.locationSearch(.init()))
+                var location = LocationSearchStore.State()
+                location.kakaoMap = state.schedule.kakaoMap
+                state.routes.push(.locationSearch(location))
                 return .none
             case .router(.routeAction(_, action: .locationSearch(.backButtonTapped))):
                 state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]

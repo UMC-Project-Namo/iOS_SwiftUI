@@ -47,10 +47,23 @@ public struct GroupListCoordinator {
         
         Reduce { state, action in
             switch action {
-            case let .router(.routeAction(_, action: .group(.gatherList(.scheduleCellSelected(meetingScheduleId))))):
+            case let .router(.routeAction(_, action: .group(.gatherList(.presentDetailSheet(scheduleDetail))))):
+                var schedule = GatheringScheduleStore.State()
+                
+                schedule.title = scheduleDetail.title
+                schedule.startDate = scheduleDetail.startDate
+                schedule.endDate = scheduleDetail.endDate
+                schedule.imageUrl = scheduleDetail.imageUrl
+                schedule.scheduleId = scheduleDetail.scheduleId
+                
+                schedule.kakaoMap.kakaoLocationId = scheduleDetail.kakaoLocationId
+                schedule.kakaoMap.longitude = scheduleDetail.longitude
+                schedule.kakaoMap.latitude = scheduleDetail.latitude
+                schedule.kakaoMap.locationName = scheduleDetail.locationName
+                state.routes.presentCover(.schedule(.init(schedule: schedule)))
                 return .none
             case .router(.routeAction(_, action: .group(.presentComposeSheet))):
-                state.routes.presentCover(.schedule(.initialState))
+                state.routes.presentCover(.schedule(.init()))
                 return .none
 //            case .router(.routeAction(_, action: .schedule(.scheduleEdit(.cancleButtonTapped)))):
 //                state.routes.dismiss()

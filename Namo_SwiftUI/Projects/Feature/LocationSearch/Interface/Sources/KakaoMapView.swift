@@ -201,7 +201,6 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
         layer?.showAllPois()
         
         moveCamera(longitude: longitude, latitude: latitude, durationInMillis: 0)
-        
     }
     
     /// poiStyle 변경
@@ -227,11 +226,14 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
     private func moveCamera(longitude: Double, latitude: Double, durationInMillis: UInt = 1500) {
         guard let mapView: KakaoMap = controller?.getView("mapview") as? KakaoMap else { return }
         let cameraUpdate = CameraUpdate.make(cameraPosition: CameraPosition(target: MapPoint(longitude: longitude, latitude: latitude), height: 200, rotation: 0, tilt: 0))
-        
-        mapView.animateCamera(cameraUpdate: cameraUpdate, options: CameraAnimationOptions(
-            autoElevation: true, // autoElevation 컨펌 필요
-            consecutive: true,
-            durationInMillis: durationInMillis))
+        if durationInMillis == 0 {
+            mapView.moveCamera(cameraUpdate)
+        } else {
+            mapView.animateCamera(cameraUpdate: cameraUpdate, options: CameraAnimationOptions(
+                autoElevation: true, // autoElevation 컨펌 필요
+                consecutive: true,
+                durationInMillis: durationInMillis))
+        }
     }
     
     /// LabelLayer 생성

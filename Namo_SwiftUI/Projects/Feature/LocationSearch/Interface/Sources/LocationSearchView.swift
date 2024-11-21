@@ -36,7 +36,7 @@ public struct LocationSearchView: View {
         }
     }
     
-    private var mapView: some View {        
+    private var mapView: some View {
         KakaoMapView(store: store.scope(state: \.kakaoMap, action: \.kakaoMap), draw: $draw)
             .onAppear { draw = true }
             .onDisappear { draw = false }
@@ -88,12 +88,12 @@ public struct LocationSearchView: View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 ForEach(store.searchList, id: \.id) { place in
-                    VStack {
-                        Text("\(place.placeName)")
-                        Text("\(place.addressName)")
-                        Text("\(place.roadAddressName)")
-                        Text("\(place.id)")
-                        Divider()
+                    PlaceCell(placeName: place.placeName,
+                              addressName: place.addressName,
+                              roadAddressName: place.roadAddressName,
+                              isSelected: place.id == store.kakaoMap.kakaoLocationId)
+                    .onTapGesture {
+                        store.send(.searchResultTapped(poiID: place.id))
                     }
                 }
             }
