@@ -25,8 +25,8 @@ public struct NamoDialogModifier: ViewModifier {
             .fullScreenCover(isPresented: $isPresented, content: {
                 ZStack {
                     Color.black.opacity(0.2)
-                    
                         .ignoresSafeArea(.all)
+                    
                     VStack(spacing: 0) {
                         VStack(spacing: 0) {
                             Text(title)
@@ -38,7 +38,6 @@ public struct NamoDialogModifier: ViewModifier {
                                 .font(.pretendard(.regular, size: 14))
                                 .foregroundStyle(Color.mainText)
                                 .padding(.top, 8)
-                            
                                 .multilineTextAlignment(.center)
                             
                             // button

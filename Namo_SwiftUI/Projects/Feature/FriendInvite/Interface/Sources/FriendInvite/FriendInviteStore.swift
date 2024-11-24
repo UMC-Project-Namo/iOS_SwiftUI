@@ -8,13 +8,37 @@
 import Foundation
 
 import Domain
+import DomainFriendInterface
 
 import ComposableArchitecture
 
-extension FriendInviteStore {
-    public init() {
+public extension FriendInviteStore {
+    init() {
+        @Dependency(\.friendUseCase) var friendUseCase
+                
         let reducer: Reduce<State, Action> = Reduce { state, action in
             switch action {
+            case .searchButtonTapped:
+                return .run { [state] send in
+                    let response = try await friendUseCase.getFriends(page: 1, searchTerm: state.searchText)
+                    await send(.searchResponse(response))
+                }
+            case let .searchResponse(response):
+                state.searchFriendList = response.friendList
+                return .none
+            case .toggleAddedFriendList:
+                state.showingFriendInvites.toggle()
+                return .none
+            case let .addFriend(friend):
+                guard !(state.addedFriendList.contains(where: { $0.memberId == friend.memberId })) else {
+                    return .none
+                }
+                state.willAddFriendList.append(friend)
+                return .none            
+            case .confirmAddFriend:
+                state.addedFriendList.append(contentsOf: state.willAddFriendList)
+                state.willAddFriendList = []
+                return .send(.updatedFriendList(state))
             default:
                 return .none
             }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 import FeatureLocationSearchInterface
+import FeatureFriendInviteInterface
+import FeatureFriendInvite
 
 import ComposableArchitecture
 import TCACoordinators
@@ -27,6 +29,8 @@ public struct ScheduleCoordinatorView: View {
                     ScheduleEditView(store: store)
                 case let .locationSearch(store):
                     LocationSearchView(store: store)
+                case let .friendInvite(store):
+                    FriendInviteView(store: store)
                 }
             }
         }

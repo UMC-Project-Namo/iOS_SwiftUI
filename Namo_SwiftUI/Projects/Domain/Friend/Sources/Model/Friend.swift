@@ -5,7 +5,7 @@
 //  Created by 정현우 on 10/24/24.
 //
 
-public struct Friend: Equatable {
+public struct Friend: Equatable, Identifiable {
 	public let memberId: Int
 	public var favoriteFriend: Bool
 	public let profileImage: String?
@@ -15,7 +15,7 @@ public struct Friend: Equatable {
 	public let bio: String
 	public let birthday: String
 	public let favoriteColorId: Int
-	
+    public var id: Int { memberId }
 	public init(
 		memberId: Int,
 		favoriteFriend: Bool,

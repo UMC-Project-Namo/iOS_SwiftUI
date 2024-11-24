@@ -7,10 +7,13 @@
 
 import Foundation
 
+import DomainFriend
+import DomainFriendInterface
+
 import ComposableArchitecture
 
 @Reducer
-struct FriendInviteStore {
+public struct FriendInviteStore {
     private let reducer: Reduce<State, Action>
     
     public init(reducer: Reduce<State, Action>) {
@@ -20,9 +23,28 @@ struct FriendInviteStore {
     @ObservableState
     public struct State: Equatable {
         public init() {}
+        
+        public var searchText = ""
+        public var showingFriendInvites = false
+        public var searchFriendList: [Friend] = []
+        public var addedFriendList: IdentifiedArrayOf<Friend> = []
+        public var willAddFriendList: IdentifiedArrayOf<Friend> = []
+        public var maxAvailableInvites: Int {
+            10 - addedFriendList.count
+        }
     }
     
-    public enum Action {}
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        case searchButtonTapped
+        case searchResponse(FriendResponse)
+        case backButtonTapped
+        case toggleAddedFriendList
+        case addFriend(Friend)
+        case confirmAddFriend
+        case addFriendConfirmButtonTapped
+        case updatedFriendList(FriendInviteStore.State)
+    }
     
     public var body: some ReducerOf<Self> {
         reducer

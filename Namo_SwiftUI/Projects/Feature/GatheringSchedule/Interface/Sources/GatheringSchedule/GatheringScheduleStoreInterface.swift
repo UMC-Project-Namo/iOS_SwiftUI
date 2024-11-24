@@ -11,6 +11,7 @@ import PhotosUI
 
 import FeatureLocationSearchInterface
 import FeatureFriendInviteInterface
+import FeatureFriendInvite
 
 import ComposableArchitecture
 
@@ -40,6 +41,7 @@ public struct GatheringScheduleStore {
         public var isStartPickerPresented = false
         public var isEndPickerPresented = false
         public var kakaoMap: KakaoMapStore.State = .init()
+        public var firndList: FriendInviteStore.State = .init()
     }
     
     public enum Action: BindableAction {
@@ -52,6 +54,7 @@ public struct GatheringScheduleStore {
         case createButtonConfirm
         case cancleButtonTapped
         case goToLocationSearch
+        case goToFriendInvite
     }
     
     public var body: some ReducerOf<Self> {

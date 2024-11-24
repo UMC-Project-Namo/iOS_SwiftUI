@@ -42,7 +42,7 @@ public struct ScheduleEditView: View {
                         locationSetting
                         mapPreview
                         Spacer().frame(height: 30)
-                        friendSetting
+                        friendList
                     }
                 }
                 .padding(.horizontal, 30)
@@ -249,7 +249,7 @@ extension ScheduleEditView {
 }
 
 extension ScheduleEditView {
-    private var friendSetting: some View {
+    private var friendList: some View {
         VStack(alignment: .leading) {
             HStack {
                 Text("친구초대")
@@ -257,10 +257,19 @@ extension ScheduleEditView {
                     .foregroundStyle(Color.mainText)
                 Spacer()
                 Image(asset: SharedDesignSystemAsset.Assets.icRight)
+                    .onTapGesture {
+                        store.send(.goToFriendInvite)
+                    }
             }
             Text("일정을 생성한 이후에는 초대한 친구를 삭제할 수 없습니다.")
                 .font(.pretendard(.regular, size: 12))
                 .foregroundStyle(Color.textDisabled)
+            
+            VStack {
+                ForEach(store.firndList.addedFriendList, id: \.self.memberId) { friend in
+                    Text("\(friend.nickname) | \(friend.memberId)")
+                }
+            }
         }
     }
 }

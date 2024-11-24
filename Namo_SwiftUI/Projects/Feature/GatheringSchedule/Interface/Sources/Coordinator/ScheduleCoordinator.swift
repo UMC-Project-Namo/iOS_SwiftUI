@@ -12,8 +12,7 @@ import TCACoordinators
 
 import FeatureFriendInviteInterface
 import FeatureLocationSearchInterface
-import FeatureLocationSearch
-
+import FeatureFriendInvite
 
 @Reducer(state: .equatable)
 public enum Screen {
@@ -51,6 +50,10 @@ public struct ScheduleCoordinator {
             case let .router(.routeAction(_, action: .locationSearch(.updatedLocation(kakaoMap)))):
                 state.schedule.kakaoMap = kakaoMap
                 return .none
+            case let .router(.routeAction(_, action: .friendInvite(.updatedFriendList(friendList)))):
+                state.schedule.firndList = friendList
+                state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]
+                return .none
             case .router(.routeAction(_, action: .scheduleEdit(.goToLocationSearch))):
                 var location = LocationSearchStore.State()
                 location.kakaoMap = state.schedule.kakaoMap
@@ -59,6 +62,12 @@ public struct ScheduleCoordinator {
             case .router(.routeAction(_, action: .locationSearch(.backButtonTapped))):
                 state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]
                 return .none
+            case .router(.routeAction(_, action: .scheduleEdit(.goToFriendInvite))):
+                state.routes.push(.friendInvite(state.schedule.firndList))
+                return .none
+            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
+                state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]
+                return .none          
             default:
                 return .none
             }
