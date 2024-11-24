@@ -15,7 +15,7 @@ import FeatureFriendInviteInterface
 import ComposableArchitecture
 
 @Reducer
-public struct GatheringScheduleStore {
+public struct GatheringRootStore {
     public enum EditMode {
         case view, edit, compose
     }
@@ -27,20 +27,20 @@ public struct GatheringScheduleStore {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        public init(schedule: GatheringStore.State = .init(),
+                    kakaoMap: KakaoMapStore.State = .init(),
+                    friendInvite: FriendInviteStore.State = .init()) {
+            self.schedule = schedule
+            self.kakaoMap = kakaoMap
+            self.friendList = friendInvite
+        }
         
         public var editMode: EditMode = .compose
-        public var scheduleId = 0
-        public var title = ""
-        public var startDate = Date()
-        public var endDate = Date()
-        public var imageUrl = ""
-        public var coverImage: UIImage?        
-        public var coverImageItem: PhotosPickerItem?
         public var isStartPickerPresented = false
         public var isEndPickerPresented = false
-        public var kakaoMap: KakaoMapStore.State = .init()
-        public var friendList: FriendInviteStore.State = .init()
+        public var schedule: GatheringStore.State
+        public var kakaoMap: KakaoMapStore.State
+        public var friendList: FriendInviteStore.State
     }
     
     public enum Action: BindableAction {
@@ -48,6 +48,7 @@ public struct GatheringScheduleStore {
         case selectedImage(UIImage)
         case kakaoMap(KakaoMapStore.Action)
         case friendList(FriendInviteStore.Action)
+        case schedule(GatheringStore.Action)
         case startPickerTapped
         case endPickerTapped
         case createButtonTapped
@@ -59,12 +60,7 @@ public struct GatheringScheduleStore {
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
-        Scope(state: \.kakaoMap, action: \.kakaoMap) {
-            KakaoMapStore()
-        }        
-        Scope(state: \.friendList, action: \.friendList) {
-            FriendInviteStore()
-        }
+        
         reducer
     }
 }

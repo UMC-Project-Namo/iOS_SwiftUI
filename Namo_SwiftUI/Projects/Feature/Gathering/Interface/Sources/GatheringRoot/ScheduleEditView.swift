@@ -16,9 +16,10 @@ import ComposableArchitecture
 import Kingfisher
 
 public struct ScheduleEditView: View {
-    @Perception.Bindable private var store: StoreOf<GatheringScheduleStore>
+    @Perception.Bindable private var store: StoreOf<GatheringRootStore>
     @State private var draw = false
-    public init(store: StoreOf<GatheringScheduleStore>) {
+    
+    public init(store: StoreOf<GatheringRootStore>) {
         self.store = store
     }
     
@@ -44,9 +45,12 @@ public struct ScheduleEditView: View {
                         mapPreview
                         Spacer().frame(height: 30)
                         friendList
+                        Spacer().frame(height: 36)
+                        showScheduleButton
+                        Spacer().frame(height: 16)
+                        showDiaryButton
                     }
                 }
-                .padding(.horizontal, 30)
                 .background(.white)
                 .clipShape(UnevenRoundedRectangle(cornerRadii: .init(
                     topLeading: 15,
@@ -84,19 +88,41 @@ extension ScheduleEditView {
         HStack {
             cancleButton
             Spacer()
-            Text("새 모임 일정")
-                .font(.pretendard(.bold, size: 15))
-                .foregroundStyle(Color.colorBlack)
+            headerContent
             Spacer()
             saveButton
         }
         .padding(.vertical, 15)
+        .padding(.horizontal, 25)
+    }
+}
+
+extension ScheduleEditView {
+    private var headerContent: some View {
+        Group {
+            switch store.editMode {
+            case .compose:
+                Text("새 모임 일정")
+                    .font(.pretendard(.bold, size: 15))
+                    .foregroundStyle(Color.colorBlack)
+            case .edit:
+                Text("모임 일정 편집")
+                    .font(.pretendard(.bold, size: 15))
+                    .foregroundStyle(Color.colorBlack)
+            case .view:
+                Text("모임 일정")
+                    .font(.pretendard(.bold, size: 15))
+                    .foregroundStyle(Color.colorBlack)
+            }
+        }
     }
 }
 
 extension ScheduleEditView {
     private var cancleButton: some View {
-        Button(action: {}, label: {
+        Button(action: {
+            store.send(.cancleButtonTapped)
+        }, label: {
             Text("취소")
                 .font(.pretendard(.regular, size: 15))
                 .foregroundStyle(Color.mainText)
@@ -106,21 +132,37 @@ extension ScheduleEditView {
 
 extension ScheduleEditView {
     private var saveButton: some View {
-        Button(action: {
-            store.send(.createButtonTapped)
-        }, label: {
-            Text("저장")
-                .font(.pretendard(.regular, size: 15))
-                .foregroundStyle(Color.mainText)
-        })
+        Group {
+            switch store.editMode {
+            case .compose:
+                Button(action: {
+                    store.send(.createButtonTapped)
+                }, label: {
+                    Text("생성")
+                        .font(.pretendard(.regular, size: 15))
+                        .foregroundStyle(Color.mainText)
+                })
+            case .edit:
+                Button(action: {
+                    store.send(.createButtonTapped)
+                }, label: {
+                    Text("저장")
+                        .font(.pretendard(.regular, size: 15))
+                        .foregroundStyle(Color.mainText)
+                })
+            case .view:
+                EmptyView()
+            }
+        }
     }
 }
 
 extension ScheduleEditView {
     private var textField: some View {
-        TextField("내 모임", text: $store.title)
+        TextField("내 모임", text: $store.schedule.title)
             .font(.pretendard(.bold, size: 22))
             .foregroundStyle(Color.mainText)
+            .padding(.horizontal, 30)
     }
 }
 
@@ -134,14 +176,14 @@ extension ScheduleEditView {
             
             Spacer()
             
-            PhotosPicker(selection: $store.coverImageItem, matching: .images) {
-                if let coverImage = store.coverImage {
+            PhotosPicker(selection: $store.schedule.coverImageItem, matching: .images) {
+                if let coverImage = store.schedule.coverImage {
                     Image(uiImage: coverImage)
                         .resizable()
                         .frame(width: 55, height: 55)
                         .cornerRadius(5)
-                } else if !store.imageUrl.isEmpty {
-                    KFImage(URL(string: store.imageUrl))
+                } else if !store.schedule.imageUrl.isEmpty {
+                    KFImage(URL(string: store.schedule.imageUrl))
                         .placeholder({
                             Image(asset: SharedDesignSystemAsset.Assets.appLogo)
                         })
@@ -156,6 +198,7 @@ extension ScheduleEditView {
                 }
             }
         }
+        .padding(.horizontal, 30)
     }
 }
 
@@ -167,7 +210,7 @@ extension ScheduleEditView {
                     .font(.pretendard(.bold, size: 15))
                     .foregroundStyle(Color.mainText)
                 Spacer()
-                Text(store.startDate.toYMDEHM())
+                Text(store.schedule.startDate.toYMDEHM())
                     .font(.pretendard(.regular, size: 15))
                     .foregroundStyle(Color.mainText)
                     .onTapGesture {
@@ -175,12 +218,13 @@ extension ScheduleEditView {
                     }
             }
             if store.isStartPickerPresented {
-                DatePicker("startTimeDatePicker", selection: $store.startDate)
+                DatePicker("startTimeDatePicker", selection: $store.schedule.startDate)
                     .datePickerStyle(.graphical)
                     .labelsHidden()
                     .tint(Color.mainOrange)
             }
         }
+        .padding(.horizontal, 30)
     }
     
     private var endDatePicker: some View {
@@ -190,7 +234,7 @@ extension ScheduleEditView {
                     .font(.pretendard(.bold, size: 15))
                     .foregroundStyle(Color.mainText)
                 Spacer()
-                Text(store.endDate.toYMDEHM())
+                Text(store.schedule.endDate.toYMDEHM())
                     .font(.pretendard(.regular, size: 15))
                     .foregroundStyle(Color.mainText)
                     .onTapGesture {
@@ -199,12 +243,13 @@ extension ScheduleEditView {
             }
             
             if store.isEndPickerPresented {
-                DatePicker("endTimeDatePicker", selection: $store.endDate)
+                DatePicker("endTimeDatePicker", selection: $store.schedule.endDate)
                     .datePickerStyle(.graphical)
                     .labelsHidden()
                     .tint(Color.mainOrange)
             }
         }
+        .padding(.horizontal, 30)
     }
     
     private var locationSetting: some View {
@@ -226,9 +271,8 @@ extension ScheduleEditView {
                     Image(asset: SharedDesignSystemAsset.Assets.icRight)
                 })
             }
-            
-            
         }
+        .padding(.horizontal, 30)
     }
 }
 
@@ -247,12 +291,15 @@ extension ScheduleEditView {
                     .border(Color.textUnselected, width: 1)
             }
         }
+        .padding(.horizontal, 30)
     }
 }
 
 extension ScheduleEditView {
     private var friendList: some View {
         VStack(alignment: .leading) {
+            let friendList: [Friend] = store.friendList.addedFriendList.map { $0 }
+            
             HStack {
                 Text("친구초대")
                     .font(.pretendard(.bold, size: 15))
@@ -262,16 +309,64 @@ extension ScheduleEditView {
                     .onTapGesture {
                         store.send(.goToFriendInvite)
                     }
-            }
+            }.padding(.horizontal, 30)
+            
             Text("일정을 생성한 이후에는 초대한 친구를 삭제할 수 없습니다.")
                 .font(.pretendard(.regular, size: 12))
                 .foregroundStyle(Color.textDisabled)
+                .padding(.horizontal, 30)
+            
             Spacer().frame(height: 12)
-            let friendList: [Friend] = store.friendList.addedFriendList.map { $0 }
+            
             FlexibleGridView(data: friendList) { friend in
-                Participant(name: friend.name, pallete: PalleteColor(rawValue: friend.favoriteColorId) ?? .colorOrange)
+                Participant(name: friend.nickname, pallete: PalleteColor(rawValue: friend.favoriteColorId) ?? .colorOrange)
             }
+            .padding(.horizontal, 30)
+            .id(friendList.count)
         }
     }
 }
 
+extension ScheduleEditView {
+    private var showScheduleButton: some View {
+          Button(action: {
+          }, label: {
+              HStack(spacing: 12) {
+                  Image(asset: SharedDesignSystemAsset.Assets.icCalendar)
+                  Text("초대한 친구 일정 보기")
+                      .font(.pretendard(.regular, size: 15))
+                      .foregroundStyle(.black)
+              }
+              .background(.white)
+              .padding(.vertical, 11)
+              .padding(.horizontal, 20)
+          })
+          .cornerRadius(20)
+          .overlay(
+              RoundedRectangle(cornerRadius: 20)
+                  .stroke(.black, lineWidth: 1)
+          )
+      }
+}
+
+extension ScheduleEditView {
+    private var showDiaryButton: some View {
+        Button(action: {
+            
+        }, label: {
+            HStack {
+                Image(asset: SharedDesignSystemAsset.Assets.icDiary)
+                    .renderingMode(.template)
+                
+                Text("기록하기")
+                    .font(.pretendard(.bold, size: 15))
+            }
+            .foregroundStyle(Color.white)
+            .padding(.vertical, 11)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: 136, maxHeight: 40)
+        })
+        .background(Color.namoOrange)
+        .cornerRadius(20)
+    }
+}

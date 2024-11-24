@@ -12,11 +12,10 @@ import TCACoordinators
 
 import FeatureLocationSearchInterface
 import FeatureFriendInviteInterface
-import FeatureGatheringInterface
 
 @Reducer(state: .equatable)
 public enum Screen {
-    case scheduleEdit(GatheringScheduleStore)
+    case scheduleEdit(GatheringRootStore)
     case locationSearch(LocationSearchStore)
     case friendInvite(FriendInviteStore)
 }
@@ -26,33 +25,31 @@ public struct ScheduleCoordinator {
     public init() {}
         
     public struct State: Equatable {
-        public init(schedule: GatheringScheduleStore.State = .init()) {
+        public init(schedule: GatheringRootStore.State = .init()) {
             self.schedule = schedule
             self.routes = [.root(.scheduleEdit(schedule), embedInNavigationView: true)]
         }
         
-        var routes: [Route<Screen.State>]
-        var schedule: GatheringScheduleStore.State
+        public var routes: [Route<Screen.State>]
+        public var schedule: GatheringRootStore.State
     }
     
     public enum Action {
         case router(IndexedRouterActionOf<Screen>)
-        case schedule(GatheringScheduleStore.Action)
+        case cancelButtonTapped
     }
     
     public var body: some ReducerOf<Self> {
-        Scope(state: \.schedule, action: \.schedule) {
-            GatheringScheduleStore()
-        }
-        
         Reduce { state, action in
             switch action {
             case let .router(.routeAction(_, action: .locationSearch(.updatedLocation(kakaoMap)))):
                 state.schedule.kakaoMap = kakaoMap
                 return .none
             case let .router(.routeAction(_, action: .friendInvite(.updatedFriendList(friendList)))):
-                state.schedule.friendList = friendList
-                state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]
+                if case var .scheduleEdit(rootStore) = state.routes.first?.screen {
+                    rootStore.friendList = friendList
+                    state.routes = [.root(.scheduleEdit(rootStore), embedInNavigationView: true)]
+                }
                 return .none
             case .router(.routeAction(_, action: .scheduleEdit(.goToLocationSearch))):
                 var location = LocationSearchStore.State()
@@ -60,14 +57,19 @@ public struct ScheduleCoordinator {
                 state.routes.push(.locationSearch(location))
                 return .none
             case .router(.routeAction(_, action: .locationSearch(.backButtonTapped))):
-                state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]
+                if case var .scheduleEdit(rootStore) = state.routes.first?.screen {
+                    rootStore.kakaoMap = state.schedule.kakaoMap
+                    state.routes = [.root(.scheduleEdit(rootStore), embedInNavigationView: true)]
+                }
                 return .none
             case .router(.routeAction(_, action: .scheduleEdit(.goToFriendInvite))):
                 state.routes.push(.friendInvite(state.schedule.friendList))
                 return .none
-            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
+            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):                
                 state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]
                 return .none
+            case .router(.routeAction(_, action: .scheduleEdit(.cancleButtonTapped))):               
+                return .send(.cancelButtonTapped)
             default:
                 return .none
             }

@@ -9,6 +9,8 @@ import Foundation
 
 import DomainFriend
 import FeatureGatheringInterface
+import FeatureLocationSearchInterface
+import FeatureFriendInviteInterface
 
 import ComposableArchitecture
 import TCACoordinators
@@ -32,7 +34,7 @@ public struct GroupListCoordinator {
         )
         
         var routes: [Route<Screen.State>]
-        var group: GroupViewStore.State = .init()
+        var group: GroupViewStore.State = .init()        
     }
     
     public enum Action {
@@ -48,28 +50,33 @@ public struct GroupListCoordinator {
         Reduce { state, action in
             switch action {
             case let .router(.routeAction(_, action: .group(.gatherList(.presentDetailSheet(scheduleDetail))))):
-                var schedule = GatheringScheduleStore.State()
-                
+                var schedule: GatheringStore.State = .init()
+                var kakaoMap: KakaoMapStore.State = .init()
+                var friendInvite: FriendInviteStore.State = .init(friendList: scheduleDetail.participants.map { $0.userId })
+                            
                 schedule.title = scheduleDetail.title
                 schedule.startDate = scheduleDetail.startDate
                 schedule.endDate = scheduleDetail.endDate
                 schedule.imageUrl = scheduleDetail.imageUrl
                 schedule.scheduleId = scheduleDetail.scheduleId
                 
-                schedule.kakaoMap.kakaoLocationId = scheduleDetail.kakaoLocationId
-                schedule.kakaoMap.longitude = scheduleDetail.longitude
-                schedule.kakaoMap.latitude = scheduleDetail.latitude
-                schedule.kakaoMap.locationName = scheduleDetail.locationName
+                kakaoMap.kakaoLocationId = scheduleDetail.kakaoLocationId
+                kakaoMap.longitude = scheduleDetail.longitude
+                kakaoMap.latitude = scheduleDetail.latitude
+                kakaoMap.locationName = scheduleDetail.locationName
                 
-                schedule.friendList = .init(friendList: scheduleDetail.participants.map { $0.userId })                
-                state.routes.presentCover(.schedule(.init(schedule: schedule)))
+                var rootStore = GatheringRootStore.State(schedule: schedule, kakaoMap: kakaoMap, friendInvite: friendInvite)
+                
+                rootStore.editMode = scheduleDetail.isOwner ? .edit : .view
+                                                
+                state.routes.presentCover(.schedule(.init(schedule: rootStore)))
                 return .none
             case .router(.routeAction(_, action: .group(.presentComposeSheet))):
                 state.routes.presentCover(.schedule(.init()))
                 return .none
-//            case .router(.routeAction(_, action: .schedule(.scheduleEdit(.cancleButtonTapped)))):
-//                state.routes.dismiss()
-//                return .none
+            case .router(.routeAction(_, action: .schedule(.cancelButtonTapped))):                
+                state.routes.dismiss()
+                return .none
             default:
                 return .none
             }

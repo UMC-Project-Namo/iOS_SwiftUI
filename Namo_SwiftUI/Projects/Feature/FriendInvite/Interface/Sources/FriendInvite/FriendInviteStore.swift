@@ -43,6 +43,9 @@ public extension FriendInviteStore {
                 state.addedFriendList.append(contentsOf: state.willAddFriendList)
                 state.willAddFriendList.removeAll()
                 return .send(.updatedFriendList(state))
+            case let .removeFriend(memberId):
+                state.willAddFriendList.removeAll(where: {$0.id == memberId })
+                return .none
             default:
                 return .none
             }

@@ -14,6 +14,7 @@ import Kingfisher
 
 struct FriendAddItem: View {
     let friend: Friend
+    let onDelete: () -> ()
     
     var body: some View {
         VStack {
@@ -37,6 +38,9 @@ struct FriendAddItem: View {
                 .foregroundStyle(Color.white)
                 .shadow(radius: 4)
                 .offset(x: 10, y: -10)
+                .onTapGesture {
+                    onDelete()
+                }
         }
     }
 }

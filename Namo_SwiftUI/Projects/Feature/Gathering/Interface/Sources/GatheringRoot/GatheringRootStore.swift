@@ -13,41 +13,27 @@ import DomainMoim
 
 import ComposableArchitecture
 
-extension GatheringScheduleStore {
+extension GatheringRootStore {
     public init() {
         @Dependency(\.moimUseCase) var moimUseCase
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
             switch action {
-            case .binding(\.coverImageItem):
-                return .run { [imageItem = state.coverImageItem] send in
-                    if let loaded = try? await imageItem?.loadTransferable(type: Data.self) {
-                        guard let uiImage = UIImage(data: loaded) else {
-                            return
-                        }
-                        await send(.selectedImage(uiImage))
-                    }
-                }
-            case let .selectedImage(image):
-                state.coverImage = image
-                return .none
             case .startPickerTapped:
                 state.isStartPickerPresented.toggle()
                 return .none
-                
             case .endPickerTapped:
                 state.isEndPickerPresented.toggle()
                 return .none
             case .createButtonTapped:
                 return .run { [state = state] send in
                     if state.editMode == .compose {
-                        try await moimUseCase.createMoim(state.makeSchedule(), state.coverImage)
+                        try await moimUseCase.createMoim(state.makeSchedule(), state.schedule.coverImage)
                     } else {
-                        try await moimUseCase.editMoim(state.makeSchedule(), state.coverImage)
+                        try await moimUseCase.editMoim(state.makeSchedule(), state.schedule.coverImage)
                     }
                     await send(.createButtonConfirm)
                 }
-        
             default:
                 return .none
             }
@@ -57,18 +43,24 @@ extension GatheringScheduleStore {
     }
 }
 
-extension GatheringScheduleStore.State {
+extension GatheringRootStore.State {
     func makeSchedule() -> MoimSchedule {
-        .init(scheduleId: scheduleId,
-              title: title,
-              imageUrl: imageUrl,
-              startDate: startDate,
-              endDate: endDate,
+        .init(scheduleId: schedule.scheduleId,
+              title: schedule.title,
+              imageUrl: schedule.imageUrl,
+              startDate: schedule.startDate,
+              endDate: schedule.endDate,
               longitude: kakaoMap.longitude,
               latitude: kakaoMap.latitude,
               locationName: kakaoMap.locationName,
               kakaoLocationId: kakaoMap.kakaoLocationId,
-              participants: [])
+              participants: friendList.addedFriendList.map { .init(participantId: 0,
+                                                                   userId: $0.memberId,
+                                                                   isGuest: false,
+                                                                   nickname: $0.nickname,
+                                                                   colorId: $0.favoriteColorId,
+                                                                   isOwner: false)
+        })
     }
 }
 

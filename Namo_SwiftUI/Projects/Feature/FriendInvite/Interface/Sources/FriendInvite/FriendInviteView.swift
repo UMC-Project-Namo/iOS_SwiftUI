@@ -14,6 +14,7 @@ import ComposableArchitecture
 public struct FriendInviteView: View {
     @Perception.Bindable var store: StoreOf<FriendInviteStore>
     @State private var showingConfirmAlert = false
+    @State private var showingCancelAlert = false
     
     public init(store: StoreOf<FriendInviteStore>) {
         self.store = store
@@ -38,13 +39,17 @@ public struct FriendInviteView: View {
             naivgationTitle
         } left: {
             NamoBackButton {
-                store.send(.backButtonTapped)
+                showingCancelAlert.toggle()
             }
         }
         .namoAlertView(isPresented: $showingConfirmAlert,
                        title: "초대를 확정하시겠습니까?",
                        content: "초대한 이후에는 참석자를 \n 변경하실 수 없습니다.",
                        confirmAction: { store.send(.confirmAddFriend) })
+        .namoAlertView(isPresented: $showingCancelAlert,
+                       title: "선택된 내용이 저장되지 않습니다.",
+                       content: "정말 나가시겠어요?",
+                       confirmAction: { store.send(.backButtonTapped) })
         .onAppear {
             store.send(.searchButtonTapped)
         }
@@ -142,7 +147,9 @@ extension FriendInviteView {
                 ScrollView(.horizontal) {
                     HStack(spacing: 20) {
                         ForEach(store.willAddFriendList, id: \.memberId) { friend in
-                            FriendAddItem(friend: friend)
+                            FriendAddItem(friend: friend, onDelete: {
+                                store.send(.removeFriend(memberId: friend.memberId))
+                            })
                         }
                     }
                     .padding(.top, 14)
