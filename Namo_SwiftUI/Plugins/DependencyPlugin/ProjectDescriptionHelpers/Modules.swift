@@ -33,11 +33,9 @@ public extension ModulePath {
         case Onboarding
 		case Calendar        
 		case Archive
-        case GroupList
-        case GatheringSchedule
-        case GatheringList
+        case GroupTab
+        case Gathering
         case FriendInvite
-        case KakaoMap
 		case LocationSearch
         
 		public static let name: String = "Feature"

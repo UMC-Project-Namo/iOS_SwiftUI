@@ -5,7 +5,7 @@
 //  Created by 정현우 on 10/24/24.
 //
 
-public struct Friend: Equatable, Identifiable {
+public struct Friend: Equatable, Identifiable, Hashable {
 	public let memberId: Int
 	public var favoriteFriend: Bool
 	public let profileImage: String?

@@ -22,11 +22,15 @@ public struct FriendInviteStore {
     
     @ObservableState
     public struct State: Equatable {
-        public init() {}
+        public init(friendList: [Int] = []) {
+            self.friendList = friendList
+        }
+        
+        internal let friendList: [Int]
         
         public var searchText = ""
         public var showingFriendInvites = false
-        public var searchFriendList: [Friend] = []
+        public var searchFriendList: IdentifiedArrayOf<Friend> = []
         public var addedFriendList: IdentifiedArrayOf<Friend> = []
         public var willAddFriendList: IdentifiedArrayOf<Friend> = []
         public var maxAvailableInvites: Int {
@@ -43,7 +47,8 @@ public struct FriendInviteStore {
         case addFriend(Friend)
         case confirmAddFriend
         case addFriendConfirmButtonTapped
-        case updatedFriendList(FriendInviteStore.State)
+        case updatedFriendList(FriendInviteStore.State)   
+        case loadFriendList
     }
     
     public var body: some ReducerOf<Self> {

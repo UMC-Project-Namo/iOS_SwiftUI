@@ -20,11 +20,9 @@ let targets: [Target] = [
                 .feature(implements: .Onboarding),
 				.feature(implements: .Calendar),                
 				.feature(implements: .Archive),
-                .feature(implements: .GroupList),
-                .feature(implements: .GatheringSchedule),
-                .feature(implements: .GatheringList),
+                .feature(implements: .GroupTab),
+                .feature(implements: .Gathering),
                 .feature(implements: .FriendInvite),
-                .feature(implements: .KakaoMap),
                 .feature(implements: .LocationSearch),
 			]
 		)

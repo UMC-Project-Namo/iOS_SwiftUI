@@ -8,7 +8,8 @@
 import Foundation
 
 import CoreNetwork
-//import DomainFriend
+
+
 import SharedUtil
 
 public extension MoimScheduleListResponseDTO {
@@ -76,14 +77,3 @@ public extension ParticipantsDto {
               isOwner: isOwner)
     }
 }
-
-//public extension Friend {
-//    func toParticipant() -> Participant {
-//        .init(participantId: 0,
-//              userId: memberId,
-//              isGuest: false,
-//              nickname: nickname,
-//              colorId: favoriteColorId,
-//              isOwner: false)
-//    }
-//}

@@ -24,7 +24,11 @@ public extension FriendInviteStore {
                     await send(.searchResponse(response))
                 }
             case let .searchResponse(response):
-                state.searchFriendList = response.friendList
+                state.searchFriendList = IdentifiedArray(uniqueElements: response.friendList)
+                return .send(.loadFriendList)
+            case .loadFriendList:
+                let addedFriend = state.searchFriendList.filter { state.friendList.contains($0.memberId) }
+                state.addedFriendList.append(contentsOf: addedFriend)
                 return .none
             case .toggleAddedFriendList:
                 state.showingFriendInvites.toggle()
@@ -37,7 +41,7 @@ public extension FriendInviteStore {
                 return .none            
             case .confirmAddFriend:
                 state.addedFriendList.append(contentsOf: state.willAddFriendList)
-                state.willAddFriendList = []
+                state.willAddFriendList.removeAll()
                 return .send(.updatedFriendList(state))
             default:
                 return .none
