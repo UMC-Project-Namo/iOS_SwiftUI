@@ -16,7 +16,7 @@ import ComposableArchitecture
 import Kingfisher
 
 public struct ScheduleEditView: View {
-    @Perception.Bindable private var store: StoreOf<GatheringRootStore>
+    @Perception.Bindable private var store: StoreOf<GatheringRootStore>    
     @State private var draw = false
     
     public init(store: StoreOf<GatheringRootStore>) {
@@ -214,10 +214,10 @@ extension ScheduleEditView {
                     .font(.pretendard(.regular, size: 15))
                     .foregroundStyle(Color.mainText)
                     .onTapGesture {
-                        store.send(.startPickerTapped)
+                        store.send(.schedule(.startPickerTapped))
                     }
             }
-            if store.isStartPickerPresented {
+            if store.schedule.isStartPickerPresented {
                 DatePicker("startTimeDatePicker", selection: $store.schedule.startDate)
                     .datePickerStyle(.graphical)
                     .labelsHidden()
@@ -238,11 +238,11 @@ extension ScheduleEditView {
                     .font(.pretendard(.regular, size: 15))
                     .foregroundStyle(Color.mainText)
                     .onTapGesture {
-                        store.send(.endPickerTapped)
+                        store.send(.schedule(.endPickerTapped))
                     }
             }
             
-            if store.isEndPickerPresented {
+            if store.schedule.isEndPickerPresented {
                 DatePicker("endTimeDatePicker", selection: $store.schedule.endDate)
                     .datePickerStyle(.graphical)
                     .labelsHidden()

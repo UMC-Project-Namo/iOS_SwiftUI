@@ -26,7 +26,9 @@ public struct GatheringStore {
     public struct State: Equatable {
         public init() {
         }
-                
+        
+        public var isStartPickerPresented = false
+        public var isEndPickerPresented = false
         public var scheduleId = 0
         public var title = ""
         public var startDate = Date()
@@ -39,6 +41,8 @@ public struct GatheringStore {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case selectedImage(UIImage)
+        case startPickerTapped
+        case endPickerTapped
     }
     
     public var body: some ReducerOf<Self> {

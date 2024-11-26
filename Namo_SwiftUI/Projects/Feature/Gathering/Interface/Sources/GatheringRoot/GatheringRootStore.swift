@@ -18,13 +18,7 @@ extension GatheringRootStore {
         @Dependency(\.moimUseCase) var moimUseCase
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
-            switch action {
-            case .startPickerTapped:
-                state.isStartPickerPresented.toggle()
-                return .none
-            case .endPickerTapped:
-                state.isEndPickerPresented.toggle()
-                return .none
+            switch action {                
             case .createButtonTapped:
                 return .run { [state = state] send in
                     if state.editMode == .compose {

@@ -36,21 +36,16 @@ public struct GatheringRootStore {
         }
         
         public var editMode: EditMode = .compose
-        public var isStartPickerPresented = false
-        public var isEndPickerPresented = false
         public var schedule: GatheringStore.State
         public var kakaoMap: KakaoMapStore.State
         public var friendList: FriendInviteStore.State
     }
     
     public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case selectedImage(UIImage)
+        case binding(BindingAction<State>)        
         case kakaoMap(KakaoMapStore.Action)
         case friendList(FriendInviteStore.Action)
         case schedule(GatheringStore.Action)
-        case startPickerTapped
-        case endPickerTapped
         case createButtonTapped
         case createButtonConfirm
         case cancleButtonTapped
@@ -60,7 +55,9 @@ public struct GatheringRootStore {
     
     public var body: some ReducerOf<Self> {
         BindingReducer()
-        
+        Scope(state: \.schedule, action: \.schedule) {
+            GatheringStore()
+        }
         reducer
     }
 }
