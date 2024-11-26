@@ -21,7 +21,7 @@ struct MainTabCoordinator {
     enum Action: BindableAction {
         case binding(BindingAction<State>)
 		case home(HomeCoordinator.Action)  
-        case group(GroupListCoordinator.Action)
+        case group(GroupTabCoordinator.Action)
 		
 		case viewOnAppear
 		// 카테고리 리스트 response
@@ -34,7 +34,7 @@ struct MainTabCoordinator {
         
         var currentTab: Tab
 		var home: HomeCoordinator.State
-        var group: GroupListCoordinator.State
+        var group: GroupTabCoordinator.State
 		
 		@Shared(.inMemory(SharedKeys.categories.rawValue)) var categories: [NamoCategory] = []
     }
@@ -48,7 +48,7 @@ struct MainTabCoordinator {
 			HomeCoordinator()
 		}
         Scope(state: \.group, action: \.group) {
-            GroupListCoordinator()
+            GroupTabCoordinator()
         }
         Reduce { state, action in
             switch action {

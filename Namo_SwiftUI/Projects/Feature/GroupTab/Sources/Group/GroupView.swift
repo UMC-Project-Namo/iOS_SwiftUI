@@ -16,7 +16,7 @@ struct GroupView: View {
     let store: StoreOf<GroupViewStore>
     
     var body: some View {
-        VStack {
+        WithPerceptionTracking {
             GatheringListView(store: store.scope(
                 state: \.scheduleList,
                 action: \.scheduleList)
@@ -24,10 +24,10 @@ struct GroupView: View {
             .overlay(alignment: .bottomTrailing) {
                 FloatingButton(action: {
                     store.send(.presentComposeSheet)
-                })                
-            }
+                })
+            }            
+            .overlay(store.isShowOverlay ? Color.black.opacity(0.3) : nil)
         }
-        .overlay(store.isShowOverlay ? Color.black.opacity(0.3) : nil)
     }
 }
 

@@ -12,10 +12,10 @@ import FeatureGatheringInterface
 import ComposableArchitecture
 import TCACoordinators
 
-public struct GroupListCoordinatorView: View {
-    let store: StoreOf<GroupListCoordinator>
+public struct GroupTabCoordinatorView: View {
+    let store: StoreOf<GroupTabCoordinator>
     
-    public init(store: StoreOf<GroupListCoordinator>) {
+    public init(store: StoreOf<GroupTabCoordinator>) {
         self.store = store
     }
     

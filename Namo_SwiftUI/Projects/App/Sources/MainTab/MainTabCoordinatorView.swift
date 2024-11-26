@@ -22,7 +22,7 @@ struct MainTabCoordinatorView: View {
 				HomeCoordinatorView(store: store.scope(state: \.home, action: \.home))
                     .tag(Tab.home)      
                 
-                GroupListCoordinatorView(store: store.scope(state: \.group, action: \.group))
+                GroupTabCoordinatorView(store: store.scope(state: \.group, action: \.group))
                     .tag(Tab.group)
             }
             .overlay(alignment: .bottom) {

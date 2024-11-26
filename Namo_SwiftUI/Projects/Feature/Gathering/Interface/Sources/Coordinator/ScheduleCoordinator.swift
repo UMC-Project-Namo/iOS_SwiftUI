@@ -73,8 +73,9 @@ public struct ScheduleCoordinator {
                     .router(.routeAction(_, action: .scheduleEdit(.deleteCompleted))):
                 return .send(.dismissSheet)
             default:
-                return .none
+               break
             }
+            return .none            
         }
         .forEachRoute(\.routes, action: \.router)
     }

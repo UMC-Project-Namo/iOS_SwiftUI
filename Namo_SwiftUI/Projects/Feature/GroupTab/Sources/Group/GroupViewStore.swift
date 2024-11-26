@@ -28,8 +28,7 @@ public struct GroupViewStore {
     
     public var body: some ReducerOf<Self> {
         Scope(state: \.scheduleList, action: \.scheduleList) {
-            GatheringListStore()
-                ._printChanges()
+            GatheringListStore()                
         }
         
         Reduce { state, action in

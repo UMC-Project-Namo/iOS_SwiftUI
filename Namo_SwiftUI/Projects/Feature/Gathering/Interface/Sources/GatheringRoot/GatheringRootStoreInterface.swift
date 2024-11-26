@@ -27,15 +27,16 @@ public struct GatheringRootStore {
     
     @ObservableState
     public struct State: Equatable {
-        public init(schedule: GatheringStore.State = .init(),
+        public init(editMode: EditMode = .compose, schedule: GatheringStore.State = .init(),
                     kakaoMap: KakaoMapStore.State = .init(),
                     friendInvite: FriendInviteStore.State = .init()) {
+            self.editMode = editMode
             self.schedule = schedule
             self.kakaoMap = kakaoMap
             self.friendList = friendInvite
         }
         
-        public var editMode: EditMode = .compose
+        public var editMode: EditMode
         public var showingDeleteAlert = false
         public var schedule: GatheringStore.State
         public var kakaoMap: KakaoMapStore.State
