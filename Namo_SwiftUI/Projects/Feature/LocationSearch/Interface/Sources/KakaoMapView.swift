@@ -68,7 +68,7 @@ public class KakaoMapCoordinator: NSObject, MapControllerDelegate, KakaoMapEvent
     
     deinit {
         controller?.pauseEngine()
-        controller?.resetEngine()
+        controller?.resetEngine()        
     }
     
     // MARK: - Helper Methods

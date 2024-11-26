@@ -23,7 +23,7 @@ public enum Screen {
 @Reducer
 public struct ScheduleCoordinator {
     public init() {}
-        
+    
     public struct State: Equatable {
         public init(schedule: GatheringRootStore.State = .init()) {
             self.schedule = schedule
@@ -36,7 +36,7 @@ public struct ScheduleCoordinator {
     
     public enum Action {
         case router(IndexedRouterActionOf<Screen>)
-        case cancelButtonTapped
+        case dismissSheet
     }
     
     public var body: some ReducerOf<Self> {
@@ -65,11 +65,13 @@ public struct ScheduleCoordinator {
             case .router(.routeAction(_, action: .scheduleEdit(.goToFriendInvite))):
                 state.routes.push(.friendInvite(state.schedule.friendList))
                 return .none
-            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):                
-                state.routes = [.root(.scheduleEdit(state.schedule), embedInNavigationView: true)]
+            case .router(.routeAction(_, action: .friendInvite(.backButtonTapped))):
+                state.routes.pop()
                 return .none
-            case .router(.routeAction(_, action: .scheduleEdit(.cancleButtonTapped))):               
-                return .send(.cancelButtonTapped)
+            case .router(.routeAction(_, action: .scheduleEdit(.cancleButtonTapped))),
+                    .router(.routeAction(_, action: .scheduleEdit(.createButtonConfirm))),
+                    .router(.routeAction(_, action: .scheduleEdit(.deleteCompleted))):
+                return .send(.dismissSheet)
             default:
                 return .none
             }

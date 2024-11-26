@@ -16,7 +16,7 @@ import ComposableArchitecture
 import Kingfisher
 
 public struct ScheduleEditView: View {
-    @Perception.Bindable private var store: StoreOf<GatheringRootStore>    
+    @Perception.Bindable private var store: StoreOf<GatheringRootStore>
     @State private var draw = false
     
     public init(store: StoreOf<GatheringRootStore>) {
@@ -58,6 +58,10 @@ public struct ScheduleEditView: View {
                 .shadow(radius: 10)
             }
         }
+        .namoAlertView(isPresented: $store.showingDeleteAlert,
+                       title: "모임 일정에서 정말 나가시겠어요?",
+                       content: "모임 일정과 해당 일정의 기록을 더 이상 보실 수 없으며, 방장 권한이 위임됩니다.",
+                       confirmAction: { store.send(.deleteButtonConfirm) })
         .edgesIgnoringSafeArea(.bottom)
         .background(ClearBackground())
         .onAppear { store.send(.friendList(.searchButtonTapped)) }
@@ -78,7 +82,7 @@ extension ScheduleEditView {
             
         }
         .onTapGesture {
-            
+            store.send(.deleteButtonTapped)
         }
     }
 }
@@ -167,6 +171,7 @@ extension ScheduleEditView {
 }
 
 extension ScheduleEditView {
+   
     private var imagePicker: some View {
         HStack {
             Text("커버 이미지")
@@ -197,6 +202,9 @@ extension ScheduleEditView {
                         .cornerRadius(5)
                 }
             }
+            .onChange(of: store.schedule.coverImageItem, perform: { imageItem in
+                store.send(.schedule(.selectedImageItem(imageItem)))
+            })
         }
         .padding(.horizontal, 30)
     }

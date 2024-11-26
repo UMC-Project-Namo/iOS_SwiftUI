@@ -18,15 +18,23 @@ extension GatheringRootStore {
         @Dependency(\.moimUseCase) var moimUseCase
         
         let reducer: Reduce<State, Action> = Reduce { state, action in
-            switch action {                
+            switch action {
             case .createButtonTapped:
                 return .run { [state = state] send in
                     if state.editMode == .compose {
                         try await moimUseCase.createMoim(state.makeSchedule(), state.schedule.coverImage)
                     } else {
                         try await moimUseCase.editMoim(state.makeSchedule(), state.schedule.coverImage)
-                    }
+                    }                    
                     await send(.createButtonConfirm)
+                }
+            case .deleteButtonTapped:
+                state.showingDeleteAlert.toggle()
+                return .none
+            case .deleteButtonConfirm:
+                return .run { [state = state] send in
+                    try await moimUseCase.withdrawMoim(state.schedule.scheduleId)
+                    await send(.deleteCompleted)
                 }
             default:
                 return .none

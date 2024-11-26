@@ -22,7 +22,7 @@ public struct GatheringListStore {
     @ObservableState
     public struct State: Equatable {
         public init() {}
-        var scheduleList: IdentifiedArrayOf<MoimScheduleItem> = []
+        public var scheduleList: IdentifiedArrayOf<MoimScheduleItem> = []
     }
     
     public enum Action {

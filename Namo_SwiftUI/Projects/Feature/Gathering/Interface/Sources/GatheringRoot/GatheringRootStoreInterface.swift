@@ -36,6 +36,7 @@ public struct GatheringRootStore {
         }
         
         public var editMode: EditMode = .compose
+        public var showingDeleteAlert = false
         public var schedule: GatheringStore.State
         public var kakaoMap: KakaoMapStore.State
         public var friendList: FriendInviteStore.State
@@ -49,6 +50,9 @@ public struct GatheringRootStore {
         case createButtonTapped
         case createButtonConfirm
         case cancleButtonTapped
+        case deleteButtonTapped
+        case deleteButtonConfirm
+        case deleteCompleted
         case goToLocationSearch
         case goToFriendInvite
     }
@@ -57,6 +61,9 @@ public struct GatheringRootStore {
         BindingReducer()
         Scope(state: \.schedule, action: \.schedule) {
             GatheringStore()
+        }
+        Scope(state: \.friendList, action: \.friendList) {
+            FriendInviteStore()
         }
         reducer
     }

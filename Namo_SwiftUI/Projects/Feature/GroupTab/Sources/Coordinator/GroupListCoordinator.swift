@@ -49,7 +49,7 @@ public struct GroupListCoordinator {
         
         Reduce { state, action in
             switch action {
-            case let .router(.routeAction(_, action: .group(.gatherList(.presentDetailSheet(scheduleDetail))))):
+            case let .router(.routeAction(_, action: .group(.scheduleList(.presentDetailSheet(scheduleDetail))))):
                 var schedule: GatheringStore.State = .init()
                 var kakaoMap: KakaoMapStore.State = .init()
                 var friendInvite: FriendInviteStore.State = .init(friendList: scheduleDetail.participants.map { $0.userId })
@@ -65,7 +65,11 @@ public struct GroupListCoordinator {
                 kakaoMap.latitude = scheduleDetail.latitude
                 kakaoMap.locationName = scheduleDetail.locationName
                 
-                var rootStore = GatheringRootStore.State(schedule: schedule, kakaoMap: kakaoMap, friendInvite: friendInvite)
+                var rootStore = GatheringRootStore.State(
+                    schedule: schedule,
+                    kakaoMap: kakaoMap,
+                    friendInvite: friendInvite
+                )
                 
                 rootStore.editMode = scheduleDetail.isOwner ? .edit : .view
                                                 
@@ -74,9 +78,9 @@ public struct GroupListCoordinator {
             case .router(.routeAction(_, action: .group(.presentComposeSheet))):
                 state.routes.presentCover(.schedule(.init()))
                 return .none
-            case .router(.routeAction(_, action: .schedule(.cancelButtonTapped))):                
+            case .router(.routeAction(_, action: .schedule(.dismissSheet))):
                 state.routes.dismiss()
-                return .none
+                return .send(.group(.reloadScheduleList))
             default:
                 return .none
             }

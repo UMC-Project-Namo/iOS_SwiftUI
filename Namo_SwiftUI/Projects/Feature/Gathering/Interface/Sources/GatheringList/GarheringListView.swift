@@ -18,19 +18,19 @@ public struct GatheringListView: View {
     
     public var body: some View {
         WithPerceptionTracking {
-            List(store.scheduleList) { schedule in
-                VStack {
-                    Text("\(schedule.startDate)")
-                    Text("\(schedule.title)")
-                    Text("\(schedule.participantCount)")
-                    Text("\(schedule.participantNicknames)")
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    ForEach(store.scheduleList) { schedule in
+                        GatheringCell(schedule: schedule)
+                            .onTapGesture {
+                                store.send(.scheduleCellSelected(meetingScheduleId: schedule.meetingScheduleId))
+                            }
+                    }
                 }
-                .onTapGesture {
-                    store.send(.scheduleCellSelected(meetingScheduleId: schedule.meetingScheduleId))
-                }
+                .padding(.horizontal, 25)
             }
         }
-        .onAppear {            
+        .onAppear {
             store.send(.loadSceduleList)
         }
     }

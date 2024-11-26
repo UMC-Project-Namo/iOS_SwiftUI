@@ -41,6 +41,7 @@ public struct GatheringStore {
     public enum Action: BindableAction {
         case binding(BindingAction<State>)
         case selectedImage(UIImage)
+        case selectedImageItem(PhotosPickerItem?)
         case startPickerTapped
         case endPickerTapped
     }

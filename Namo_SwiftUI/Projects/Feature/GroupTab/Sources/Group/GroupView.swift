@@ -8,6 +8,7 @@
 import SwiftUI
 
 import FeatureGatheringInterface
+import SharedDesignSystem
 
 import ComposableArchitecture
 
@@ -15,18 +16,18 @@ struct GroupView: View {
     let store: StoreOf<GroupViewStore>
     
     var body: some View {
-        GatheringListView(store: store.scope(
-            state: \.gatherList,
-            action: \.gatherList)
-        )
-        .overlay(alignment: .bottomTrailing) {
-            Button(action: {
-                store.send(.presentComposeSheet)
-            }, label: {
-                Text("add")
-            })
-            .padding(10)
+        VStack {
+            GatheringListView(store: store.scope(
+                state: \.scheduleList,
+                action: \.scheduleList)
+            )
+            .overlay(alignment: .bottomTrailing) {
+                FloatingButton(action: {
+                    store.send(.presentComposeSheet)
+                })                
+            }
         }
+        .overlay(store.isShowOverlay ? Color.black.opacity(0.3) : nil)
     }
 }
 
