@@ -7,6 +7,8 @@
 
 import Foundation
 
+import DomainFriend
+import FeatureFriend
 import FeatureGatheringInterface
 
 import ComposableArchitecture
@@ -16,17 +18,24 @@ public struct GroupViewStore {
     @ObservableState
     public struct State: Equatable {
         public init() {}
-        var scheduleList: GatheringListStore.State = .init()        
+        var scheduleList: GatheringListStore.State = .init()
+        var friendList: FriendListStore.State = .init()
+        var currentTab = 0
     }
     
-    public enum Action {
+    public enum Action: BindableAction {
+        case binding(BindingAction<State>)
         case scheduleList(GatheringListStore.Action)
+        case friendList(FriendListStore.Action)
         case presentComposeSheet
     }
     
     public var body: some ReducerOf<Self> {
         Scope(state: \.scheduleList, action: \.scheduleList) {
             GatheringListStore()
+        }
+        Scope(state: \.friendList, action: \.friendList) {
+            FriendListStore()
         }
         
         Reduce { state, action in

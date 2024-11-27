@@ -19,10 +19,23 @@ public struct GatheringListStore {
         self.reducer = reducer
     }
     
+    public enum FilterOption {
+        case allSchedules, hidePastSchedules
+    }
+    
     @ObservableState
     public struct State: Equatable {
         public init() {}
         public var scheduleList: IdentifiedArrayOf<MoimScheduleItem> = []
+        public var filter: FilterOption = .allSchedules
+        public var filteredList: IdentifiedArrayOf<MoimScheduleItem> {
+            switch filter {
+            case .allSchedules:
+                scheduleList
+            case .hidePastSchedules:
+                scheduleList
+            }
+        }
     }
     
     public enum Action {
@@ -30,6 +43,7 @@ public struct GatheringListStore {
         case scheduleCellSelected(meetingScheduleId: Int)
         case presentDetailSheet(MoimSchedule)
         case responseSceduleList(IdentifiedArrayOf<MoimScheduleItem>)
+        case toggleFilterOption
     }
     
     public var body: some ReducerOf<Self> {
