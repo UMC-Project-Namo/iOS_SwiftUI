@@ -14,7 +14,7 @@ import ComposableArchitecture
 public struct FriendInviteView: View {
     @Perception.Bindable var store: StoreOf<FriendInviteStore>
     @State private var showingConfirmAlert = false
-    @State private var showingCancelAlert = false
+    @State private var showingCancelAlert = false    
     
     public init(store: StoreOf<FriendInviteStore>) {
         self.store = store
@@ -24,8 +24,7 @@ public struct FriendInviteView: View {
         WithPerceptionTracking {
             VStack {
                 searchSection
-                ScrollView {
-                    Spacer().frame(height: 24)
+                ScrollView {                    
                     willAddFriendList
                     Spacer().frame(height: 24)
                     addedFriendList
@@ -123,7 +122,7 @@ extension FriendInviteView {
                     }
             }
             
-            if !store.addedFriendList.isEmpty {
+            if store.showingFriendInvites {
                 LazyVStack {
                     Spacer().frame(height: 16)
                     if store.addedFriendList.isEmpty {
@@ -143,7 +142,7 @@ extension FriendInviteView {
     
     private var willAddFriendList: some View {
         VStack(spacing: 0) {
-            if !store.willAddFriendList.isEmpty {
+            if !store.willAddFriendList.isEmpty {            
                 ScrollView(.horizontal) {
                     HStack(spacing: 20) {
                         ForEach(store.willAddFriendList, id: \.memberId) { friend in
