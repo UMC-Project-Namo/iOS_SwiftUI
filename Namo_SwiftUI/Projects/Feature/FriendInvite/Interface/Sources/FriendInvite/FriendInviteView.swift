@@ -159,6 +159,7 @@ extension FriendInviteView {
                     Text("전체 선택 취소")
                         .font(.pretendard(.regular, size: 14))
                         .foregroundStyle(Color.mainText)
+                        .onTapGesture { store.send(.removeAllFriend) }
                     Spacer()
                     Text("\(store.willAddFriendList.count)")
                         .font(.pretendard(.bold, size: 14))

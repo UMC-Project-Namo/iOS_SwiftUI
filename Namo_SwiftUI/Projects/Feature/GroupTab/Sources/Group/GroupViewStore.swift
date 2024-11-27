@@ -16,25 +16,21 @@ public struct GroupViewStore {
     @ObservableState
     public struct State: Equatable {
         public init() {}
-        var scheduleList: GatheringListStore.State = .init()
-        var isShowOverlay = false
+        var scheduleList: GatheringListStore.State = .init()        
     }
     
     public enum Action {
         case scheduleList(GatheringListStore.Action)
         case presentComposeSheet
-        case reloadScheduleList
     }
     
     public var body: some ReducerOf<Self> {
         Scope(state: \.scheduleList, action: \.scheduleList) {
-            GatheringListStore()                
+            GatheringListStore()
         }
         
         Reduce { state, action in
             switch action {
-            case .reloadScheduleList:
-                return .send(.scheduleList(.loadSceduleList))
             default:
                 return .none
             }

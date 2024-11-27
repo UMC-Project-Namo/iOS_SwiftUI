@@ -25,6 +25,7 @@ public enum Screen {
 public struct GroupTabCoordinator {
     public init() {}
     
+    @ObservableState
     public struct State: Equatable {
         public static let initialState = State(
             routes: [.root(.group(.init()), embedInNavigationView: true)]
@@ -32,6 +33,7 @@ public struct GroupTabCoordinator {
         
         var routes: [Route<Screen.State>]
         var group: GroupViewStore.State = .init()
+        var isShowOverlay = false
     }
     
     public enum Action {
@@ -70,14 +72,17 @@ public struct GroupTabCoordinator {
                     friendInvite: friendInvite
                 )
                 
+                state.isShowOverlay = true
                 state.routes.presentCover(.schedule(.init(schedule: rootStore)))
                 return .none
             case .router(.routeAction(_, action: .group(.presentComposeSheet))):
+                state.isShowOverlay = true
                 state.routes.presentCover(.schedule(.init()))
                 return .none
             case .router(.routeAction(_, action: .schedule(.dismissSheet))):
                 return .send(.group(.scheduleList(.loadSceduleList)))
             case .group(.scheduleList(.responseSceduleList)):
+                state.isShowOverlay = false
                 state.routes = [.root(.group(state.group), embedInNavigationView: true)]
                 return .none
             default:

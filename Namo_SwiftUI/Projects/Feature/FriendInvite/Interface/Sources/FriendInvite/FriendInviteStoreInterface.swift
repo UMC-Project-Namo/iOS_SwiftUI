@@ -49,6 +49,7 @@ public struct FriendInviteStore {
         case addFriendConfirmButtonTapped
         case updatedFriendList(FriendInviteStore.State)   
         case removeFriend(memberId: Int)
+        case removeAllFriend
         case loadFriendList
     }
     

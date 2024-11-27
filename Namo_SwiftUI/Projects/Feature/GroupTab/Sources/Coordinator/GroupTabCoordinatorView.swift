@@ -29,6 +29,7 @@ public struct GroupTabCoordinatorView: View {
                     ScheduleCoordinatorView(store: store)
                 }
             }
+            .overlay(store.isShowOverlay ? Color.black.opacity(0.3).ignoresSafeArea(.all) : nil)
         }
     }
 }

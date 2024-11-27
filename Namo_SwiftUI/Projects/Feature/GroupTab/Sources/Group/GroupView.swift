@@ -26,7 +26,6 @@ struct GroupView: View {
                     store.send(.presentComposeSheet)
                 })
             }            
-            .overlay(store.isShowOverlay ? Color.black.opacity(0.3) : nil)
         }
     }
 }
