@@ -53,7 +53,7 @@ extension GatheringListView {
                 .font(.pretendard(.medium, size: 12))
                 .foregroundStyle(Color.textDisabled)
             
-            Image(asset: SharedDesignSystemAsset.Assets.icCheckSelected)
+            Image(asset: store.filter == .allSchedules ? SharedDesignSystemAsset.Assets.icCheck : SharedDesignSystemAsset.Assets.icCheckSelected)
                 .padding(.leading, 8)
                 .onTapGesture {
                     store.send(.toggleFilterOption)
