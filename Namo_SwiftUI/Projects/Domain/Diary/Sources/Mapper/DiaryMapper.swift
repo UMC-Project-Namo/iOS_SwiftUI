@@ -55,3 +55,59 @@ extension DiaryScheduleParticipantDTO {
 		)
 	}
 }
+
+extension DiaryResponseDTO {
+    func toEntity() -> Diary {
+        return Diary(
+            id: diaryId,
+            content: content,
+            enjoyRating: enjoyRating,
+            images: mapAndSortDiaryImages(from: diaryImages)
+        )
+    }
+    
+    func mapAndSortDiaryImages(from responseDTOs: [DiaryImageResponseDTO]) -> [DiaryImage] {
+        return responseDTOs
+            .sorted(by: { $0.orderNumber < $1.orderNumber })
+            .map { DiaryImage(id: $0.diaryImageId, orderNumber: $0.orderNumber, imageUrl: $0.imageUrl) }
+    }
+}
+
+extension Diary {
+    func toPostDTO(scheduleId: Int) -> DiaryPostRequestDTO {
+        return DiaryPostRequestDTO(
+            scheduleId: scheduleId,
+            content: content,
+            enjoyRating: enjoyRating,
+            diaryImages: images.map { $0.toDTO() }
+        )
+    }
+    
+    func toPatchDTO(deleteImages: [Int]) -> DiaryPatchRequestDTO {
+        return DiaryPatchRequestDTO(
+            content: self.content,
+            enjoyRating: self.enjoyRating,
+            diaryImages: self.images.map { $0.toDTO() },
+            deleteImages: deleteImages
+        )
+    }
+}
+
+extension DiaryImageResponseDTO {
+    func toEntity() -> DiaryImage {
+        return DiaryImage(
+            id: diaryImageId,
+            orderNumber: orderNumber,
+            imageUrl: imageUrl
+        )
+    }
+}
+
+extension DiaryImage {
+    func toDTO() -> DiaryImageRequestDTO {
+        return DiaryImageRequestDTO(
+            orderNumber: orderNumber,
+            imageUrl: imageUrl
+        )
+    }
+}

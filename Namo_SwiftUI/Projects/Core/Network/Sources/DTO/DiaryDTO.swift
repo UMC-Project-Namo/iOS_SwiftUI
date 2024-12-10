@@ -3,11 +3,63 @@
 //  Namo_SwiftUI
 //
 //  Created by 서은수 on 3/16/24.
+//  Updated by 박민서 on 11/13/24.
 //
 
 import Foundation
 
-public struct Diary: Decodable {
+public struct DiaryResponseDTO: Decodable {
+    public let diaryId: Int
+    public let content: String
+    public let enjoyRating: Int
+    public let diaryImages: [DiaryImageResponseDTO]
+}
+
+public struct DiaryImageResponseDTO: Decodable {
+    public let orderNumber: Int
+    public let diaryImageId: Int
+    public let imageUrl: String
+}
+
+public struct DiaryPatchRequestDTO: Encodable {
+    public let content: String
+    public let enjoyRating: Int
+    public let diaryImages: [DiaryImageRequestDTO]
+    public let deleteImages: [Int]
+    
+    public init(content: String, enjoyRating: Int, diaryImages: [DiaryImageRequestDTO], deleteImages: [Int]) {
+        self.content = content
+        self.enjoyRating = enjoyRating
+        self.diaryImages = diaryImages
+        self.deleteImages = deleteImages
+    }
+}
+
+public struct DiaryPostRequestDTO: Encodable {
+    public let scheduleId: Int
+    public let content: String
+    public let enjoyRating: Int
+    public let diaryImages: [DiaryImageRequestDTO]
+    
+    public init(scheduleId: Int, content: String, enjoyRating: Int, diaryImages: [DiaryImageRequestDTO]) {
+        self.scheduleId = scheduleId
+        self.content = content
+        self.enjoyRating = enjoyRating
+        self.diaryImages = diaryImages
+    }
+}
+
+public struct DiaryImageRequestDTO: Encodable {
+    public let orderNumber: Int
+    public let imageUrl: String
+    
+    public init(orderNumber: Int, imageUrl: String) {
+        self.orderNumber = orderNumber
+        self.imageUrl = imageUrl
+    }
+}
+
+public struct Diary_Old: Decodable {
 	public var scheduleId: Int
 	public var name: String
 	public var startDate: Int
@@ -45,7 +97,7 @@ public struct GetDiaryRequestDTO: Encodable {
 }
 
 public struct GetDiaryResponseDTO: Decodable {
-	public init(content: [Diary], currentPage: Int, size: Int, first: Bool, last: Bool) {
+	public init(content: [Diary_Old], currentPage: Int, size: Int, first: Bool, last: Bool) {
 		self.content = content
 		self.currentPage = currentPage
 		self.size = size
@@ -53,7 +105,7 @@ public struct GetDiaryResponseDTO: Decodable {
 		self.last = last
 	}
 	
-	public var content: [Diary]
+	public var content: [Diary_Old]
 	public var currentPage: Int
 	public var size: Int
 	public var first: Bool
