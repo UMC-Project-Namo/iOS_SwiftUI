@@ -9,6 +9,32 @@ import Foundation
 import ComposableArchitecture
 import SharedUtil
 
+import Photos
+import UIKit
+
+enum PhotoLibraryError: Error {
+    case unauthorized
+    case unknown(Error?)
+}
+
+func saveImageToPhotoLibrary(_ image: UIImage) async throws {
+    let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+    guard status == .authorized else { throw PhotoLibraryError.unauthorized }
+
+    try await withCheckedThrowingContinuation { continuation in
+        PHPhotoLibrary.shared().performChanges({
+            PHAssetChangeRequest.creationRequestForAsset(from: image)
+        }) { success, error in
+            if success {
+                continuation.resume()
+            } else {
+                continuation.resume(throwing: PhotoLibraryError.unknown(error))
+            }
+        }
+    }
+}
+
+
 @Reducer
 public struct HomeEntireImageStore {
     
@@ -23,6 +49,8 @@ public struct HomeEntireImageStore {
         
         let imgDataList: IdentifiedArrayOf<IdentifiableData>
         var currentPage: Int
+        var curretImgData: IdentifiableData? { imgDataList[currentPage] }
+        
         // 토스트
         var showToast: Bool = false
         var toast: Toast = .none
@@ -32,6 +60,7 @@ public struct HomeEntireImageStore {
         case binding(BindingAction<State>)
         case tapBackButton
         case tapDownloadButton
+        case downloadImage(imgData: Data)
         case pageChanged(page: Int)
         case showToast(Toast)
     }
@@ -49,8 +78,19 @@ public struct HomeEntireImageStore {
                 print("dismiss")
                 return .none
             case .tapDownloadButton:
-                print("download")
-                return .send(.showToast(.saveSuccess))
+                let imgData = state.imgDataList[state.currentPage]
+                return .send(.downloadImage(imgData: imgData.data))
+                
+            case .downloadImage(let imgData):
+                return .run { send in
+                    do {
+                        guard let image = UIImage(data: imgData) else { throw NSError(domain: "imgData convert failed", code: 1) }
+                        try await saveImageToPhotoLibrary(image)
+                        await send(.showToast(.saveSuccess))
+                    } catch {
+                        await send(.showToast(.saveFailed))
+                    }
+                }
                 
             case let .pageChanged(newPage):
                 state.currentPage = newPage

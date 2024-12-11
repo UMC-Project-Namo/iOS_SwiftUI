@@ -43,7 +43,9 @@ private extension HomeEntireImageView {
     func TopBar(totalImgCount: Int, currentImgIndex: Binding<Int>) -> some View {
         HStack {
             // Back button
-            Button(action: {}, label: {
+            Button(action: {
+                store.send(.tapBackButton)
+            }, label: {
                 Image(asset: SharedDesignSystemAsset.Assets.icArrowLeft)
                     .renderingMode(.template)
                     .resizable()
@@ -72,7 +74,9 @@ private extension HomeEntireImageView {
             Spacer()
             
             // Download button
-            Button(action: {}, label: {
+            Button(action: {
+                store.send(.tapDownloadButton)
+            }, label: {
                 Image(asset: SharedDesignSystemAsset.Assets.icDownload)
                     .renderingMode(.template)
                     .resizable()
