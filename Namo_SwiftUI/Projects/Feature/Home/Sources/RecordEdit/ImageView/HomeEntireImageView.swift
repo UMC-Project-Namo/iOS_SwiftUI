@@ -8,18 +8,8 @@
 import SwiftUI
 import ComposableArchitecture
 import SharedDesignSystem
+import SharedUtil
 
-public struct IdentifiableData: Identifiable, Equatable {
-    public let id: UUID
-    public let data: Data
-    
-    public init(id: UUID = UUID(), data: Data) {
-        self.id = id
-        self.data = data
-    }
-}
-
-// MARK: HomeEntireImageView
 public struct HomeEntireImageView: View {
     
     @Perception.Bindable var store: StoreOf<HomeEntireImageStore>
