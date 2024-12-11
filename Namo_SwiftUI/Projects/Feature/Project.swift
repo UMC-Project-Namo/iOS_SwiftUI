@@ -17,11 +17,13 @@ let targets: [Target] = [
 				.feature(implements: .Friend),
 				.feature(implements: .Category),
 				.feature(implements: .Home),
-                .feature(implements: .Moim),
                 .feature(implements: .Onboarding),
-				.feature(implements: .Calendar),
-                .feature(implements: .PlaceSearch),
-				.feature(implements: .Archive)
+				.feature(implements: .Calendar),                
+				.feature(implements: .Archive),
+                .feature(implements: .GroupTab),
+                .feature(implements: .Gathering),
+                .feature(implements: .FriendInvite),
+                .feature(implements: .LocationSearch),
 			]
 		)
 	)

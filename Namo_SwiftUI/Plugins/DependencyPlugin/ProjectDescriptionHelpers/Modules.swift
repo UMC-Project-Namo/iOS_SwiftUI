@@ -30,12 +30,14 @@ public extension ModulePath {
 		case Friend
 		case Category
 		case Home
-        case Moim
         case Onboarding
-		case Calendar
-        case PlaceSearch
+		case Calendar        
 		case Archive
-		
+        case GroupTab
+        case Gathering
+        case FriendInvite
+		case LocationSearch
+        
 		public static let name: String = "Feature"
 	}
 }

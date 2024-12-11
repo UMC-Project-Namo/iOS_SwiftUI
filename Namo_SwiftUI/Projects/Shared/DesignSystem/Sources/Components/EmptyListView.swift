@@ -28,6 +28,7 @@ public struct EmptyListView: View {
 			
 			Spacer()
 		}
+        .frame(maxWidth: .infinity)
 	}
 }
 

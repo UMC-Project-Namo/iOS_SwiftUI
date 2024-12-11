@@ -8,8 +8,12 @@
 @_exported import FeatureFriend
 @_exported import FeatureCategory
 @_exported import FeatureHome
-@_exported import FeatureMoim
 @_exported import FeatureOnboarding
 @_exported import FeatureCalendar
-@_exported import FeaturePlaceSearch
 @_exported import FeatureArchive
+@_exported import FeatureGroupTab
+@_exported import FeatureGathering
+@_exported import FeatureGatheringInterface
+@_exported import FeatureFriendInviteInterface
+@_exported import FeatureLocationSearchInterface
+@_exported import FeatureLocationSearch

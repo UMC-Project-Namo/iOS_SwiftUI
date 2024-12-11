@@ -20,8 +20,8 @@ struct MainTabCoordinator {
     
     enum Action: BindableAction {
         case binding(BindingAction<State>)
-		case home(HomeCoordinator.Action)
-        case moim(MoimCoordinator.Action)
+		case home(HomeCoordinator.Action)  
+        case group(GroupTabCoordinator.Action)
 		
 		case viewOnAppear
 		// 카테고리 리스트 response
@@ -30,12 +30,11 @@ struct MainTabCoordinator {
     
     @ObservableState
     struct State: Equatable {
-        static let intialState = State(currentTab: .home, home: .initialState, moim: .initialState)
+        static let intialState = State(currentTab: .home, home: .initialState, group: .initialState)
         
         var currentTab: Tab
 		var home: HomeCoordinator.State
-        var moim: MoimCoordinator.State
-        
+        var group: GroupTabCoordinator.State
 		
 		@Shared(.inMemory(SharedKeys.categories.rawValue)) var categories: [NamoCategory] = []
     }
@@ -48,8 +47,8 @@ struct MainTabCoordinator {
 		Scope(state: \.home, action: \.home) {
 			HomeCoordinator()
 		}
-        Scope(state: \.moim, action: \.moim) {
-            MoimCoordinator()
+        Scope(state: \.group, action: \.group) {
+            GroupTabCoordinator()
         }
         Reduce { state, action in
             switch action {
@@ -63,7 +62,6 @@ struct MainTabCoordinator {
 						// TODO: 에러 핸들링
 						print(error.localizedDescription)
 					}
-					
 				}
 				
 			case .getAllCategoryResponse(let categories):
