@@ -9,83 +9,17 @@ import SwiftUI
 import ComposableArchitecture
 import SharedDesignSystem
 
-// MARK: Reducer
-@Reducer
-public struct HomeEntireImageStore {
+public struct IdentifiableData: Identifiable, Equatable {
+    public let id: UUID
+    public let data: Data
     
-    public init() {}
-    
-    @ObservableState
-    public struct State: Equatable {
-        public init(imgDataList: [Data], currentPage: Int = 0) {
-            self.imgDataList = imgDataList
-            self.currentPage = currentPage
-        }
-        
-        let imgDataList: [Data]
-        var currentPage: Int
-        // 토스트
-        var showToast: Bool = false
-        var toast: Toast = .none
-    }
-    
-    public enum Action: BindableAction {
-        case binding(BindingAction<State>)
-        case tapBackButton
-        case tapDownloadButton
-        case pageChanged(page: Int)
-        case showToast(Toast)
-    }
-    
-    public var body: some ReducerOf<Self> {
-        BindingReducer()
-        
-        Reduce { state, action in
-            switch action {
-                
-            case .binding:
-                return .none
-            
-            case .tapBackButton:
-                print("dismiss")
-                return .none
-            case .tapDownloadButton:
-                print("download")
-                return .send(.showToast(.saveSuccess))
-                
-            case let .pageChanged(newPage):
-                state.currentPage = newPage
-                return .none
-                
-            case .showToast(let toast):
-                state.toast = toast
-                state.showToast = true
-                return .none
-            }
-        }
+    public init(id: UUID = UUID(), data: Data) {
+        self.id = id
+        self.data = data
     }
 }
 
-extension HomeEntireImageStore {
-    public enum Toast {
-        case saveSuccess
-        case saveFailed
-        case none
-        
-        var content: String {
-            switch self {
-            case .saveSuccess:
-                return "이미지가 저장되었습니다."
-            case .saveFailed:
-                return "이미지 저장에 실패했습니다.\n다시 시도해주세요."
-            case .none:
-                return ""
-            }
-        }
-    }
-}
-
-// MARK: NamoEntireImageView
+// MARK: HomeEntireImageView
 public struct HomeEntireImageView: View {
     
     @Perception.Bindable var store: StoreOf<HomeEntireImageStore>
@@ -97,21 +31,7 @@ public struct HomeEntireImageView: View {
     public var body: some View {
         WithPerceptionTracking {
             ZStack() {
-//                TabView(selection: Binding(
-//                    get: { store.currentPage },
-//                    set: { store.send(.pageChanged($0)) }
-//                )) {
-//                    ForEach(store.imgDataList) { imageData in
-//                        if let uiImage = UIImage(data: imageData.imageData) {
-//                            Image(uiImage: uiImage)
-//                                .resizable()
-//                                .scaledToFit()
-//                                .tag(store.imgDataList.firstIndex(of: imageData) ?? 0)
-//                        }
-//                    }
-//                }
-//                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-//                .ignoresSafeArea(.container, edges: .bottom)
+                ImageCarouselView(store: store)
                 
                 VStack {
                     TopBar(totalImgCount: store.imgDataList.count, currentImgIndex: $store.currentPage)
@@ -146,7 +66,7 @@ private extension HomeEntireImageView {
             
             // Image number
             HStack(spacing: 10) {
-                Text("\(currentImgIndex.wrappedValue)")
+                Text("\(currentImgIndex.wrappedValue + 1)") // 표시는 index + 1
                     .font(.pretendard(.bold, size: 18))
                     .foregroundStyle(.white)
                 
@@ -175,6 +95,27 @@ private extension HomeEntireImageView {
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity)
         .background(Color.colorBlack.opacity(0.5))
+    }
+}
+
+// MARK: ImageCarouselView
+private extension HomeEntireImageView {
+    func ImageCarouselView(store: StoreOf<HomeEntireImageStore>) -> some View {
+        TabView(selection: Binding(
+            get: { store.currentPage },
+            set: { store.send(.pageChanged(page: $0)) }
+        )) {
+            ForEach(store.imgDataList, id: \.id) { imageData in
+                if let uiImage = UIImage(data: imageData.data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .tag(store.imgDataList.firstIndex(of: imageData) ?? 0)
+                }
+            }
+        }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
